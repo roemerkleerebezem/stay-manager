@@ -9,94 +9,50 @@
         </div>
       </div>
     </section>
+    <!-- TABS -->
+    <b-tabs id="sheetTabs" size="is-medium is-boxed" v-model="activeTab" expanded>
+      <b-tab-item label="Reservation">
+        <reservation-tab></reservation-tab>
+      </b-tab-item>
 
-    <!-- FORM -->
-    <section class="section">
-      <div class="container">
-        <!-- FORM TITLE -->
-        <div class="box">
-          <h1 class="title">Formulaire</h1>
-        </div>
+      <b-tab-item label="Restauration" disabled></b-tab-item>
 
-        <!-- CONTACT -->
-        <div class="box">
-          <form-contact :contact="contact" class="form-section"></form-contact>
-        </div>
-        <div class="box">
-          <!-- BOOKING -->
-          <form-booking :booking="booking" class="form-section"></form-booking>
-        </div>
-        <!-- STAY -->
-        <div class="box">
-          <form-stay :stay="stay" class="form-section"></form-stay>
-        </div>
-        <b-button @click="tempClickMe">clickMe</b-button>
-      </div>
-    </section>
+      <b-tab-item label="Frais" disabled></b-tab-item>
+
+      <b-tab-item label="Facture" disabled></b-tab-item>
+    </b-tabs>
   </div>
 </template>
 
 <script>
-import formContact from "./components/form-contact.vue";
-import formBooking from "./components/form-booking.vue";
-import formStay from "./components/form-stay.vue";
-import moment from "moment";
+import reservationTab from "./tabs/reservation-tab.vue";
 
 export default {
   components: {
-    formContact,
-    formBooking,
-    formStay
+    reservationTab
   },
   data() {
     return {
-      contact: {
-        email: null,
-        name: null,
-        phone: null,
-        nationality: null
-      },
-      booking: {
-        source: null,
-        date: null
-      },
-      stay: {
-        arrivalDatetime: moment()
-          .hour(17)
-          .minute(0)
-          .toDate(),
-        departureDatetime: moment()
-          .hour(14)
-          .minute(0)
-          .toDate(),
-        baseGuests: 10,
-        stayNightArray: [],
-        children: null,
-        guestInfo: null,
-        pets: null
-      }
+      activeTab: 0
     };
   },
   computed: {},
   watch: {},
 
-  methods: {
-    tempClickMe: function() {
-      console.log(this.stay.stayNightArray);
-    }
-  }
+  methods: {}
 };
 </script>
 
-<style>
+<style lang=scss>
+@import "@/scss/_mystyles.scss";
+
 section {
-  background-color: #e8e8e8;
+  background-color: $light;
 }
 .hero {
-  background-color: #292929;
+  background-color: $dark;
 }
 .control {
   max-width: 15em;
 }
 </style>
-

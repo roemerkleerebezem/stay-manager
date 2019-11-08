@@ -157,5 +157,6 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang=scss>
+@import "@/scss/_mystyles.scss";
 </style>
