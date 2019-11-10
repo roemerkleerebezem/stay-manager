@@ -21,7 +21,9 @@
 
       <b-tab-item label="Frais" disabled></b-tab-item>
 
-      <b-tab-item label="Facture" disabled></b-tab-item>
+      <b-tab-item label="Facture">
+        <invoice-tab></invoice-tab>
+      </b-tab-item>
     </b-tabs>
   </div>
 </template>
@@ -29,11 +31,13 @@
 <script>
 import reservationTab from "./tabs/reservation-tab.vue";
 import cateringTab from "./tabs/catering-tab.vue";
+import invoiceTab from "./tabs/invoice-tab.vue";
 
 export default {
   components: {
     reservationTab,
-    cateringTab
+    cateringTab,
+    invoiceTab
   },
   data() {
     return {
@@ -57,7 +61,7 @@ section {
   background-color: $dark;
 }
 .control {
-  max-width: 15em;
+  max-width: 15rem;
 }
 
 .debug {
