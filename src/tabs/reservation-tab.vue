@@ -4,7 +4,7 @@
     <div class="container">
       <!-- FORM TITLE -->
       <div class="box">
-        <h1 class="title">Reservation</h1>
+        <h3 class="title is-3">Reservation</h3>
       </div>
 
       <!-- CONTACT -->

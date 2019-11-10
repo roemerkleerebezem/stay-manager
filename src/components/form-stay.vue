@@ -69,19 +69,17 @@
       </div>
       <div class="card-content">
         <div class="content">
-          <ul>
-            <li v-for="night in stay.stayNightArray" :key="night.id">
-              <b-field grouped>
-                <b-field
-                  style="width:100%;"
-                  :label="editNightContentTextFormat(night.date)"
-                  type="has-text-grey"
-                >
-                  <b-numberinput v-model="night.guests" min="10" controlsPosition="compact"></b-numberinput>
-                </b-field>
+          <div v-for="night in stay.stayNightArray" :key="night.id">
+            <b-field grouped>
+              <b-field
+                style="width:100%;"
+                :label="editNightContentTextFormat(night.date)"
+                type="has-text-grey"
+              >
+                <b-numberinput v-model="night.guests" min="10" controlsPosition="compact"></b-numberinput>
               </b-field>
-            </li>
-          </ul>
+            </b-field>
+          </div>
         </div>
       </div>
     </b-collapse>
@@ -125,9 +123,6 @@ export default {
     },
     editNightContentTextFormat: function(date) {
       return moment.unix(date).format("dddd D");
-    },
-    datetimepickerValidate: function() {
-      console.log(this.$refs.dropdown);
     }
   },
   watch: {
