@@ -9,15 +9,15 @@
 
       <!-- CONTACT -->
       <div class="box">
-        <form-contact :contact="contact" class="form-section"></form-contact>
+        <form-contact class="form-section"></form-contact>
       </div>
       <div class="box">
         <!-- BOOKING -->
-        <form-booking :booking="booking" class="form-section"></form-booking>
+        <form-booking class="form-section"></form-booking>
       </div>
       <!-- STAY -->
       <div class="box">
-        <form-stay :stay="stay" class="form-section"></form-stay>
+        <form-stay class="form-section"></form-stay>
       </div>
     </div>
   </section>
@@ -27,7 +27,6 @@
 import formContact from "../components/form-contact.vue";
 import formBooking from "../components/form-booking.vue";
 import formStay from "../components/form-stay.vue";
-import moment from "moment";
 
 export default {
   components: {
@@ -36,35 +35,19 @@ export default {
     formStay
   },
   data() {
-    return {
-      contact: {
-        email: null,
-        name: null,
-        phone: null,
-        nationality: null
-      },
-      booking: {
-        source: null,
-        date: null
-      },
-      stay: {
-        arrivalDatetime: moment()
-          .hour(17)
-          .minute(0)
-          .toDate(),
-        departureDatetime: moment()
-          .hour(14)
-          .minute(0)
-          .toDate(),
-        baseGuests: 10,
-        stayNightArray: [],
-        children: null,
-        guestInfo: null,
-        pets: null
-      }
-    };
+    return {};
   },
-  computed: {},
+  computed: {
+    stay: function() {
+      return this.$store.state.stay;
+    },
+    booking: function() {
+      return this.$store.state.booking;
+    },
+    contact: function() {
+      return this.$store.state.contact;
+    }
+  },
   watch: {},
 
   methods: {}

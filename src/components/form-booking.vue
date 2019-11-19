@@ -29,13 +29,11 @@
 
 <script>
 export default {
-  props: {
-    booking: {
-      type: Object
-    }
-  },
+  props: {},
   data() {
-    return {};
+    return {
+      booking: this.$store.state.booking
+    };
   },
   computed: {},
   methods: {}

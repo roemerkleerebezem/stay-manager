@@ -124,7 +124,7 @@ export default {
   components: {},
   data() {
     return {
-      meals: []
+      meals: this.$store.state.meals
     };
   },
   computed: {},

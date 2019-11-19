@@ -25,6 +25,15 @@
         <invoice-tab></invoice-tab>
       </b-tab-item>
     </b-tabs>
+
+    <div>
+      <b-button @click="tempFunction">Click</b-button>
+      <p>Payload</p>
+      <pre>stay : {{ this.$store.state.stay }}</pre>
+      <pre>booking : {{ this.$store.state.booking }}</pre>
+      <pre>contact : {{ this.$store.state.contact }}</pre>
+      <pre>meals : {{ this.$store.state.meals }}</pre>
+    </div>
   </div>
 </template>
 
@@ -32,6 +41,10 @@
 import reservationTab from "./tabs/reservation-tab.vue";
 import cateringTab from "./tabs/catering-tab.vue";
 import invoiceTab from "./tabs/invoice-tab.vue";
+
+import axios from "axios"
+
+console.log(axios)
 
 export default {
   components: {
@@ -47,7 +60,12 @@ export default {
   computed: {},
   watch: {},
 
-  methods: {}
+  methods: {
+    tempFunction: function() {
+      this.$store.state.tempBool = "OK";
+      console.log(this.$store.state.booking);
+    }
+  }
 };
 </script>
 

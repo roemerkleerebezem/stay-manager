@@ -90,9 +90,10 @@
 import moment from "moment";
 
 export default {
-  props: ["stay"],
   data() {
-    return {};
+    return {
+      stay: this.$store.state.stay
+    };
   },
   computed: {
     computedStay: function() {
