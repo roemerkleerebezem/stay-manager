@@ -7,14 +7,16 @@
         <h3 class="title is-3">Reservation</h3>
       </div>
 
+      <!-- BOOKING -->
+      <div class="box">
+        <form-booking class="form-section"></form-booking>
+      </div>
+
       <!-- CONTACT -->
       <div class="box">
         <form-contact class="form-section"></form-contact>
       </div>
-      <div class="box">
-        <!-- BOOKING -->
-        <form-booking class="form-section"></form-booking>
-      </div>
+
       <!-- STAY -->
       <div class="box">
         <form-stay class="form-section"></form-stay>

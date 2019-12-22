@@ -1,21 +1,212 @@
 <template>
   <!-- FORM -->
-  <section class="section">
+  <section class="section" style="height:100%">
     <div class="container">
-      <!-- FORM TITLE -->
       <div class="box">
+        <!-- FORM TITLE -->
         <h3 class="title is-3">Facture</h3>
+        <!-- DEPOSITS -->
+        <label class="label">Caution</label>
+
+        <!-- DEPOSIT LIST -->
+        <div
+          class="container"
+          style="margin-bottom:1rem;"
+          v-for="deposit in booking.deposits"
+          :key="deposit.id"
+        >
+          <article class="message is-light">
+            <div class="message-header">
+              <p>
+                <b-icon
+                  style="margin-right:0.5ch;display: inline-table;"
+                  pack="fas"
+                  :icon="getDepositIcon(deposit.type)"
+                  size="is-medium"
+                  type="is-grey"
+                ></b-icon>
+                <span class="has-text-grey">{{ deposit.type }} -</span>
+                {{ deposit.amount }} euros
+              </p>
+              <span
+                :class="
+                  'tag is-medium ' +
+                    (deposit.status === 'pending' ? 'is-warning' : 'is-success')
+                "
+              >
+                {{
+                  deposit.dateReceived === null
+                    ? ""
+                    : deposit.dateReceived.substring(0, 10) + ", "
+                }}
+                {{ deposit.status }}
+              </span>
+              <button
+                @click="$delete(booking.deposits, deposit.id)"
+                class="delete"
+              ></button>
+            </div>
+          </article>
+        </div>
+
+        <!-- ADD DEPOSIT -->
+        <div class="container">
+          <b-field grouped group-multiline>
+            <b-field label="Statut" label-position="on-border">
+              <b-select
+                v-model="tempDeposit.status"
+                placeholder="Select a status"
+              >
+                <option value="pending">En attente</option>
+                <option value="received">Recu</option>
+                <option value="returned">Rendu</option>
+              </b-select>
+            </b-field>
+            <b-field label="Montant" label-position="on-border">
+              <b-input v-model="tempDeposit.amount"></b-input>
+            </b-field>
+            <b-field label="Date reception" label-position="on-border">
+              <b-datepicker
+                icon-pack="fas"
+                v-model="tempDeposit.dateReceived"
+                placeholder="Date de reception"
+              ></b-datepicker>
+            </b-field>
+            <b-field label="Type" label-position="on-border">
+              <b-select v-model="tempDeposit.type" placeholder="Select a type">
+                <option value="cheque">Cheque</option>
+                <option value="transfer">Virement</option>
+                <option value="cash">Liquide</option>
+              </b-select>
+            </b-field>
+            <b-button type="is-primary" @click="addDeposit()">Ajouter</b-button>
+          </b-field>
+
+          <hr />
+
+          <!-- EXTRA TRANSACTIONS -->
+          <label class="label">Transactions supplémentaires</label>
+
+          <!-- TRANSACTION LIST -->
+          <div
+            class="container"
+            style="margin-bottom:1rem;"
+            v-for="cost in booking.costs"
+            :key="cost.id"
+          >
+            <article class="message is-light">
+              <div class="message-header">
+                <p>
+                  <b-icon
+                    style="margin-right:0.5ch;display: inline-table;"
+                    pack="fas"
+                    :icon="cost.type === 'payment' ? 'arrow-up' : 'arrow-down'"
+                    size="is-medium"
+                    type="is-grey"
+                  ></b-icon>
+                  {{ cost.label }}
+                  <span class="has-text-grey"
+                    >{{ cost.units }} x {{ cost.unitPrice }} €</span
+                  >
+                </p>
+                <span
+                  :class="
+                    'tag ' +
+                      (cost.type === 'payment' ? 'is-success' : 'is-danger')
+                  "
+                >
+                  {{ cost.type === "payment" ? "+" : "-" }}
+                  {{ cost.totalPrice }} €
+                </span>
+
+                <button
+                  @click="$delete(booking.costs, cost.id)"
+                  class="delete"
+                ></button>
+              </div>
+            </article>
+          </div>
+
+          <!-- ADD TRANSACTION -->
+          <div class="container">
+            <b-field grouped group-multiline>
+              <b-field label="Type" label-position="on-border">
+                <b-select v-model="tempCost.type" placeholder="Type">
+                  <option value="payment">Paiement</option>
+                  <option value="cost">Coût</option>
+                </b-select>
+              </b-field>
+              <b-field label="Label" label-position="on-border">
+                <b-input v-model="tempCost.label"></b-input>
+              </b-field>
+              <b-field label="Unités" label-position="on-border">
+                <b-input v-model="tempCost.units"></b-input>
+              </b-field>
+              <b-field label="Prix unitaire" label-position="on-border">
+                <b-input v-model="tempCost.unitPrice"></b-input>
+              </b-field>
+              <b-field label="Total" label-position="on-border">
+                <b-numberinput
+                  :controls="false"
+                  step="0.01"
+                  v-model="tempCost.totalPrice"
+                ></b-numberinput>
+              </b-field>
+              <b-button type="is-primary" @click="addCost()">Ajouter</b-button>
+            </b-field>
+          </div>
+
+          <hr />
+
+          <!-- OPEN MODAL -->
+          <b-button type="is-primary" @click="isComponentModalActive = true"
+            >Open Modal</b-button
+          >
+
+          <b-button type="is-primary" @click="printInvoice()"
+            >Print Invoice</b-button
+          >
+
+          <b-modal
+            :active.sync="isComponentModalActive"
+            trap-focus
+            width="90%"
+            style="height:100%;"
+          >
+            <htmlinvoice></htmlinvoice>
+          </b-modal>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script>
+import Vue from "vue";
+import htmlinvoice from "../htmlinvoice.vue";
+
 export default {
-  components: {},
+  components: { htmlinvoice },
+
   data() {
     return {
-      meals: []
+      isComponentModalActive: false,
+      booking: this.$store.state.booking,
+      tempDeposit: {
+        id: null,
+        status: null,
+        type: null,
+        amount: null,
+        dateReceived: null
+      },
+      tempCost: {
+        id: null,
+        type: null,
+        label: null,
+        units: null,
+        unitPrice: null,
+        totalPrice: null
+      }
     };
   },
   computed: {},
@@ -28,123 +219,69 @@ export default {
         arr.push(parseInt(obj));
       }
       return Math.max(-1, ...arr) + 1;
+    },
+    openModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: htmlInvoice,
+        hasModalCard: false
+      });
+    },
+    addDeposit: function() {
+      var tempDeposit = this.tempDeposit;
+      var tempDeposits = this.booking.deposits;
+      tempDeposit.id = this.getId(tempDeposits);
+      tempDeposits.push(tempDeposit);
+
+      Vue.set(
+        this.booking,
+        "deposits",
+        JSON.parse(JSON.stringify(tempDeposits))
+      );
+      this.tempDeposit = {
+        id: null,
+        status: null,
+        type: null,
+        amount: null,
+        dateReceived: null
+      };
+    },
+
+    printInvoice() {
+      var printWindow = window.open("./htmlinvoice");
+      printWindow.focus();
+      printWindow.print();
+    },
+
+    addCost: function() {
+      var tempCost = this.tempCost;
+      var tempCosts = this.booking.costs;
+      tempCost.id = this.getId(tempCosts);
+      tempCosts.push(tempCost);
+
+      Vue.set(this.booking, "costs", JSON.parse(JSON.stringify(tempCosts)));
+      this.tempCost = {
+        id: null,
+        type: null,
+        label: null,
+        units: null,
+        unitPrice: null,
+        totalPrice: null
+      };
+    },
+    getDepositIcon: function(depositType) {
+      if (depositType === "cheque") {
+        return "money-check-alt";
+      } else if (depositType === "cash") {
+        return "money-bill-wave";
+      } else if (depositType === "transfer") {
+        return "exchange-alt";
+      } else {
+        return "money-check-alt";
+      }
     }
   }
 };
 </script>
 
-<style scoped>
-@page {
-  margin: 0;
-}
-body {
-  margin: 0;
-}
-.sheet {
-  margin: 0;
-  overflow: hidden;
-  position: relative;
-  box-sizing: border-box;
-  page-break-after: always;
-}
-
-/** Paper sizes **/
-body.A3 .sheet {
-  width: 297mm;
-  height: 419mm;
-}
-body.A3.landscape .sheet {
-  width: 420mm;
-  height: 296mm;
-}
-body.A4 .sheet {
-  width: 210mm;
-  height: 296mm;
-}
-body.A4.landscape .sheet {
-  width: 297mm;
-  height: 209mm;
-}
-body.A5 .sheet {
-  width: 148mm;
-  height: 209mm;
-}
-body.A5.landscape .sheet {
-  width: 210mm;
-  height: 147mm;
-}
-body.letter .sheet {
-  width: 216mm;
-  height: 279mm;
-}
-body.letter.landscape .sheet {
-  width: 280mm;
-  height: 215mm;
-}
-body.legal .sheet {
-  width: 216mm;
-  height: 356mm;
-}
-body.legal.landscape .sheet {
-  width: 357mm;
-  height: 215mm;
-}
-
-/** Padding area **/
-.sheet.padding-10mm {
-  padding: 10mm;
-}
-.sheet.padding-15mm {
-  padding: 15mm;
-}
-.sheet.padding-20mm {
-  padding: 20mm;
-}
-.sheet.padding-25mm {
-  padding: 25mm;
-}
-
-/** For screen preview **/
-@media screen {
-  body {
-    background: #e0e0e0;
-  }
-  .sheet {
-    background: white;
-    box-shadow: 0 0.5mm 2mm rgba(0, 0, 0, 0.3);
-    margin: 5mm auto;
-  }
-}
-
-/** Fix for Chrome issue #273306 **/
-@media print {
-  body.A3.landscape {
-    width: 420mm;
-  }
-  body.A3,
-  body.A4.landscape {
-    width: 297mm;
-  }
-  body.A4,
-  body.A5.landscape {
-    width: 210mm;
-  }
-  body.A5 {
-    width: 148mm;
-  }
-  body.letter,
-  body.legal {
-    width: 216mm;
-  }
-  body.letter.landscape {
-    width: 280mm;
-  }
-  body.legal.landscape {
-    width: 357mm;
-  }
-}
-
-@page {
-  size: A4;
-}
-</style>
+<style scoped></style>

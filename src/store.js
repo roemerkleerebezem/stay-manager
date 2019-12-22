@@ -8,14 +8,17 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     contact: {
-      email: null,
-      name: null,
-      phone: null,
+      email: "",
+      name: "",
+      phone: "",
       nationality: null
     },
     booking: {
+      status: null,
       source: null,
-      date: null
+      date: null,
+      deposits: [],
+      costs: []
     },
     stay: {
       arrivalDatetime: moment()
@@ -28,11 +31,25 @@ export default new Vuex.Store({
         .toDate(),
       baseGuests: 10,
       stayNightArray: [],
-      children: null,
-      guestInfo: null,
-      pets: null
+      children: 0,
+      guestInfo: "",
+      pets: 0
     },
-    meals: []
+    meals: [],
+    prices: {
+      villaNight: 100,
+      stayNight: 35,
+      petNight: 5,
+      taxeSejourNight: 1,
+      extraHour: 20
+    },
+    discountPerNight: {
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0.1,
+      4: 0.15
+    }
   },
   mutations: {},
   actions: {}
