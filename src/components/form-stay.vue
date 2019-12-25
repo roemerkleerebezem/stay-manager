@@ -5,16 +5,20 @@
     <!-- ARRIVAL -->
     <b-field label="Check-in" label-position="on-border">
       <b-datetimepicker
+        icon-pack="fas"
         v-model="stay.arrivalDatetime"
         ref="arrivalDatetimePicker"
         placeholder="Check-in"
-        :timepicker="{incrementMinutes:15}"
+        :timepicker="{ incrementMinutes: 15 }"
         :datetime-formatter="humanFormatDatetime"
         :mobile-native="false"
       >
         <template slot="right">
-          <button class="button is-success" @click="$refs.arrivalDatetimePicker.toggle()">
-            <b-icon icon="check"></b-icon>
+          <button
+            class="button is-success"
+            @click="$refs.arrivalDatetimePicker.toggle()"
+          >
+            <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
         </template>
@@ -23,16 +27,20 @@
     <!-- DEPARTURE -->
     <b-field label="Check-out" label-position="on-border">
       <b-datetimepicker
+        icon-pack="fas"
         v-model="stay.departureDatetime"
         ref="departureDatetimePicker"
         placeholder="Check-out"
-        :timepicker="{incrementMinutes:15}"
+        :timepicker="{ incrementMinutes: 15 }"
         :datetime-formatter="humanFormatDatetime"
         :mobile-native="false"
       >
         <template slot="right">
-          <button class="button is-success" @click="$refs.departureDatetimePicker.toggle()">
-            <b-icon icon="check"></b-icon>
+          <button
+            class="button is-success"
+            @click="$refs.departureDatetimePicker.toggle()"
+          >
+            <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
         </template>
@@ -40,18 +48,37 @@
     </b-field>
 
     <!-- GUESTS -->
-    <b-field label="Invités payants" label-position="on-border" message="2 ans et plus">
-      <b-numberinput v-model="stay.baseGuests" min="10" controlsPosition="compact"></b-numberinput>
+    <b-field
+      label="Invités payants"
+      label-position="on-border"
+      message="2 ans et plus"
+    >
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.baseGuests"
+        min="10"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- CHILDREN -->
     <b-field label="Enfants" label-position="on-border">
-      <b-numberinput v-model="stay.children" min="0" controlsPosition="compact"></b-numberinput>
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.children"
+        min="0"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- PETS -->
     <b-field label="Animaux de compagnie" label-position="on-border">
-      <b-numberinput v-model="stay.pets" min="0" controlsPosition="compact"></b-numberinput>
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.pets"
+        min="0"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- GUEST INFO -->
@@ -61,10 +88,17 @@
 
     <!-- GUEST DETAILED CONTROLS -->
     <b-collapse :open="false" class="card" aria-id="editNightContent">
-      <div slot="trigger" class="card-header" role="button" aria-controls="editNightContent">
-        <p class="card-header-title">{{ this.stay.stayNightArray.length }} nights</p>
+      <div
+        slot="trigger"
+        class="card-header"
+        role="button"
+        aria-controls="editNightContent"
+      >
+        <p class="card-header-title">
+          {{ this.stay.stayNightArray.length }} nights
+        </p>
         <a class="card-header-icon">
-          <b-icon type="is-dark" icon="caret-down"></b-icon>
+          <b-icon pack="fas" icon="caret-down"></b-icon>
         </a>
       </div>
       <div class="card-content">
@@ -76,7 +110,12 @@
                 :label="editNightContentTextFormat(night.date)"
                 type="has-text-grey"
               >
-                <b-numberinput v-model="night.guests" min="10" controlsPosition="compact"></b-numberinput>
+                <b-numberinput
+                  icon-pack="fas"
+                  v-model="night.guests"
+                  min="10"
+                  controlsPosition="compact"
+                ></b-numberinput>
               </b-field>
             </b-field>
           </div>
@@ -90,9 +129,10 @@
 import moment from "moment";
 
 export default {
-  props: ["stay"],
   data() {
-    return {};
+    return {
+      stay: this.$store.state.stay
+    };
   },
   computed: {
     computedStay: function() {
@@ -152,6 +192,6 @@ export default {
 };
 </script>
 
-<style lang=scss>
+<style lang="scss">
 @import "@/scss/_mystyles.scss";
 </style>

@@ -28,9 +28,10 @@
 
 <script>
 export default {
-  props: ["contact"],
   data() {
-    return {};
+    return {
+      contact: this.$store.state.contact
+    };
   },
   computed: {}
 };
