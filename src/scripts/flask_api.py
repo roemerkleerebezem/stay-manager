@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 from tinydb import TinyDB, Query
 
-db = TinyDB("./mdm-stay-manager-db.json")
+db = TinyDB("./database/mdm-stay-manager-db.json")
 
 import uuid
 
