@@ -148,6 +148,8 @@
               <b-field label="Total" label-position="on-border">
                 <b-numberinput
                   :controls="false"
+                  icon-pack="fas"
+                  controls-position="compact"
                   step="0.01"
                   v-model="tempCost.totalPrice"
                 ></b-numberinput>

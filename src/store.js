@@ -18,7 +18,8 @@ export default new Vuex.Store({
       source: null,
       date: null,
       deposits: [],
-      costs: []
+      costs: [],
+      uuid: null
     },
     stay: {
       arrivalDatetime: moment()
@@ -51,6 +52,10 @@ export default new Vuex.Store({
       4: 0.15
     }
   },
-  mutations: {},
+  mutations: {
+    addUUID(state, uuid) {
+      state.booking.uuid = uuid;
+    }
+  },
   actions: {}
 });
