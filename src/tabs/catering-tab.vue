@@ -20,11 +20,7 @@
         </div>
         <div class="card-content">
           <b-field label="Date" label-position="on-border">
-            <b-datepicker
-              icon-pack="fas"
-              v-model="meal.date"
-              placeholder="Date du repas"
-            ></b-datepicker>
+            <b-datepicker icon-pack="fas" v-model="meal.date" placeholder="Date du repas"></b-datepicker>
           </b-field>
           <!-- GUESTS -->
           <b-field grouped group-multiline>
@@ -77,9 +73,7 @@
           <!-- COSTS -->
           <div class="card meal-card" v-for="cost in meal.costs" :key="cost.id">
             <div class="card-header">
-              <p class="card-header-title">
-                {{ cost.name }} : {{ cost.totalPrice }} euros
-              </p>
+              <p class="card-header-title">{{ cost.name }} : {{ cost.totalPrice }} euros</p>
               <b-button
                 icon-pack="fas"
                 @click="$delete(meal.costs, cost.id)"
@@ -88,10 +82,7 @@
               ></b-button>
             </div>
             <div class="card-content">
-              <div
-                v-for="(value, propertyName) in cost"
-                v-bind:key="propertyName"
-              >
+              <div v-for="(value, propertyName) in cost" v-bind:key="propertyName">
                 <span class="tag is-dark is-small">{{ propertyName }}</span>
                 <pre>{{ value }}</pre>
               </div>
@@ -100,10 +91,7 @@
 
           <b-field grouped group-multiline>
             <b-field label="Type">
-              <b-select
-                v-model="meal.tempCost.type"
-                placeholder="Select a type"
-              >
+              <b-select v-model="meal.tempCost.type" placeholder="Select a type">
                 <option value="caterer">Restaurateur</option>
                 <option value="groceries">Courses</option>
               </b-select>
@@ -121,18 +109,10 @@
               <b-input v-model="meal.tempCost.totalPrice"></b-input>
             </b-field>
           </b-field>
-          <b-field
-            label="Informations supplémentaires"
-            label-position="on-border"
-          >
-            <b-input
-              v-model="meal.tempCost.information"
-              type="textarea"
-            ></b-input>
+          <b-field label="Informations supplémentaires" label-position="on-border">
+            <b-input v-model="meal.tempCost.information" type="textarea"></b-input>
           </b-field>
-          <b-button type="is-primary" @click="addCost(meal.id)"
-            >Ajouter</b-button
-          >
+          <b-button type="is-primary" @click="addCost(meal.id)">Ajouter</b-button>
         </div>
       </div>
 
@@ -145,15 +125,9 @@
               <b-icon pack="fas" icon="plus" size="is-medium"></b-icon>
             </button>
 
-            <b-dropdown-item aria-role="listitem" @click="addMeal('breakfast')"
-              >Petit-dejeuner</b-dropdown-item
-            >
-            <b-dropdown-item aria-role="listitem" @click="addMeal('lunch')"
-              >Déjeuner</b-dropdown-item
-            >
-            <b-dropdown-item aria-role="listitem" @click="addMeal('dinner')"
-              >Dîner</b-dropdown-item
-            >
+            <b-dropdown-item aria-role="listitem" @click="addMeal('breakfast')">Petit-dejeuner</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem" @click="addMeal('lunch')">Déjeuner</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem" @click="addMeal('dinner')">Dîner</b-dropdown-item>
           </b-dropdown>
         </h5>
       </div>

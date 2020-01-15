@@ -14,10 +14,7 @@
         :mobile-native="false"
       >
         <template slot="right">
-          <button
-            class="button is-success"
-            @click="$refs.arrivalDatetimePicker.toggle()"
-          >
+          <button class="button is-success" @click="$refs.arrivalDatetimePicker.toggle()">
             <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
@@ -36,10 +33,7 @@
         :mobile-native="false"
       >
         <template slot="right">
-          <button
-            class="button is-success"
-            @click="$refs.departureDatetimePicker.toggle()"
-          >
+          <button class="button is-success" @click="$refs.departureDatetimePicker.toggle()">
             <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
@@ -48,37 +42,18 @@
     </b-field>
 
     <!-- GUESTS -->
-    <b-field
-      label="Invités payants"
-      label-position="on-border"
-      message="2 ans et plus"
-    >
-      <b-numberinput
-        icon-pack="fas"
-        v-model="stay.baseGuests"
-        min="10"
-        controlsPosition="compact"
-      ></b-numberinput>
+    <b-field label="Invités payants" label-position="on-border" message="2 ans et plus">
+      <b-numberinput icon-pack="fas" v-model="stay.baseGuests" min="10" controlsPosition="compact"></b-numberinput>
     </b-field>
 
     <!-- CHILDREN -->
     <b-field label="Enfants" label-position="on-border">
-      <b-numberinput
-        icon-pack="fas"
-        v-model="stay.children"
-        min="0"
-        controlsPosition="compact"
-      ></b-numberinput>
+      <b-numberinput icon-pack="fas" v-model="stay.children" min="0" controlsPosition="compact"></b-numberinput>
     </b-field>
 
     <!-- PETS -->
     <b-field label="Animaux de compagnie" label-position="on-border">
-      <b-numberinput
-        icon-pack="fas"
-        v-model="stay.pets"
-        min="0"
-        controlsPosition="compact"
-      ></b-numberinput>
+      <b-numberinput icon-pack="fas" v-model="stay.pets" min="0" controlsPosition="compact"></b-numberinput>
     </b-field>
 
     <!-- GUEST INFO -->
@@ -88,15 +63,8 @@
 
     <!-- GUEST DETAILED CONTROLS -->
     <b-collapse :open="false" class="card" aria-id="editNightContent">
-      <div
-        slot="trigger"
-        class="card-header"
-        role="button"
-        aria-controls="editNightContent"
-      >
-        <p class="card-header-title">
-          {{ this.stay.stayNightArray.length }} nights
-        </p>
+      <div slot="trigger" class="card-header" role="button" aria-controls="editNightContent">
+        <p class="card-header-title">{{ this.stay.stayNightArray.length }} nights</p>
         <a class="card-header-icon">
           <b-icon pack="fas" icon="caret-down"></b-icon>
         </a>

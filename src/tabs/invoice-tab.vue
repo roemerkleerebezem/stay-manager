@@ -35,16 +35,13 @@
                 "
               >
                 {{
-                  deposit.dateReceived === null
-                    ? ""
-                    : deposit.dateReceived.substring(0, 10) + ", "
+                deposit.dateReceived === null
+                ? ""
+                : deposit.dateReceived.substring(0, 10) + ", "
                 }}
                 {{ deposit.status }}
               </span>
-              <button
-                @click="$delete(booking.deposits, deposit.id)"
-                class="delete"
-              ></button>
+              <button @click="$delete(booking.deposits, deposit.id)" class="delete"></button>
             </div>
           </article>
         </div>
@@ -53,10 +50,7 @@
         <div class="container">
           <b-field grouped group-multiline>
             <b-field label="Statut" label-position="on-border">
-              <b-select
-                v-model="tempDeposit.status"
-                placeholder="Select a status"
-              >
+              <b-select v-model="tempDeposit.status" placeholder="Select a status">
                 <option value="pending">En attente</option>
                 <option value="received">Recu</option>
                 <option value="returned">Rendu</option>
@@ -105,9 +99,9 @@
                     type="is-grey"
                   ></b-icon>
                   {{ cost.label }}
-                  <span class="has-text-grey"
-                    >{{ cost.units }} x {{ cost.unitPrice }} €</span
-                  >
+                  <span
+                    class="has-text-grey"
+                  >{{ cost.units }} x {{ cost.unitPrice }} €</span>
                 </p>
                 <span
                   :class="
@@ -119,10 +113,7 @@
                   {{ cost.totalPrice }} €
                 </span>
 
-                <button
-                  @click="$delete(booking.costs, cost.id)"
-                  class="delete"
-                ></button>
+                <button @click="$delete(booking.costs, cost.id)" class="delete"></button>
               </div>
             </article>
           </div>
@@ -161,13 +152,9 @@
           <hr />
 
           <!-- OPEN MODAL -->
-          <b-button type="is-primary" @click="isComponentModalActive = true"
-            >Open Modal</b-button
-          >
+          <b-button type="is-primary" @click="isComponentModalActive = true">Open Modal</b-button>
 
-          <b-button type="is-primary" @click="printInvoice()"
-            >Print Invoice</b-button
-          >
+          <b-button type="is-primary" @click="printInvoice()">Print Invoice</b-button>
 
           <b-modal
             :active.sync="isComponentModalActive"
@@ -185,7 +172,7 @@
 
 <script>
 import Vue from "vue";
-import htmlinvoice from "../htmlinvoice.vue";
+import htmlinvoice from "@/htmlinvoice.vue";
 
 export default {
   components: { htmlinvoice },
@@ -250,7 +237,7 @@ export default {
     },
 
     printInvoice() {
-      var printWindow = window.open("./htmlinvoice");
+      var printWindow = window.open("/htmlinvoice");
       printWindow.focus();
       printWindow.print();
     },

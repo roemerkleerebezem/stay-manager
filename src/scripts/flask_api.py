@@ -35,6 +35,8 @@ def handleInvoiceData(request_json):
             bookingUuid = data["booking"]['uuid']
             storedBooking = db.search(Query().booking.uuid == bookingUuid)
             if len(storedBooking) == 1:
+                if action == "retrieve":
+                    data = storedBooking[0]
                 if storedBooking[0] != data:
                     synced = False
                 else:

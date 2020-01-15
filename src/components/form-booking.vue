@@ -9,11 +9,7 @@
       label="Statut"
       label-position="on-border"
     >
-      <b-select
-        v-model="booking.status"
-        size="is-medium"
-        placeholder="Select a type"
-      >
+      <b-select v-model="booking.status" size="is-medium" placeholder="Select a type">
         <option value="inquiry">Demande</option>
         <option value="contract">Contrat</option>
         <option value="completed">Achevé</option>
@@ -38,10 +34,7 @@
         placeholder="Date de réservation"
         ref="bookingDatePicker"
       >
-        <button
-          class="button is-success"
-          @click="$refs.bookingDatePicker.toggle()"
-        >
+        <button class="button is-success" @click="$refs.bookingDatePicker.toggle()">
           <b-icon pack="fas" icon="check"></b-icon>
           <span>Valider</span>
         </button>
@@ -51,6 +44,8 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   props: {},
   data() {
@@ -58,7 +53,14 @@ export default {
       booking: this.$store.state.booking
     };
   },
-  computed: {},
+  computed: {
+    bookingDate: function() {
+      var returnDate =
+        this.booking.date == null ? null : moment(this.booking.date).toDate();
+      console.log(this.booking.date);
+      return returnDate;
+    }
+  },
   methods: {
     getStatusColor: function(bookingStatus) {
       if (bookingStatus === "inquiry") {
