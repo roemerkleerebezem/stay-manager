@@ -89,9 +89,14 @@
           </tbody>
           <tbody v-for="cost in state.booking.costs" :key="cost.id">
             <tr>
-              <td
-                :class="cost.type==='payment'?'has-text-success has-text-weight-semibold':''"
-              >{{cost.label}}</td>
+              <td :class="cost.type==='payment'?'has-text-success has-text-weight-semibold':''">
+                {{cost.label}}
+                <span
+                  v-if="(cost.units!== null) & (cost.unitPrice!== null)"
+                  class="has-text-grey"
+                  style="margin-left:1rem;"
+                >{{cost.units}} x {{cost.unitPrice}} €</span>
+              </td>
               <td
                 :class="cost.type==='payment'?'has-text-success has-text-weight-semibold':''"
               >{{cost.type==="payment"?"-":"+"}}{{cost.totalPrice}} €</td>
