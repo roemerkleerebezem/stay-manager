@@ -10,7 +10,8 @@ const startState = {
     email: "",
     name: "",
     phone: "",
-    nationality: null
+    nationality: null,
+    rating: null
   },
   booking: {
     status: null,

@@ -23,6 +23,10 @@
         <option value="other">Autre</option>
       </b-select>
     </b-field>
+    <!-- RATING -->
+    <b-field label="Avis" label-position>
+      <b-rate icon-pack="fas" v-model="contact.rating" custom-text></b-rate>
+    </b-field>
   </div>
 </template>
 

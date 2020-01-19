@@ -151,10 +151,33 @@
 
           <hr />
 
-          <!-- OPEN MODAL -->
-          <b-button type="is-primary" @click="isComponentModalActive = true">Open Modal</b-button>
+          <!-- INVOICE OPTIONS -->
+          <b-field>
+            <b-checkbox-button v-model="stayNoPrint" type="is-success">
+              <b-icon pack="fas" icon="bed" size="is-small"></b-icon>
+              <span>Stay</span>
+            </b-checkbox-button>
 
-          <b-button type="is-primary" @click="printInvoice()">Print Invoice</b-button>
+            <b-checkbox-button v-model="cateringNoPrint" type="is-success">
+              <b-icon pack="fas" icon="utensils" size="is-small"></b-icon>
+              <span>Catering</span>
+            </b-checkbox-button>
+          </b-field>
+
+          <hr />
+
+          <!-- OPEN MODAL -->
+          <div class="block">
+            <button class="button is-primary" @click="isComponentModalActive = true">
+              <b-icon pack="fas" icon="eye" size="is-small"></b-icon>
+              <span>Check invoice</span>
+            </button>
+
+            <button class="button is-primary" @click="printInvoice()">
+              <b-icon pack="fas" icon="print" size="is-small"></b-icon>
+              <span>Print Invoice</span>
+            </button>
+          </div>
 
           <b-modal
             :active.sync="isComponentModalActive"
@@ -195,12 +218,28 @@ export default {
         units: null,
         unitPrice: null,
         totalPrice: null
-      }
+      },
+      cateringNoPrint: false,
+      stayNoPrint: false
     };
   },
   computed: {},
-  watch: {},
-
+  watch: {
+    cateringNoPrint: {
+      handler() {
+        localStorage.setItem("cateringNoPrint", this.cateringNoPrint);
+      }
+    },
+    stayNoPrint: {
+      handler() {
+        localStorage.setItem("stayNoPrint", this.stayNoPrint);
+      }
+    }
+  },
+  mounted() {
+    localStorage.setItem("cateringNoPrint", this.cateringNoPrint);
+    localStorage.setItem("stayNoPrint", this.stayNoPrint);
+  },
   methods: {
     getId: function(object) {
       var arr = [];
@@ -216,6 +255,7 @@ export default {
         hasModalCard: false
       });
     },
+
     addDeposit: function() {
       var tempDeposit = this.tempDeposit;
       var tempDeposits = this.booking.deposits;

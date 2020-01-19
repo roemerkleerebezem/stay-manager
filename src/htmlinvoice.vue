@@ -25,6 +25,7 @@
               <div class="container is-size-7 has-text-right">
                 <p>{{ todayDate }}</p>
                 <p>St. Germain des Bois</p>
+                stayNoPirnt {{stayNoPrint}}
               </div>
             </div>
           </div>
@@ -76,15 +77,15 @@
               <td>Total sejour</td>
               <td>{{staySubtotal*(1-invoiceData.discount)}} €</td>
             </tr>
-            <tr v-if="invoiceData.cateringTotal !== 0">
+            <tr v-if="cateringSubtotal !== 0">
               <td>Total restauration</td>
-              <td>{{invoiceData.cateringTotal}} €</td>
+              <td>{{cateringSubtotal}} €</td>
             </tr>
             <tr>
               <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-bold"
-              >{{staySubtotal*(1-invoiceData.discount) + invoiceData.cateringTotal}} €</td>
+              >{{staySubtotal*(1-invoiceData.discount) + cateringSubtotal}} €</td>
             </tr>
           </tbody>
           <tbody v-for="cost in state.booking.costs" :key="cost.id">
@@ -160,7 +161,10 @@
     </div>
 
     <!-- STAY INVOICE FLEX-->
-    <div class="A4 sheet stretchy-wrapper flex-container">
+    <div
+      v-if="(state.stay.stayNightArray > 0) | (stayNoPrint === false)"
+      class="A4 sheet stretchy-wrapper flex-container"
+    >
       <!-- HEADER -->
       <div class="header">
         <!-- INVOICE HEADER -->
@@ -271,7 +275,7 @@
         </tbody>
         <tbody v-for="night in state.stay.stayNightArray" :key="night.id">
           <tr>
-            <td>Couchages {{humanInvoiceDate(night.date)}}</td>
+            <td>Couchages {{humanInvoiceDate(night.date, "unix")}}</td>
             <td>{{night.guests}}</td>
             <td>{{state.prices.stayNight}} €</td>
             <td>{{night.guests*state.prices.stayNight}} €</td>
@@ -310,7 +314,7 @@
               class="has-text-success has-text-weight-semibold"
             >-{{invoiceData.discount*staySubtotal}} €</td>
           </tr>
-          <tr class="is-success">
+          <tr>
             <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total séjour</td>
             <td></td>
             <td></td>
@@ -326,6 +330,77 @@
         <!-- <p class="is-pulled-right">Page 2/3</p> -->
       </div>
     </div>
+
+    <!-- CATERING INVOICE FLEX-->
+    <div
+      v-if="(state.meals.length > 0) & (cateringNoPrint===false)"
+      class="A4 sheet stretchy-wrapper flex-container"
+    >
+      <!-- HEADER -->
+      <div class="header">
+        <!-- INVOICE HEADER -->
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <div class="container">
+                <h4 class="title is-size-4 is-uppercase">Facture #001 - DETAILS RESTAURATION</h4>
+              </div>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <div class="container is-size-7 has-text-right">
+                <p>{{ todayDate }}</p>
+                <p>St. Germain des Bois</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOTAL INVOICE TABLE -->
+      <div>
+        <table class="table is-fullwidth is-bordered">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Unités</th>
+              <th>Prix unitaire</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody v-for="meal in state.meals" :key="meal.id">
+            <tr v-if="meal.adults !=0">
+              <td>{{meal.type}} {{humanInvoiceDate(meal.date)}}</td>
+              <td>{{meal.adults}} adultes</td>
+              <td>{{meal.adultPrice}} €</td>
+              <td>{{meal.adults*meal.adultPrice}} €</td>
+            </tr>
+            <tr v-if="meal.children !=0">
+              <td>{{meal.type}} {{(humanInvoiceDate(meal.date))}}</td>
+              <td>{{meal.children}} enfants</td>
+              <td>{{meal.childPrice}} €</td>
+              <td>{{meal.children*meal.childPrice}} €</td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total restauration</td>
+              <td></td>
+              <td></td>
+              <td class="has-text-darkgrey is-uppercase has-text-weight-bold">{{cateringSubtotal}} €</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div>
+        <!-- <p class="is-pulled-right">Page 2/3</p> -->
+      </div>
+    </div>
+
+    <!-- END -->
   </div>
 </template>
 
@@ -344,7 +419,9 @@ export default {
     return {
       todayDate: new Date().toISOString().substring(0, 10),
 
-      state: this.$store.state
+      state: this.$store.state,
+      stayNoPrint: false,
+      cateringNoPrint: false
     };
   },
   computed: {
@@ -379,6 +456,10 @@ export default {
       return extraHours;
     },
     staySubtotal: function() {
+      if (this.stayNoPrint === true) {
+        return 0;
+      }
+
       var state = this.state;
       var invoiceData = this.invoiceData;
 
@@ -394,13 +475,25 @@ export default {
 
       return villaTotal + stayNightsTotal + petsTotal + extraHoursTotal;
     },
+    cateringSubtotal: function() {
+      if (this.cateringNoPrint === true) {
+        return 0;
+      }
+      var state = this.state;
+      var cateringSubtotal = 0;
+      state.meals.forEach(function(meal, index) {
+        cateringSubtotal += meal.adults * meal.adultPrice;
+        cateringSubtotal += meal.children * meal.childPrice;
+      });
+
+      return cateringSubtotal;
+    },
     invoiceTotal: function() {
       var state = this.state;
       var invoiceData = this.invoiceData;
 
       var invoiceTotal =
-        this.staySubtotal * (1 - invoiceData.discount) +
-        invoiceData.cateringTotal;
+        this.staySubtotal * (1 - invoiceData.discount) + this.cateringSubtotal;
 
       state.booking.costs.forEach(function(cost, index) {
         cost.type === "payment"
@@ -420,8 +513,7 @@ export default {
           state.stay.stayNightArray.length
         )
           ? state.discountPerNight[state.stay.stayNightArray.length]
-          : 0.15,
-        cateringTotal: 0
+          : 0.15
       };
     }
   },
@@ -462,8 +554,12 @@ export default {
     humanFormatTime: function(date) {
       return moment(date).format("HH:mm");
     },
-    humanInvoiceDate: function(unixDate) {
-      return moment.unix(unixDate).format("ddd. D MMM.");
+    humanInvoiceDate: function(unixDate, format) {
+      if (format === "unix") {
+        return moment.unix(unixDate).format("ddd. D MMM.");
+      } else {
+        return moment(unixDate).format("ddd. D MMM.");
+      }
     }
   },
   mounted() {
@@ -471,6 +567,18 @@ export default {
       this.state = JSON.parse(localStorage.getItem("state"));
     } else {
       this.state = this.$store.state;
+    }
+    if (localStorage.getItem("stayNoPrint")) {
+      this.stayNoPrint = JSON.parse(localStorage.getItem("stayNoPrint"));
+    } else {
+      this.stayNoPrint = false;
+    }
+    if (localStorage.getItem("cateringNoPrint")) {
+      this.cateringNoPrint = JSON.parse(
+        localStorage.getItem("cateringNoPrint")
+      );
+    } else {
+      this.cateringNoPrint = false;
     }
   }
 };
