@@ -19,7 +19,8 @@ const startState = {
     date: null,
     deposits: [],
     costs: [],
-    uuid: null
+    uuid: null,
+    invoiceNumber: 0
   },
   stay: {
     arrivalDatetime: moment()
@@ -41,7 +42,7 @@ const startState = {
     villaNight: 100,
     stayNight: 35,
     petNight: 5,
-    taxeSejourNight: 1,
+    taxeSejourNight: 0.4,
     extraHour: 20
   },
   discountPerNight: {

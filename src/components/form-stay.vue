@@ -72,16 +72,25 @@
       <div class="card-content">
         <div class="content">
           <div v-for="night in stay.stayNightArray" :key="night.id">
-            <b-field grouped>
-              <b-field
-                style="width:100%;"
-                :label="editNightContentTextFormat(night.date)"
-                type="has-text-grey"
-              >
+            <p
+              class="is-size-6 has-text-grey has-text-weight-bold"
+            >{{editNightContentTextFormat(night.date)}}</p>
+            <b-field grouped group-multiline>
+              <b-field label="Direct" label-position="inline">
                 <b-numberinput
                   icon-pack="fas"
                   v-model="night.guests"
-                  min="10"
+                  min="0"
+                  controlsPosition="compact"
+                ></b-numberinput>
+              </b-field>
+              <b-switch v-model="night.external"></b-switch>
+              <b-field label="Platform guests" label-position="inline">
+                <b-numberinput
+                  icon-pack="fas"
+                  v-model="night.externalGuests"
+                  :disabled="!night.external"
+                  min="0"
                   controlsPosition="compact"
                 ></b-numberinput>
               </b-field>
@@ -116,7 +125,9 @@ export default {
         var tempStayNightObject = {
           id: i,
           date: tempArrivalDate.unix(),
-          guests: this.stay.baseGuests
+          guests: this.stay.baseGuests,
+          externalGuests: 0,
+          external: false
         };
         tempStayNightArray.push(tempStayNightObject);
         tempArrivalDate = tempArrivalDate.add(1, "days");

@@ -5,6 +5,19 @@
       <div class="box">
         <!-- FORM TITLE -->
         <h3 class="title is-3">Facture</h3>
+
+        <!-- PETS -->
+        <b-field label="Invoice number">
+          <b-numberinput
+            icon-pack="fas"
+            v-model="booking.invoiceNumber"
+            min="0"
+            controlsPosition="compact"
+          ></b-numberinput>
+        </b-field>
+
+        <hr />
+
         <!-- DEPOSITS -->
         <label class="label">Caution</label>
 
@@ -41,7 +54,10 @@
                 }}
                 {{ deposit.status }}
               </span>
-              <button @click="$delete(booking.deposits, deposit.id)" class="delete"></button>
+              <button
+                @click="$delete(booking.deposits, booking.deposits.indexOf(deposit))"
+                class="delete"
+              ></button>
             </div>
           </article>
         </div>
@@ -113,7 +129,7 @@
                   {{ cost.totalPrice }} €
                 </span>
 
-                <button @click="$delete(booking.costs, cost.id)" class="delete"></button>
+                <button @click="$delete(booking.costs, booking.costs.indexOf(cost))" class="delete"></button>
               </div>
             </article>
           </div>

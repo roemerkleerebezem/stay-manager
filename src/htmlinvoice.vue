@@ -11,7 +11,9 @@
           <div class="level-left">
             <div class="level-item">
               <div class="container">
-                <h4 class="title is-size-4 is-uppercase">Facture #001</h4>
+                <h4
+                  class="title is-size-4 is-uppercase"
+                >{{ state.booking.status === 'completed'?'Facture #'+state.booking.invoiceNumber:"Réservation"}}</h4>
                 <span
                   :class="
                     getStatusColor(state.booking.status) + ' is-uppercase tag'
@@ -25,7 +27,6 @@
               <div class="container is-size-7 has-text-right">
                 <p>{{ todayDate }}</p>
                 <p>St. Germain des Bois</p>
-                stayNoPirnt {{stayNoPrint}}
               </div>
             </div>
           </div>
@@ -67,7 +68,7 @@
       <div>
         <table class="table is-fullwidth is-bordered">
           <thead>
-            <tr>
+            <tr class="has-background-light">
               <th>Produit</th>
               <th>Total</th>
             </tr>
@@ -75,17 +76,17 @@
           <tbody>
             <tr v-if="staySubtotal*(1-invoiceData.discount) !== 0">
               <td>Total sejour</td>
-              <td>{{staySubtotal*(1-invoiceData.discount)}} €</td>
+              <td>{{staySubtotal*(1-invoiceData.discount) + invoiceData.taxedNights*state.prices.taxeSejourNight}} €</td>
             </tr>
             <tr v-if="cateringSubtotal !== 0">
               <td>Total restauration</td>
               <td>{{cateringSubtotal}} €</td>
             </tr>
-            <tr>
+            <tr class="has-background-light">
               <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-bold"
-              >{{staySubtotal*(1-invoiceData.discount) + cateringSubtotal}} €</td>
+              >{{staySubtotal*(1-invoiceData.discount) + invoiceData.taxedNights*state.prices.taxeSejourNight + cateringSubtotal}} €</td>
             </tr>
           </tbody>
           <tbody v-for="cost in state.booking.costs" :key="cost.id">
@@ -104,7 +105,7 @@
             </tr>
           </tbody>
           <tbody>
-            <tr>
+            <tr class="has-background-light">
               <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Reste à payer</td>
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-semibold"
@@ -172,7 +173,9 @@
           <div class="level-left">
             <div class="level-item">
               <div class="container">
-                <h4 class="title is-size-4 is-uppercase">Facture #001 - DETAILS SEJOUR</h4>
+                <h4
+                  class="title is-size-4 is-uppercase"
+                >{{ state.booking.status === 'completed'?'Facture #'+state.booking.invoiceNumber:"Réservation"}} - DETAILS SEJOUR</h4>
               </div>
             </div>
           </div>
@@ -258,7 +261,7 @@
       <!-- TOTAL INVOICE TABLE -->
       <table class="table is-fullwidth is-bordered">
         <thead>
-          <tr>
+          <tr class="has-background-light">
             <th>Produit</th>
             <th>Unités</th>
             <th>Prix unitaire</th>
@@ -266,7 +269,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr v-if="invoiceData.externalVillaNights>0" class="has-text-weight-light">
+            <td>Villa (payé)</td>
+            <td>{{invoiceData.externalVillaNights}} nuit(s)</td>
+            <td>0 €</td>
+            <td>0 €</td>
+          </tr>
+          <tr v-if="invoiceData.villaNights>0">
             <td>Villa</td>
             <td>{{invoiceData.villaNights}} nuit(s)</td>
             <td>{{state.prices.villaNight}} €</td>
@@ -274,8 +283,14 @@
           </tr>
         </tbody>
         <tbody v-for="night in state.stay.stayNightArray" :key="night.id">
-          <tr>
-            <td>Couchages {{humanInvoiceDate(night.date, "unix")}}</td>
+          <tr v-if="night.externalGuests > 0" class="has-text-weight-light">
+            <td>Couchages {{humanInvoiceDate(night.date, "unix")}} (payé)</td>
+            <td>{{night.externalGuests}}</td>
+            <td>0 €</td>
+            <td>0 €</td>
+          </tr>
+          <tr v-if="night.guests>0">
+            <td>Couchages {{night.externalGuests>0?'supplémentaires':humanInvoiceDate(night.date, "unix")}}</td>
             <td>{{night.guests}}</td>
             <td>{{state.prices.stayNight}} €</td>
             <td>{{night.guests*state.prices.stayNight}} €</td>
@@ -300,27 +315,33 @@
             <td>{{state.prices.extraHour}} €</td>
             <td>{{invoiceData.extraHours*state.prices.extraHour}} €</td>
           </tr>
-          <tr>
+          <tr class="has-background-light">
             <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
             <td></td>
             <td></td>
             <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">{{staySubtotal}} €</td>
           </tr>
           <tr v-if="invoiceData.discount > 0">
-            <td>Réduction {{Math.round(100*invoiceData.discount)}}%</td>
+            <td>Réduction {{state.stay.stayNightArray.length}} nuits ({{Math.round(100*invoiceData.discount)}}%)</td>
             <td></td>
             <td></td>
             <td
               class="has-text-success has-text-weight-semibold"
             >-{{invoiceData.discount*staySubtotal}} €</td>
           </tr>
-          <tr>
+          <tr v-if="invoiceData.taxedNights > 0">
+            <td>Taxe de séjour</td>
+            <td>{{invoiceData.taxedNights}}</td>
+            <td>{{state.prices.taxeSejourNight}} €</td>
+            <td>{{Math.round( invoiceData.taxedNights*state.prices.taxeSejourNight * 100) / 100 }} €</td>
+          </tr>
+          <tr class="has-background-light">
             <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total séjour</td>
             <td></td>
             <td></td>
             <td
               class="has-text-darkgrey is-uppercase has-text-weight-bold"
-            >{{staySubtotal*(1-invoiceData.discount)}} €</td>
+            >{{staySubtotal*(1-invoiceData.discount) + invoiceData.taxedNights*state.prices.taxeSejourNight}} €</td>
           </tr>
         </tbody>
       </table>
@@ -343,7 +364,9 @@
           <div class="level-left">
             <div class="level-item">
               <div class="container">
-                <h4 class="title is-size-4 is-uppercase">Facture #001 - DETAILS RESTAURATION</h4>
+                <h4
+                  class="title is-size-4 is-uppercase"
+                >{{ state.booking.status === 'completed'?'Facture #'+state.booking.invoiceNumber:"Réservation"}} - DETAILS RESTAURATION</h4>
               </div>
             </div>
           </div>
@@ -493,7 +516,9 @@ export default {
       var invoiceData = this.invoiceData;
 
       var invoiceTotal =
-        this.staySubtotal * (1 - invoiceData.discount) + this.cateringSubtotal;
+        this.staySubtotal * (1 - invoiceData.discount) +
+        invoiceData.taxedNights * state.prices.taxeSejourNight +
+        this.cateringSubtotal;
 
       state.booking.costs.forEach(function(cost, index) {
         cost.type === "payment"
@@ -505,9 +530,23 @@ export default {
 
     invoiceData: function() {
       var state = this.state;
+      var stayNightArray = state.stay.stayNightArray;
+      var externalVillaNights = 0;
+      var villaNights = 0;
+      var taxedNights = 0;
+      stayNightArray.forEach(function(night) {
+        if (!night.external) {
+          villaNights += 1;
+        } else {
+          externalVillaNights += 1;
+        }
+        taxedNights += night.guests;
+      });
       return {
-        villaNights: state.stay.stayNightArray.length,
+        villaNights: villaNights,
+        externalVillaNights: externalVillaNights,
         stayNightArray: state.stay.stayNightArray,
+        taxedNights: taxedNights,
         extraHours: this.extraHours,
         discount: state.discountPerNight.hasOwnProperty(
           state.stay.stayNightArray.length
