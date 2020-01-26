@@ -8,12 +8,22 @@
       </div>
 
       <!-- MEAL LIST -->
-      <div class="card meal-card" v-for="meal in meals" :key="meal.id">
-        <div class="card-header">
+      <b-collapse
+        class="card meal-card"
+        v-for="meal in meals"
+        :key="meal.id"
+        :aria-id="'mealContent' + meal.id"
+      >
+        <div
+          slot="trigger"
+          class="card-header"
+          role="button"
+          :aria-controls="'mealContent' + meal.id"
+        >
           <p class="card-header-title">{{ meal.type }}</p>
           <b-button
             icon-pack="fas"
-            @click="$delete(meals, meal.id)"
+            @click="$delete(meals, meals.indexOf(meal))"
             type="is-medium is-danger"
             icon-left="times"
           ></b-button>
@@ -71,12 +81,23 @@
           <hr />
 
           <!-- COSTS -->
-          <div class="card meal-card" v-for="cost in meal.costs" :key="cost.id">
-            <div class="card-header">
+          <b-collapse
+            class="card meal-card"
+            :open="false"
+            v-for="cost in meal.costs"
+            :key="cost.id"
+            :aria-id="'costContent' + cost.id"
+          >
+            <div
+              slot="trigger"
+              class="card-header"
+              role="button"
+              :aria-controls="'costContent' + cost.id"
+            >
               <p class="card-header-title">{{ cost.name }} : {{ cost.totalPrice }} euros</p>
               <b-button
                 icon-pack="fas"
-                @click="$delete(meal.costs, cost.id)"
+                @click="$delete(meal.costs, meal.costs.indexOf(cost))"
                 type="is-small is-light"
                 icon-left="times"
               ></b-button>
@@ -87,7 +108,7 @@
                 <pre>{{ value }}</pre>
               </div>
             </div>
-          </div>
+          </b-collapse>
 
           <b-field grouped group-multiline>
             <b-field label="Type">
@@ -114,7 +135,7 @@
           </b-field>
           <b-button type="is-primary" @click="addCost(meal.id)">Ajouter</b-button>
         </div>
-      </div>
+      </b-collapse>
 
       <!-- ADD MEAL -->
       <div class="box">
@@ -149,16 +170,9 @@ export default {
   watch: {},
 
   methods: {
-    getId: function(object) {
-      var arr = [];
-      for (var obj in object) {
-        arr.push(parseInt(obj));
-      }
-      return Math.max(-1, ...arr) + 1;
-    },
     addMeal: function(mealType) {
       var tempMeal = {
-        id: this.getId(this.meals),
+        id: this.uuidv4(),
         type: mealType,
         adults: 10,
         children: 0,
@@ -177,10 +191,20 @@ export default {
       };
       this.meals.push(tempMeal);
     },
+    uuidv4: function() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+        c
+      ) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    },
+
     addCost: function(mealId) {
       var meal = this.meals.find(x => x.id === mealId);
       var tempCosts = meal.costs;
-      meal.tempCost.id = this.getId(meal.costs);
+      meal.tempCost.id = this.uuidv4();
       tempCosts.push(meal.tempCost);
 
       Vue.set(meal, "costs", JSON.parse(JSON.stringify(tempCosts)));

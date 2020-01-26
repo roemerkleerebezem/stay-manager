@@ -50,7 +50,7 @@
           slot="trigger"
           aria-controls="payloadCollapse"
         >Toggle Payload</button>
-        <pre>api : {{apiState}}</pre>
+        <!-- <pre>api : {{apiState}}</pre> -->
         <pre>state : {{state}}</pre>
       </b-collapse>
     </div>
@@ -104,6 +104,7 @@ export default {
         this.state.booking.uuid = uuid;
         this.getApi(this.state, "retrieve");
       }
+      localStorage.setItem("state", this.state);
     }
   },
   asyncComputed: {
