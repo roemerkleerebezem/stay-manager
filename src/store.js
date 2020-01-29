@@ -16,7 +16,7 @@ const startState = {
   booking: {
     status: null,
     source: null,
-    date: null,
+    date: moment().toDate(),
     deposits: [],
     costs: [],
     uuid: null,

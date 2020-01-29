@@ -9,11 +9,15 @@
       label="Statut"
       label-position="on-border"
     >
-      <b-select v-model="booking.status" size="is-medium" placeholder="Select a type">
-        <option value="inquiry">Demande</option>
-        <option value="contract">Contrat</option>
-        <option value="completed">Achevé</option>
-        <option value="cancelled">Annulé</option>
+      <b-select
+        v-model="booking.status"
+        size="is-medium"
+        placeholder="Select a type"
+      >
+        <option value="inquiry">Inquiry</option>
+        <option value="contract">Definitive</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
       </b-select>
     </b-field>
 
@@ -34,7 +38,10 @@
         placeholder="Date de réservation"
         ref="bookingDatePicker"
       >
-        <button class="button is-success" @click="$refs.bookingDatePicker.toggle()">
+        <button
+          class="button is-success"
+          @click="$refs.bookingDatePicker.toggle()"
+        >
           <b-icon pack="fas" icon="check"></b-icon>
           <span>Valider</span>
         </button>
@@ -70,7 +77,7 @@ export default {
       } else if (bookingStatus === "completed") {
         return "is-success";
       } else if (bookingStatus === "cancelled") {
-        return "is-danger";
+        return "is-grey";
       } else {
         return "is-grey";
       }

@@ -6,7 +6,9 @@
         <template slot="brand">
           <b-navbar-item>
             <img src="@/assets/merle-round-logo.png" />
-            <span class="navbar-item has-text-light">Moulin du Merle stay-manager</span>
+            <span class="navbar-item has-text-light"
+              >Moulin du Merle stay-manager</span
+            >
           </b-navbar-item>
         </template>
         <template slot="start"></template>
@@ -14,11 +16,24 @@
         <template slot="end">
           <b-navbar-item tag="div">
             <div class="buttons">
-              <b-button
-                @click="getApi(state, 'save')"
-                :disabled="synced"
-                :class="synced ? 'is-success' : 'is-warning'"
-              >{{ synced ? "Saved" : "Save" }}</b-button>
+              <b-tooltip
+                type="is-warning"
+                :label="
+                  dataReady
+                    ? ''
+                    : 'Missing information, either booking status or dates'
+                "
+                position="is-left"
+                size="is-large"
+                multilined
+              >
+                <b-button
+                  @click="getApi(state, 'save')"
+                  :disabled="synced || !dataReady"
+                  :class="synced ? 'is-success' : 'is-warning'"
+                  >{{ synced ? "Saved" : "Save" }}</b-button
+                >
+              </b-tooltip>
             </div>
           </b-navbar-item>
         </template>
@@ -26,7 +41,13 @@
     </template>
 
     <!-- TABS -->
-    <b-tabs :key="updateTab" id="sheetTabs" size="is-medium is-boxed" v-model="activeTab" expanded>
+    <b-tabs
+      :key="updateTab"
+      id="sheetTabs"
+      size="is-medium is-boxed"
+      v-model="activeTab"
+      expanded
+    >
       <b-tab-item class="has-text-grey" label="Reservation">
         <reservation-tab></reservation-tab>
       </b-tab-item>
@@ -43,17 +64,18 @@
     </b-tabs>
 
     <!-- DEBUGGING -->
-    <div>
+    <!-- <div>
       <b-collapse :open="false" aria-id="payloadCollapse">
         <button
           class="button is-primary"
           slot="trigger"
           aria-controls="payloadCollapse"
-        >Toggle Payload</button>
-        <!-- <pre>api : {{apiState}}</pre> -->
-        <pre>state : {{state}}</pre>
+        >
+          Toggle Payload
+        </button>
+        <pre>state : {{ state }}</pre>
       </b-collapse>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -62,9 +84,9 @@ import reservationTab from "@/tabs/reservation-tab.vue";
 import cateringTab from "@/tabs/catering-tab.vue";
 import invoiceTab from "@/tabs/invoice-tab.vue";
 
-const ical = require("ical-generator");
-
-import downloadjs from "downloadjs";
+const CONFIG = require("@/scripts/settings");
+const CalendarAPI = require("node-google-calendar");
+let cal = new CalendarAPI(CONFIG);
 
 import axios from "axios";
 
@@ -95,9 +117,22 @@ export default {
   computed: {
     state: function() {
       return this.$store.state;
+    },
+    dataReady: function() {
+      var state = this.state;
+      if (
+        (state.booking.status !== null) &
+        (state.stay.arrivalDatetime.getDate() !=
+          state.stay.departureDatetime.getDate())
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
   },
-  mounted: function() {
+
+  mounted: async function() {
     getBookingFromUrl: {
       var uuid = this.$route.params.uuid;
       if (uuid !== undefined) {
@@ -136,29 +171,77 @@ export default {
   },
 
   methods: {
-    createCal: function(state) {
-      const cal = ical({ domain: "moulindumerle.com", name: "Moulin app" });
+    listEvents: async function(calendarId, query) {
+      let params = {
+        q: query,
+        singleEvents: true,
+        orderBy: "startTime"
+      };
 
-      cal.createEvent({
-        start: state.stay.arrivalDatetime,
-        end: state.stay.departureDatetime,
+      let response = await cal.Events.list(calendarId, params);
+      var responseArray = [];
+      response.forEach(function(event) {
+        event.calendarId = calendarId;
+        if (event.description.includes(query)) {
+          responseArray.push(event);
+        }
+      });
+      return responseArray;
+    },
+    concatEvents: function(events) {
+      var queryResults = [];
+      events.forEach(event => (queryResults = queryResults.concat(event)));
+      return queryResults;
+    },
+    getEvent: async function(query) {
+      var promises = [];
+
+      for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
+        promises.push(await this.listEvents(calendarId, query));
+      }
+      var queryResults = Promise.all(promises).then(result => {
+        return this.concatEvents(promises);
+      });
+      console.log(queryResults);
+      return queryResults;
+    },
+
+    moveEvent: function(calendarId, eventId, destination) {
+      return cal.Events.move(calendarId, eventId, destination)
+        .then(resp => {
+          return resp;
+        })
+        .catch(err => {
+          console.log("Error: moveEvent", err.message);
+        });
+    },
+
+    upsertEvent: async function(state) {
+      var startDateTime = moment(state.stay.arrivalDatetime);
+      var endDateTime = moment(state.stay.departureDatetime);
+      endDateTime = endDateTime.subtract(1, "days");
+      if (
+        startDateTime.clone().format("DD-MM-YYYY") ==
+        endDateTime.clone().format("DD-MM-YYYY")
+      ) {
+        endDateTime = startDateTime.clone();
+        endDateTime = endDateTime.add(1, "hours");
+      }
+
+      let event = {
+        start: { dateTime: startDateTime.toDate() },
+        end: { dateTime: endDateTime.toDate() },
         summary:
-          state.booking.status +
-          ": " +
           state.contact.name +
           ", " +
           state.stay.baseGuests +
-          "p. via " +
+          "p. " +
+          state.stay.stayNightArray.length +
+          "n. via " +
           state.booking.source,
         description:
           "http://localhost:8080/booking/" +
           state.booking.uuid +
-          "\n\n" +
-          state.contact.name +
-          "\n" +
-          state.contact.phone +
-          "\n" +
-          state.contact.email +
           "\n\n" +
           state.stay.baseGuests +
           " adults, " +
@@ -166,13 +249,69 @@ export default {
           " children, " +
           state.stay.pets +
           " pets" +
+          "\n" +
+          "Check-out : " +
+          endDateTime.format("HH:mm") +
           "\n\n" +
-          state.stay.guestInfo
-      });
+          state.stay.guestInfo +
+          "\n\n" +
+          state.meals.length +
+          " meals" +
+          "\n\n" +
+          state.contact.name +
+          "\n" +
+          state.contact.phone +
+          "\n" +
+          state.contact.email
+      };
 
-      downloadjs(cal.toString(), "test.ics", "text/plain");
+      var status = state.booking.status;
+      if (status === null) {
+        console.log("No status given, can't update calendar");
+        return 1;
+      }
+      var calendarId =
+        status === "cancelled"
+          ? CONFIG.calendarIdList.cancelled
+          : status === "inquiry"
+          ? CONFIG.calendarIdList.inquiry
+          : CONFIG.calendarIdList.definitive;
 
-      return 1;
+      var uuid = state.booking.uuid;
+      if (uuid === null) {
+        console.log("uuid is null");
+      } else {
+        var events = await this.getEvent(uuid);
+        if (events.length === 1) {
+          var apiEvent = events[0];
+          cal.Events.update(apiEvent.calendarId, apiEvent.id, event)
+            .then(resp => {
+              if (apiEvent.calendarId !== calendarId) {
+                this.moveEvent(apiEvent.calendarId, apiEvent.id, {
+                  destination: calendarId
+                })
+                  .then(resp => {
+                    return resp;
+                  })
+                  .catch(err => {
+                    console.log("Error: movedEvent", err.message);
+                  });
+              }
+              return resp;
+            })
+            .catch(err => {
+              console.log("Error: updatedEvent", err.message);
+            });
+        } else if (events.length === 0) {
+          cal.Events.insert(calendarId, event)
+            .then(resp => {
+              console.log("inserted event");
+            })
+            .catch(err => {
+              console.log("Error: insertEvent-" + err.message);
+            });
+        }
+      }
     },
     getApi: async function(state, action) {
       const headers = {
@@ -208,8 +347,8 @@ export default {
       this.synced = synced;
 
       if (action === "save") {
-        console.log("apiState : " + apiState);
-        this.createCal(apiState);
+        this.upsertEvent(apiState);
+        this.$router.push(`/booking/${apiState.booking.uuid}`).catch(err => {});
       }
 
       if (action === "retrieve") {
@@ -239,5 +378,9 @@ section {
 
 .debug {
   border: solid;
+}
+
+.tab-content {
+  min-height: 90vh;
 }
 </style>
