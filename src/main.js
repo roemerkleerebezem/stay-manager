@@ -4,6 +4,7 @@ import Vue from "vue";
 import App from "./App.vue";
 
 import Form from "./components/Form.vue";
+import List from "./components/List.vue";
 
 import store from "./store";
 
@@ -22,6 +23,7 @@ Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
 const routes = [
+  { path: "", component: List },
   { path: "/booking", component: Form },
   { path: "/booking/:uuid", props: true, component: Form }
 ];

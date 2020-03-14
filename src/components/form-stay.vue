@@ -119,9 +119,11 @@ export default {
       var tempStayNightArray = [];
       var tempArrivalDate = moment(this.stay.arrivalDatetime);
       var tempDepartureDate = moment(this.stay.departureDatetime);
-
       var i = 0;
-      while (tempArrivalDate < tempDepartureDate) {
+      while (
+        tempArrivalDate.clone().startOf("day") <
+        tempDepartureDate.clone().startOf("day")
+      ) {
         var tempStayNightObject = {
           id: i,
           date: tempArrivalDate.unix(),
