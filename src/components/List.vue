@@ -133,7 +133,7 @@ export default {
         var departureDatetime = moment(departureDatetime);
         if (
           departureDatetime.year() == now.year() &&
-          departureDatetime <= now
+          departureDatetime <= now && booking.status == "completed"
         ) {
           total += booking.bookingValue;
         }
@@ -146,7 +146,7 @@ export default {
       var now = moment();
       this.bookingList.forEach(function(booking, index) {
         var departureDatetime = moment(departureDatetime);
-        if (departureDatetime.year() == now.year() && departureDatetime > now) {
+        if (departureDatetime.year() == now.year() && departureDatetime > now && booking.status == "contract") {
           total += booking.bookingValue;
         } else {
           console.log(departureDatetime);
