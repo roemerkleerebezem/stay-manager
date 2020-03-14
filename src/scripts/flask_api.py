@@ -52,10 +52,54 @@ def handleInvoiceData(request_json):
 
     return response
 
+def calculateValue(booking):
+    total_guests = 0
+    taxable_guests = 0
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+    nights = len(booking['stay']['stayNightArray'])
+
+    for night in booking['stay']['stayNightArray']:
+        total_guests = total_guests + night['guests'] + night['externalGuests']
+        taxable_guests = taxable_guests + night['guests']
+
+    stay_brut = nights*booking['prices']['villaNight'] + total_guests*booking['prices']['stayNight']
+    discount = booking['discountPerNight'][str(nights)]
+    stay_net = stay_brut*(1-discount)
+
+    meal_subtotal = 0
+    for meal in booking['meals']:
+        meal_subtotal = meal_subtotal + meal['adults']*meal['adultPrice'] + meal['children']*meal['childPrice']
+
+    booking_value = stay_net + meal_subtotal
+    return booking_value
+
+@app.route('/api', methods=['GET'])
+def get_bookings():
+    db_data = db.all()
+
+    bookingList = []
+    for booking in db_data:
+        temp_booking = {
+            'status':booking['booking']['status'],
+            'source':booking['booking']['source'],
+            'uuid':booking['booking']['uuid'],
+            'invoiceNumber':booking['booking']['invoiceNumber'],
+            'arrivalDatetime':booking['stay']['arrivalDatetime'],
+            'nights':len(booking['stay']['stayNightArray']),
+            'departureDatetime':booking['stay']['departureDatetime'],
+            'baseGuests':booking['stay']['baseGuests'],
+            'meals':len(booking['meals']),
+            'name':booking['contact']['name'],
+            'rating': booking['contact']['rating'],
+            'bookingValue':calculateValue(booking)
+        }
+        bookingList.append(temp_booking)
+
+    bookingList.sort(key=lambda x: x['arrivalDatetime'])
+
+    response = flask.jsonify(bookingList)
+
+    return response
 
 
 @app.route('/api', methods=['POST'])
