@@ -268,7 +268,6 @@ export default {
 
 section {
   background-color: $background;
-  min-height: 95vh;
 }
 
 .hero {
