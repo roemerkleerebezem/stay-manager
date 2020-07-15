@@ -11,7 +11,7 @@ const startState = {
     name: "",
     phone: "",
     nationality: null,
-    rating: null
+    rating: null,
   },
   booking: {
     status: null,
@@ -20,7 +20,7 @@ const startState = {
     deposits: [],
     costs: [],
     uuid: null,
-    invoiceNumber: 0
+    invoiceNumber: 0,
   },
   stay: {
     arrivalDatetime: moment()
@@ -35,7 +35,7 @@ const startState = {
     stayNightArray: [],
     children: 0,
     guestInfo: "",
-    pets: 0
+    pets: 0,
   },
   meals: [],
   prices: {
@@ -43,7 +43,7 @@ const startState = {
     stayNight: 35,
     petNight: 5,
     taxeSejourNight: 0.4,
-    extraHour: 20
+    extraHour: 25,
   },
   discountPerNight: {
     0: 0,
@@ -55,8 +55,8 @@ const startState = {
     6: 0.25,
     7: 0.3,
     8: 0.35,
-    9: 0.4
-  }
+    9: 0.4,
+  },
 };
 
 export default new Vuex.Store({
@@ -80,7 +80,7 @@ export default new Vuex.Store({
           : moment(newState.stay.departureDatetime).toDate();
 
       Object.assign(state, newState);
-    }
+    },
   },
-  actions: {}
+  actions: {},
 });

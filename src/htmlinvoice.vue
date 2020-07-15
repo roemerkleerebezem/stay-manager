@@ -1,9 +1,6 @@
 <template>
   <div id="app">
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
-    />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" />
 
     <!-- TOTAL INVOICE FLEX-->
     <div class="A4 sheet stretchy-wrapper flex-container">
@@ -16,20 +13,19 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
+                  state.booking.status === "completed"
+                  ? "Facture " +
+                  todayDateMonth +
+                  "-" +
+                  state.booking.invoiceNumber.toString().padStart(4, "0")
+                  : "Réservation"
                   }}
                 </h4>
                 <span
                   :class="
                     getStatusColor(state.booking.status) + ' is-uppercase tag'
                   "
-                  >{{ state.booking.status }}</span
-                >
+                >{{ state.booking.status }}</span>
               </div>
             </div>
           </div>
@@ -89,8 +85,8 @@
               <td>Total sejour</td>
               <td>
                 {{
-                  staySubtotal * (1 - invoiceData.discount) +
-                    invoiceData.taxedNights * state.prices.taxeSejourNight
+                staySubtotal * (1 - invoiceData.discount) +
+                invoiceData.taxedNights * state.prices.taxeSejourNight
                 }}
                 €
               </td>
@@ -100,16 +96,12 @@
               <td>{{ cateringSubtotal }} €</td>
             </tr>
             <tr class="has-background-light">
-              <td
-                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                Sous-total
-              </td>
+              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
               <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
                 {{
-                  staySubtotal * (1 - invoiceData.discount) +
-                    invoiceData.taxedNights * state.prices.taxeSejourNight +
-                    cateringSubtotal
+                staySubtotal * (1 - invoiceData.discount) +
+                invoiceData.taxedNights * state.prices.taxeSejourNight +
+                cateringSubtotal
                 }}
                 €
               </td>
@@ -129,8 +121,7 @@
                   v-if="(cost.units !== null) & (cost.unitPrice !== null)"
                   class="has-text-grey"
                   style="margin-left:1rem;"
-                  >{{ cost.units }} x {{ cost.unitPrice }} €</span
-                >
+                >{{ cost.units }} x {{ cost.unitPrice }} €</span>
               </td>
               <td
                 :class="
@@ -138,23 +129,15 @@
                     ? 'has-text-success has-text-weight-semibold'
                     : ''
                 "
-              >
-                {{ cost.type === "payment" ? "-" : "+" }}{{ cost.totalPrice }} €
-              </td>
+              >{{ cost.type === "payment" ? "-" : "+" }}{{ cost.totalPrice }} €</td>
             </tr>
           </tbody>
           <tbody>
             <tr class="has-background-light">
+              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Reste à payer</td>
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                Reste à payer
-              </td>
-              <td
-                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                {{ Math.round(100 * invoiceTotal) / 100 }} €
-              </td>
+              >{{ Math.round(100 * invoiceTotal) / 100 }} €</td>
             </tr>
           </tbody>
         </table>
@@ -181,9 +164,7 @@
                   size="is-medium"
                   type="is-grey"
                 ></b-icon>
-                <span class="has-text-grey is-uppercase"
-                  >{{ deposit.type }} -</span
-                >
+                <span class="has-text-grey is-uppercase">{{ deposit.type }} -</span>
                 {{ deposit.amount }} €
               </p>
 
@@ -194,9 +175,9 @@
                 "
               >
                 {{
-                  deposit.dateReceived === null
-                    ? ""
-                    : deposit.dateReceived.substring(0, 10) + ", "
+                deposit.dateReceived === null
+                ? ""
+                : deposit.dateReceived.substring(0, 10) + ", "
                 }}
                 {{ deposit.status }}
               </span>
@@ -225,12 +206,12 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
+                  state.booking.status === "completed"
+                  ? "Facture " +
+                  todayDateMonth +
+                  "-" +
+                  state.booking.invoiceNumber.toString().padStart(4, "0")
+                  : "Réservation"
                   }}
                   - DETAILS SEJOUR
                 </h4>
@@ -280,9 +261,7 @@
                 </span>
               </div>
             </div>
-            <span class="tag is-dark"
-              >{{ state.stay.baseGuests }} personnes</span
-            >
+            <span class="tag is-dark">{{ state.stay.baseGuests }} personnes</span>
           </div>
         </div>
 
@@ -329,10 +308,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-if="invoiceData.externalVillaNights > 0"
-            class="has-text-weight-light"
-          >
+          <tr v-if="invoiceData.externalVillaNights > 0" class="has-text-weight-light">
             <td>Villa (payé)</td>
             <td>{{ invoiceData.externalVillaNights }} nuit(s)</td>
             <td>0 €</td>
@@ -356,9 +332,9 @@
             <td>
               Couchages
               {{
-                night.externalGuests > 0
-                  ? "supplémentaires"
-                  : humanInvoiceDate(night.date, "unix")
+              night.externalGuests > 0
+              ? "supplémentaires"
+              : humanInvoiceDate(night.date, "unix")
               }}
             </td>
             <td>{{ night.guests }}</td>
@@ -379,9 +355,9 @@
             <td>{{ state.prices.petNight }} €</td>
             <td>
               {{
-                state.stay.pets *
-                  invoiceData.villaNights *
-                  state.prices.petNight
+              state.stay.pets *
+              invoiceData.villaNights *
+              state.prices.petNight
               }}
               €
             </td>
@@ -393,26 +369,22 @@
             <td>{{ invoiceData.extraHours * state.prices.extraHour }} €</td>
           </tr>
           <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              Sous-total
-            </td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
             <td></td>
             <td></td>
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              {{ staySubtotal }} €
-            </td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">{{ staySubtotal }} €</td>
           </tr>
           <tr v-if="invoiceData.discount > 0">
             <td>
               Réduction {{ state.stay.stayNightArray.length }} nuits ({{
-                Math.round(100 * invoiceData.discount)
+              Math.round(100 * invoiceData.discount)
               }}%)
             </td>
             <td></td>
             <td></td>
-            <td class="has-text-success has-text-weight-semibold">
-              -{{ invoiceData.discount * staySubtotal }} €
-            </td>
+            <td
+              class="has-text-success has-text-weight-semibold"
+            >-{{ invoiceData.discount * staySubtotal }} €</td>
           </tr>
           <tr v-if="invoiceData.taxedNights > 0">
             <td>Taxe de séjour</td>
@@ -420,23 +392,21 @@
             <td>{{ state.prices.taxeSejourNight }} €</td>
             <td>
               {{
-                Math.round(
-                  invoiceData.taxedNights * state.prices.taxeSejourNight * 100
-                ) / 100
+              Math.round(
+              invoiceData.taxedNights * state.prices.taxeSejourNight * 100
+              ) / 100
               }}
               €
             </td>
           </tr>
           <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              Total séjour
-            </td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total séjour</td>
             <td></td>
             <td></td>
             <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
               {{
-                staySubtotal * (1 - invoiceData.discount) +
-                  invoiceData.taxedNights * state.prices.taxeSejourNight
+              staySubtotal * (1 - invoiceData.discount) +
+              invoiceData.taxedNights * state.prices.taxeSejourNight
               }}
               €
             </td>
@@ -464,12 +434,12 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
+                  state.booking.status === "completed"
+                  ? "Facture " +
+                  todayDateMonth +
+                  "-" +
+                  state.booking.invoiceNumber.toString().padStart(4, "0")
+                  : "Réservation"
                   }}
                   - DETAILS RESTAURATION
                 </h4>
@@ -514,16 +484,12 @@
           </tbody>
           <tbody>
             <tr>
+              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total restauration</td>
+              <td></td>
+              <td></td>
               <td
-                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                Total restauration
-              </td>
-              <td></td>
-              <td></td>
-              <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-                {{ cateringSubtotal }} €
-              </td>
+                class="has-text-darkgrey is-uppercase has-text-weight-bold"
+              >{{ cateringSubtotal }} €</td>
             </tr>
           </tbody>
         </table>

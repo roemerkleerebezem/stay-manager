@@ -127,7 +127,13 @@
               <b-input v-model="meal.tempCost.unitPrice"></b-input>
             </b-field>
             <b-field label="Prix total">
-              <b-input v-model="meal.tempCost.totalPrice"></b-input>
+              <b-numberinput
+                :controls="false"
+                icon-pack="fas"
+                controls-position="compact"
+                step="0.01"
+                v-model="meal.tempCost.totalPrice"
+              ></b-numberinput>
             </b-field>
           </b-field>
           <b-field label="Informations supplémentaires" label-position="on-border">

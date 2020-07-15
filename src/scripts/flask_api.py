@@ -62,16 +62,43 @@ def calculateValue(booking):
         total_guests = total_guests + night['guests'] + night['externalGuests']
         taxable_guests = taxable_guests + night['guests']
 
-    stay_brut = nights*booking['prices']['villaNight'] + total_guests*booking['prices']['stayNight']
-    discount = booking['discountPerNight'][str(nights)]
+    stay_brut = nights*booking['prices']['villaNight'] + total_guests*booking['prices']['stayNight'] + booking['stay']['pets']*booking['prices']['petNight']
+    if str(nights) in booking['discountPerNight']:
+        discount = booking['discountPerNight'][str(nights)]
+    else:
+        discount = booking['discountPerNight'][(max(booking['discountPerNight']))]
     stay_net = stay_brut*(1-discount)
 
     meal_subtotal = 0
     for meal in booking['meals']:
         meal_subtotal = meal_subtotal + meal['adults']*meal['adultPrice'] + meal['children']*meal['childPrice']
+        for cost in meal['costs']:
+            try :
+                cost_total_price = float(cost['totalPrice'])
+                meal_subtotal = meal_subtotal - cost_total_price
+            except:
+                pass
 
-    booking_value = stay_net + meal_subtotal
-    return booking_value
+    costs_total = 0
+    paid_total = 0
+
+    for cost in booking['booking']['costs']:
+        try :
+            total_price =  float(cost["totalPrice"])
+            if cost['type'] == 'cost':
+                costs_total += total_price
+            elif cost['type'] == 'discount':
+                costs_total -= total_price
+            elif cost['type'] == 'payment':
+                paid_total += total_price
+
+        except:
+            pass
+
+    booking_value = stay_net + meal_subtotal + costs_total
+
+    return {'paid_total':paid_total,
+            'booking_value':booking_value}
 
 @app.route('/api', methods=['GET'])
 def get_bookings():
@@ -91,7 +118,8 @@ def get_bookings():
             'meals':len(booking['meals']),
             'name':booking['contact']['name'],
             'rating': booking['contact']['rating'],
-            'bookingValue':calculateValue(booking)
+            'bookingValue':calculateValue(booking)['booking_value'],
+            'paid':calculateValue(booking)['paid_total']
         }
         bookingList.append(temp_booking)
 

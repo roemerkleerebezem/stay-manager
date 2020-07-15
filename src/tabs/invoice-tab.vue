@@ -139,8 +139,8 @@
             <b-field grouped group-multiline>
               <b-field label="Type" label-position="on-border">
                 <b-select v-model="tempCost.type" placeholder="Type">
-                  <option value="payment">Paiement</option>
-                  <option value="cost">Coût</option>
+                  <option value="payment">Crédit</option>
+                  <option value="cost">Débit</option>
                 </b-select>
               </b-field>
               <b-field label="Label" label-position="on-border">

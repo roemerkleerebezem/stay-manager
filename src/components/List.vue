@@ -3,7 +3,7 @@
     <!-- NAVBAR -->
     <b-navbar fixed-top class="is-dark">
       <template slot="brand">
-        <b-navbar-item>
+        <b-navbar-item href="/">
           <img src="@/assets/merle-round-logo.png" />
           <span class="navbar-item has-text-light">Moulin du Merle stay-manager</span>
         </b-navbar-item>
@@ -70,7 +70,7 @@
                 <td>{{booking.baseGuests}}</td>
                 <td>{{booking.source}}</td>
                 <td>{{booking.meals}}</td>
-                <td>{{booking.bookingValue}} €</td>
+                <td>{{booking.paid}} / {{booking.bookingValue}} €</td>
                 <td>
                   <b-field>
                     <b-rate icon-pack="fas" v-model="booking.rating" disabled></b-rate>
@@ -121,40 +121,13 @@ export default {
       justLoaded: true,
       updateTab: false,
       bookingList: [],
-      thisYear: moment().year()
+      thisYear: moment().year(),
+      yearCompleted: 0,
+      yearContracts: 0
     };
   },
   computed: {
-    state: function() {},
-    yearCompleted: function() {
-      var total = 0;
-      var now = moment();
-      this.bookingList.forEach(function(booking, index) {
-        var departureDatetime = moment(departureDatetime);
-        if (
-          departureDatetime.year() == now.year() &&
-          departureDatetime <= now && booking.status == "completed"
-        ) {
-          total += booking.bookingValue;
-        }
-      });
-
-      return total;
-    },
-    yearContracts: function() {
-      var total = 0;
-      var now = moment();
-      this.bookingList.forEach(function(booking, index) {
-        var departureDatetime = moment(departureDatetime);
-        if (departureDatetime.year() == now.year() && departureDatetime > now && booking.status == "contract") {
-          total += booking.bookingValue;
-        } else {
-          console.log(departureDatetime);
-        }
-      });
-
-      return total;
-    }
+    state: function() {}
   },
 
   async mounted() {
@@ -174,6 +147,35 @@ export default {
   },
 
   methods: {
+    getYearCompleted: function(bookingList) {
+      var total = 0;
+      var now = moment();
+      bookingList.forEach(function(booking, index) {
+        var departureDatetime = moment(departureDatetime);
+        if (
+          departureDatetime.year() == now.year() &&
+          booking.status == "completed"
+        ) {
+          total += booking.bookingValue;
+        }
+      });
+      return total;
+    },
+    getYearContracts: function(bookingList) {
+      var total = 0;
+      var now = moment();
+      bookingList.forEach(function(booking, index) {
+        var departureDatetime = moment(departureDatetime);
+        if (
+          departureDatetime.year() == now.year() &&
+          booking.status == "contract"
+        ) {
+          total += booking.bookingValue;
+        }
+      });
+
+      return total;
+    },
     getStatusColor: function(bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
@@ -256,6 +258,8 @@ export default {
         this.updateTab = true;
       }
       this.bookingList = bookingList;
+      this.yearCompleted = this.getYearCompleted(bookingList);
+      this.yearContracts = this.getYearContracts(bookingList);
 
       return bookingList;
     }

@@ -4,7 +4,7 @@
       <!-- NAVBAR -->
       <b-navbar fixed-top class="is-dark">
         <template slot="brand">
-          <b-navbar-item>
+          <b-navbar-item href="/">
             <img src="@/assets/merle-round-logo.png" />
             <span class="navbar-item has-text-light"
               >Moulin du Merle stay-manager</span
@@ -70,9 +70,7 @@
           class="button is-primary"
           slot="trigger"
           aria-controls="payloadCollapse"
-        >
-          Toggle Payload
-        </button>
+        >Toggle Payload</button>
         <pre>state : {{ state }}</pre>
       </b-collapse>
     </div> -->
@@ -96,10 +94,10 @@ export default {
   components: {
     reservationTab,
     cateringTab,
-    invoiceTab
+    invoiceTab,
   },
   beforeMount() {
-    window.addEventListener("beforeunload", event => {
+    window.addEventListener("beforeunload", (event) => {
       if (this.synced) return;
       event.preventDefault();
       event.returnValue = "";
@@ -111,7 +109,7 @@ export default {
       apiStateNeedsUpdate: true,
       synced: false,
       justLoaded: true,
-      updateTab: false
+      updateTab: false,
     };
   },
   computed: {
@@ -129,7 +127,7 @@ export default {
       } else {
         return false;
       }
-    }
+    },
   },
 
   mounted: async function() {
@@ -154,8 +152,8 @@ export default {
       },
       shouldUpdate() {
         return this.apiStateNeedsUpdate;
-      }
-    }
+      },
+    },
   },
 
   watch: {
@@ -166,8 +164,8 @@ export default {
         }
         localStorage.setItem("state", JSON.stringify(this.state));
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -175,7 +173,7 @@ export default {
       let params = {
         q: query,
         singleEvents: true,
-        orderBy: "startTime"
+        orderBy: "startTime",
       };
 
       let response = await cal.Events.list(calendarId, params);
@@ -190,7 +188,7 @@ export default {
     },
     concatEvents: function(events) {
       var queryResults = [];
-      events.forEach(event => (queryResults = queryResults.concat(event)));
+      events.forEach((event) => (queryResults = queryResults.concat(event)));
       return queryResults;
     },
     getEvent: async function(query) {
@@ -199,7 +197,7 @@ export default {
       for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
         promises.push(await this.listEvents(calendarId, query));
       }
-      var queryResults = Promise.all(promises).then(result => {
+      var queryResults = Promise.all(promises).then((result) => {
         return this.concatEvents(promises);
       });
       console.log(queryResults);
@@ -208,10 +206,10 @@ export default {
 
     moveEvent: function(calendarId, eventId, destination) {
       return cal.Events.move(calendarId, eventId, destination)
-        .then(resp => {
+        .then((resp) => {
           return resp;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Error: moveEvent", err.message);
         });
     },
@@ -262,7 +260,7 @@ export default {
           "\n" +
           state.contact.phone +
           "\n" +
-          state.contact.email
+          state.contact.email,
       };
 
       var status = state.booking.status;
@@ -285,29 +283,29 @@ export default {
         if (events.length === 1) {
           var apiEvent = events[0];
           cal.Events.update(apiEvent.calendarId, apiEvent.id, event)
-            .then(resp => {
+            .then((resp) => {
               if (apiEvent.calendarId !== calendarId) {
                 this.moveEvent(apiEvent.calendarId, apiEvent.id, {
-                  destination: calendarId
+                  destination: calendarId,
                 })
-                  .then(resp => {
+                  .then((resp) => {
                     return resp;
                   })
-                  .catch(err => {
+                  .catch((err) => {
                     console.log("Error: movedEvent", err.message);
                   });
               }
               return resp;
             })
-            .catch(err => {
+            .catch((err) => {
               console.log("Error: updatedEvent", err.message);
             });
         } else if (events.length === 0) {
           cal.Events.insert(calendarId, event)
-            .then(resp => {
+            .then((resp) => {
               console.log("inserted event");
             })
-            .catch(err => {
+            .catch((err) => {
               console.log("Error: insertEvent-" + err.message);
             });
         }
@@ -316,7 +314,7 @@ export default {
     getApi: async function(state, action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       };
 
       var localState = state;
@@ -330,7 +328,7 @@ export default {
         method: "post",
         url: "/api",
         headers: headers,
-        data: request
+        data: request,
       })
         .then(function(response) {
           synced = response.data.synced;
@@ -348,7 +346,9 @@ export default {
 
       if (action === "save") {
         this.upsertEvent(apiState);
-        this.$router.push(`/booking/${apiState.booking.uuid}`).catch(err => {});
+        this.$router
+          .push(`/booking/${apiState.booking.uuid}`)
+          .catch((err) => {});
       }
 
       if (action === "retrieve") {
@@ -357,8 +357,8 @@ export default {
       }
 
       return apiState;
-    }
-  }
+    },
+  },
 };
 </script>
 
