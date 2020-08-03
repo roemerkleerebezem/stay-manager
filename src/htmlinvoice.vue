@@ -141,7 +141,9 @@
             </tr>
           </tbody>
         </table>
-        <p class="has-text-grey has-text-right">TVA non-applicable</p>
+        <p
+          class="has-text-grey has-text-right"
+        >TVA non applicable, art. 293 B du Code général des impôts</p>
       </div>
 
       <!-- DEPOSIT -->
@@ -516,31 +518,31 @@ import { mintcream } from "color-name";
 Vue.use(Buefy);
 
 export default {
-  data: function() {
+  data: function () {
     return {
       todayDate: new Date().toISOString().substring(0, 10),
       todayDateMonth: new Date().toISOString().substring(0, 7),
 
       state: this.$store.state,
       stayNoPrint: false,
-      cateringNoPrint: false
+      cateringNoPrint: false,
     };
   },
   computed: {
-    extraHours: function() {
+    extraHours: function () {
       var arrivalDatetime = moment(this.state.stay.arrivalDatetime);
       var departureDatetime = moment(this.state.stay.departureDatetime);
       var minArrivalDatetime = arrivalDatetime.clone().set({
         hour: 17,
         minute: 0,
         second: 0,
-        millisecond: 0
+        millisecond: 0,
       });
       var maxDepartureDatetime = departureDatetime.clone().set({
         hour: 14,
         minute: 0,
         second: 0,
-        millisecond: 0
+        millisecond: 0,
       });
       var extraHours = 0;
       var arrivalExtraHours = minArrivalDatetime.diff(arrivalDatetime, "hours");
@@ -557,7 +559,7 @@ export default {
       }
       return extraHours;
     },
-    staySubtotal: function() {
+    staySubtotal: function () {
       if (this.stayNoPrint === true) {
         return 0;
       }
@@ -567,7 +569,7 @@ export default {
 
       var villaTotal = invoiceData.villaNights * state.prices.villaNight;
       var stayNightsTotal = 0;
-      state.stay.stayNightArray.forEach(function(night, index) {
+      state.stay.stayNightArray.forEach(function (night, index) {
         stayNightsTotal += night.guests * state.prices.stayNight;
       });
 
@@ -577,20 +579,20 @@ export default {
 
       return villaTotal + stayNightsTotal + petsTotal + extraHoursTotal;
     },
-    cateringSubtotal: function() {
+    cateringSubtotal: function () {
       if (this.cateringNoPrint === true) {
         return 0;
       }
       var state = this.state;
       var cateringSubtotal = 0;
-      state.meals.forEach(function(meal, index) {
+      state.meals.forEach(function (meal, index) {
         cateringSubtotal += meal.adults * meal.adultPrice;
         cateringSubtotal += meal.children * meal.childPrice;
       });
 
       return cateringSubtotal;
     },
-    invoiceTotal: function() {
+    invoiceTotal: function () {
       var state = this.state;
       var invoiceData = this.invoiceData;
 
@@ -599,7 +601,7 @@ export default {
         invoiceData.taxedNights * state.prices.taxeSejourNight +
         this.cateringSubtotal;
 
-      state.booking.costs.forEach(function(cost, index) {
+      state.booking.costs.forEach(function (cost, index) {
         cost.type === "payment"
           ? (invoiceTotal -= cost.totalPrice)
           : (invoiceTotal += cost.totalPrice);
@@ -607,13 +609,13 @@ export default {
       return invoiceTotal;
     },
 
-    invoiceData: function() {
+    invoiceData: function () {
       var state = this.state;
       var stayNightArray = state.stay.stayNightArray;
       var externalVillaNights = 0;
       var villaNights = 0;
       var taxedNights = 0;
-      stayNightArray.forEach(function(night) {
+      stayNightArray.forEach(function (night) {
         if (!night.external) {
           villaNights += 1;
         } else {
@@ -631,18 +633,18 @@ export default {
           state.stay.stayNightArray.length
         )
           ? state.discountPerNight[state.stay.stayNightArray.length]
-          : 0.15
+          : 0.15,
       };
-    }
+    },
   },
   methods: {
-    hoursDifference: function(startDatetime, endDatetime) {
+    hoursDifference: function (startDatetime, endDatetime) {
       var duration = moment.duration(endDatetime.diff(startDatetime));
       var hours = duration.asHours();
       return hours;
     },
 
-    getDepositIcon: function(depositType) {
+    getDepositIcon: function (depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
       } else if (depositType === "cash") {
@@ -653,7 +655,7 @@ export default {
         return "money-check-alt";
       }
     },
-    getStatusColor: function(bookingStatus) {
+    getStatusColor: function (bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -666,19 +668,19 @@ export default {
         return "is-grey";
       }
     },
-    humanFormatDate: function(date) {
+    humanFormatDate: function (date) {
       return moment(date).format("ddd D MMM YYYY");
     },
-    humanFormatTime: function(date) {
+    humanFormatTime: function (date) {
       return moment(date).format("HH:mm");
     },
-    humanInvoiceDate: function(unixDate, format) {
+    humanInvoiceDate: function (unixDate, format) {
       if (format === "unix") {
         return moment.unix(unixDate).format("ddd. D MMM.");
       } else {
         return moment(unixDate).format("ddd. D MMM.");
       }
-    }
+    },
   },
   mounted() {
     if (localStorage.getItem("state")) {
@@ -698,7 +700,7 @@ export default {
     } else {
       this.cateringNoPrint = false;
     }
-  }
+  },
 };
 </script>
 
