@@ -713,9 +713,6 @@ export default {
   justify-content: space-between;
   padding: 10mm;
 }
-.flex-container > div {
-  /* border: dashed grey; */
-}
 
 .sheet {
   size: A4;
