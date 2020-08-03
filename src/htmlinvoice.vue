@@ -111,9 +111,9 @@
             <tr>
               <td
                 :class="
-                  cost.type === 'payment'
-                    ? 'has-text-success has-text-weight-semibold'
-                    : ''
+                  cost.type === 'cost'
+                    ? ''
+                    : 'has-text-success has-text-weight-semibold'
                 "
               >
                 {{ cost.label }}
@@ -125,11 +125,11 @@
               </td>
               <td
                 :class="
-                  cost.type === 'payment'
-                    ? 'has-text-success has-text-weight-semibold'
-                    : ''
+                  cost.type === 'cost'
+                    ? ''
+                    : 'has-text-success has-text-weight-semibold'
                 "
-              >{{ cost.type === "payment" ? "-" : "+" }}{{ cost.totalPrice }} €</td>
+              >{{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €</td>
             </tr>
           </tbody>
           <tbody>
@@ -472,13 +472,13 @@
           </thead>
           <tbody v-for="meal in state.meals" :key="meal.id">
             <tr v-if="meal.adults != 0">
-              <td>{{ meal.type }} {{ humanInvoiceDate(meal.date) }}</td>
+              <td>{{ cateringString[meal.type] }} {{ humanInvoiceDate(meal.date) }}</td>
               <td>{{ meal.adults }} adultes</td>
               <td>{{ meal.adultPrice }} €</td>
               <td>{{ meal.adults * meal.adultPrice }} €</td>
             </tr>
             <tr v-if="meal.children != 0">
-              <td>{{ meal.type }} {{ humanInvoiceDate(meal.date) }}</td>
+              <td>{{ cateringString[meal.type] }} {{ humanInvoiceDate(meal.date) }}</td>
               <td>{{ meal.children }} enfants</td>
               <td>{{ meal.childPrice }} €</td>
               <td>{{ meal.children * meal.childPrice }} €</td>
@@ -526,6 +526,12 @@ export default {
       state: this.$store.state,
       stayNoPrint: false,
       cateringNoPrint: false,
+
+      cateringString: {
+        breakfast: "Petit-déjeuner",
+        lunch: "Déjeuner",
+        dinner: "Dîner",
+      },
     };
   },
   computed: {
@@ -602,9 +608,9 @@ export default {
         this.cateringSubtotal;
 
       state.booking.costs.forEach(function (cost, index) {
-        cost.type === "payment"
-          ? (invoiceTotal -= cost.totalPrice)
-          : (invoiceTotal += cost.totalPrice);
+        cost.type === "cost"
+          ? (invoiceTotal += cost.totalPrice)
+          : (invoiceTotal -= cost.totalPrice);
       });
       return invoiceTotal;
     },

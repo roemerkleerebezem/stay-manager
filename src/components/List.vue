@@ -88,11 +88,11 @@
           <!-- FORM TITLE -->
           <h3
             class="title is-3"
-          >Reservation value for {{thisYear}} : {{yearCompleted + yearContracts}} €</h3>
+          >Reservation value for {{thisYear}} : {{Math.round(yearCompleted + yearContracts)}} €</h3>
           <h4 class="title is-4">Completed reservations:</h4>
-          <h5 class="title is-5">{{yearCompleted}} €</h5>
+          <h5 class="title is-5">{{Math.round(yearCompleted)}} €</h5>
           <h4 class="title is-4">Upcoming contracts:</h4>
-          <h5 class="title is-5">{{yearContracts}} €</h5>
+          <h5 class="title is-5">{{Math.round(yearContracts)}} €</h5>
 
           <!-- TABLE -->
         </div>
@@ -123,11 +123,11 @@ export default {
       bookingList: [],
       thisYear: moment().year(),
       yearCompleted: 0,
-      yearContracts: 0
+      yearContracts: 0,
     };
   },
   computed: {
-    state: function() {}
+    state: function () {},
   },
 
   async mounted() {
@@ -142,15 +142,15 @@ export default {
         }
         localStorage.setItem("state", JSON.stringify(this.state));
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
-    getYearCompleted: function(bookingList) {
+    getYearCompleted: function (bookingList) {
       var total = 0;
       var now = moment();
-      bookingList.forEach(function(booking, index) {
+      bookingList.forEach(function (booking, index) {
         var departureDatetime = moment(departureDatetime);
         if (
           departureDatetime.year() == now.year() &&
@@ -161,10 +161,10 @@ export default {
       });
       return total;
     },
-    getYearContracts: function(bookingList) {
+    getYearContracts: function (bookingList) {
       var total = 0;
       var now = moment();
-      bookingList.forEach(function(booking, index) {
+      bookingList.forEach(function (booking, index) {
         var departureDatetime = moment(departureDatetime);
         if (
           departureDatetime.year() == now.year() &&
@@ -176,7 +176,7 @@ export default {
 
       return total;
     },
-    getStatusColor: function(bookingStatus) {
+    getStatusColor: function (bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -190,19 +190,19 @@ export default {
       }
     },
 
-    humanFormatDatetime: function(date) {
+    humanFormatDatetime: function (date) {
       return moment(date).format("ddd D MMM YYYY - HH:mm");
     },
-    listEvents: async function(calendarId, query) {
+    listEvents: async function (calendarId, query) {
       let params = {
         q: query,
         singleEvents: true,
-        orderBy: "startTime"
+        orderBy: "startTime",
       };
 
       let response = await cal.Events.list(calendarId, params);
       var responseArray = [];
-      response.forEach(function(event) {
+      response.forEach(function (event) {
         event.calendarId = calendarId;
         if (event.description.includes(query)) {
           responseArray.push(event);
@@ -210,28 +210,28 @@ export default {
       });
       return responseArray;
     },
-    concatEvents: function(events) {
+    concatEvents: function (events) {
       var queryResults = [];
-      events.forEach(event => (queryResults = queryResults.concat(event)));
+      events.forEach((event) => (queryResults = queryResults.concat(event)));
       return queryResults;
     },
-    getEvent: async function(query) {
+    getEvent: async function (query) {
       var promises = [];
 
       for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
         promises.push(await this.listEvents(calendarId, query));
       }
-      var queryResults = Promise.all(promises).then(result => {
+      var queryResults = Promise.all(promises).then((result) => {
         return this.concatEvents(promises);
       });
       console.log(queryResults);
       return queryResults;
     },
 
-    getApiBookings: async function(action) {
+    getApiBookings: async function (action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       };
 
       var request = {};
@@ -239,18 +239,20 @@ export default {
       var bookingList = await axios({
         method: "get",
         url: "http://localhost:5000/api",
-        headers: headers
+        headers: headers,
       })
-        .then(function(response) {
+        .then(function (response) {
           return response.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
 
       if (action === "save") {
         this.upsertEvent(apiState);
-        this.$router.push(`/booking/${apiState.booking.uuid}`).catch(err => {});
+        this.$router
+          .push(`/booking/${apiState.booking.uuid}`)
+          .catch((err) => {});
       }
 
       if (action === "retrieve") {
@@ -262,8 +264,8 @@ export default {
       this.yearContracts = this.getYearContracts(bookingList);
 
       return bookingList;
-    }
-  }
+    },
+  },
 };
 </script>
 
