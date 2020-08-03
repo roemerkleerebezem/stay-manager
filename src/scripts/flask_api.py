@@ -87,9 +87,10 @@ def calculateValue(booking):
             total_price =  float(cost["totalPrice"])
             if cost['type'] == 'cost':
                 costs_total += total_price
-            elif cost['type'] == 'discount':
-                costs_total -= total_price
+            #     payment = reduction
             elif cost['type'] == 'payment':
+                costs_total -= total_price
+            elif cost['type'] in ['payment-bank', 'payment-cash']:
                 paid_total += total_price
 
         except:

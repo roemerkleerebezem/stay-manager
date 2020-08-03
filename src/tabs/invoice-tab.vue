@@ -110,7 +110,7 @@
                   <b-icon
                     style="margin-right:0.5ch;display: inline-table;"
                     pack="fas"
-                    :icon="cost.type === 'payment' ? 'arrow-up' : 'arrow-down'"
+                    :icon="cost.type === 'cost' ? 'arrow-down' : 'arrow-up'"
                     size="is-medium"
                     type="is-grey"
                   ></b-icon>
@@ -122,10 +122,10 @@
                 <span
                   :class="
                     'tag ' +
-                      (cost.type === 'payment' ? 'is-success' : 'is-danger')
+                      (cost.type === 'cost' ? 'is-danger' : 'is-success')
                   "
                 >
-                  {{ cost.type === "payment" ? "+" : "-" }}
+                  {{ cost.type === "cost" ? "-" : "+" }}
                   {{ cost.totalPrice }} €
                 </span>
 
@@ -141,6 +141,8 @@
                 <b-select v-model="tempCost.type" placeholder="Type">
                   <option value="payment">Crédit</option>
                   <option value="cost">Débit</option>
+                  <option value="payment-bank">Paiement via banque</option>
+                  <option value="payment-cash">Paiement par liquide</option>
                 </b-select>
               </b-field>
               <b-field label="Label" label-position="on-border">
@@ -225,7 +227,7 @@ export default {
         status: null,
         type: null,
         amount: null,
-        dateReceived: null
+        dateReceived: null,
       },
       tempCost: {
         id: null,
@@ -233,10 +235,10 @@ export default {
         label: null,
         units: null,
         unitPrice: null,
-        totalPrice: null
+        totalPrice: null,
       },
       cateringNoPrint: false,
-      stayNoPrint: false
+      stayNoPrint: false,
     };
   },
   computed: {},
@@ -244,20 +246,20 @@ export default {
     cateringNoPrint: {
       handler() {
         localStorage.setItem("cateringNoPrint", this.cateringNoPrint);
-      }
+      },
     },
     stayNoPrint: {
       handler() {
         localStorage.setItem("stayNoPrint", this.stayNoPrint);
-      }
-    }
+      },
+    },
   },
   mounted() {
     localStorage.setItem("cateringNoPrint", this.cateringNoPrint);
     localStorage.setItem("stayNoPrint", this.stayNoPrint);
   },
   methods: {
-    getId: function(object) {
+    getId: function (object) {
       var arr = [];
       for (var obj in object) {
         arr.push(parseInt(obj));
@@ -268,11 +270,11 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: htmlInvoice,
-        hasModalCard: false
+        hasModalCard: false,
       });
     },
 
-    addDeposit: function() {
+    addDeposit: function () {
       var tempDeposit = this.tempDeposit;
       var tempDeposits = this.booking.deposits;
       tempDeposit.id = this.getId(tempDeposits);
@@ -288,7 +290,7 @@ export default {
         status: null,
         type: null,
         amount: null,
-        dateReceived: null
+        dateReceived: null,
       };
     },
 
@@ -298,7 +300,7 @@ export default {
       printWindow.print();
     },
 
-    addCost: function() {
+    addCost: function () {
       var tempCost = this.tempCost;
       var tempCosts = this.booking.costs;
       tempCost.id = this.getId(tempCosts);
@@ -311,10 +313,10 @@ export default {
         label: null,
         units: null,
         unitPrice: null,
-        totalPrice: null
+        totalPrice: null,
       };
     },
-    getDepositIcon: function(depositType) {
+    getDepositIcon: function (depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
       } else if (depositType === "cash") {
@@ -324,8 +326,8 @@ export default {
       } else {
         return "money-check-alt";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
