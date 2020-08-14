@@ -30,7 +30,12 @@
         </div>
         <div class="card-content">
           <b-field label="Date" label-position="on-border">
-            <b-datepicker icon-pack="fas" v-model="meal.date" placeholder="Date du repas"></b-datepicker>
+            <b-datepicker
+              icon-pack="fas"
+              v-model="meal.date"
+              :first-day-of-week="1"
+              placeholder="Date du repas"
+            ></b-datepicker>
           </b-field>
           <!-- GUESTS -->
           <b-field grouped group-multiline>
@@ -169,14 +174,14 @@ export default {
   components: {},
   data() {
     return {
-      meals: this.$store.state.meals
+      meals: this.$store.state.meals,
     };
   },
   computed: {},
   watch: {},
 
   methods: {
-    addMeal: function(mealType) {
+    addMeal: function (mealType) {
       var tempMeal = {
         id: this.uuidv4(),
         type: mealType,
@@ -191,14 +196,14 @@ export default {
           units: null,
           unitPrice: null,
           totalPrice: null,
-          information: null
+          information: null,
         },
-        costs: []
+        costs: [],
       };
       this.meals.push(tempMeal);
     },
-    uuidv4: function() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+    uuidv4: function () {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
         c
       ) {
         var r = (Math.random() * 16) | 0,
@@ -207,8 +212,8 @@ export default {
       });
     },
 
-    addCost: function(mealId) {
-      var meal = this.meals.find(x => x.id === mealId);
+    addCost: function (mealId) {
+      var meal = this.meals.find((x) => x.id === mealId);
       var tempCosts = meal.costs;
       meal.tempCost.id = this.uuidv4();
       tempCosts.push(meal.tempCost);
@@ -220,10 +225,10 @@ export default {
         units: null,
         unitPrice: null,
         totalPrice: null,
-        information: null
+        information: null,
       };
-    }
-  }
+    },
+  },
 };
 </script>
 

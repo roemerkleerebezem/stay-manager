@@ -9,11 +9,7 @@
       label="Statut"
       label-position="on-border"
     >
-      <b-select
-        v-model="booking.status"
-        size="is-medium"
-        placeholder="Select a type"
-      >
+      <b-select v-model="booking.status" size="is-medium" placeholder="Select a type">
         <option value="inquiry">Inquiry</option>
         <option value="contract">Definitive</option>
         <option value="completed">Completed</option>
@@ -35,13 +31,11 @@
       <b-datepicker
         icon-pack="fas"
         v-model="booking.date"
+        :first-day-of-week="1"
         placeholder="Date de réservation"
         ref="bookingDatePicker"
       >
-        <button
-          class="button is-success"
-          @click="$refs.bookingDatePicker.toggle()"
-        >
+        <button class="button is-success" @click="$refs.bookingDatePicker.toggle()">
           <b-icon pack="fas" icon="check"></b-icon>
           <span>Valider</span>
         </button>
@@ -57,19 +51,19 @@ export default {
   props: {},
   data() {
     return {
-      booking: this.$store.state.booking
+      booking: this.$store.state.booking,
     };
   },
   computed: {
-    bookingDate: function() {
+    bookingDate: function () {
       var returnDate =
         this.booking.date == null ? null : moment(this.booking.date).toDate();
       console.log(this.booking.date);
       return returnDate;
-    }
+    },
   },
   methods: {
-    getStatusColor: function(bookingStatus) {
+    getStatusColor: function (bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -81,8 +75,8 @@ export default {
       } else {
         return "is-grey";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

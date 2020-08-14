@@ -1,14 +1,12 @@
 <template>
-  <div>
+  <section class="app-section">
     <template>
       <!-- NAVBAR -->
       <b-navbar fixed-top class="is-dark">
         <template slot="brand">
           <b-navbar-item href="/">
             <img src="@/assets/merle-round-logo.png" />
-            <span class="navbar-item has-text-light"
-              >Moulin du Merle stay-manager</span
-            >
+            <span class="navbar-item has-text-light">Moulin du Merle stay-manager</span>
           </b-navbar-item>
         </template>
         <template slot="start"></template>
@@ -31,8 +29,7 @@
                   @click="getApi(state, 'save')"
                   :disabled="synced || !dataReady"
                   :class="synced ? 'is-success' : 'is-warning'"
-                  >{{ synced ? "Saved" : "Save" }}</b-button
-                >
+                >{{ synced ? "Saved" : "Save" }}</b-button>
               </b-tooltip>
             </div>
           </b-navbar-item>
@@ -41,13 +38,7 @@
     </template>
 
     <!-- TABS -->
-    <b-tabs
-      :key="updateTab"
-      id="sheetTabs"
-      size="is-medium is-boxed"
-      v-model="activeTab"
-      expanded
-    >
+    <b-tabs :key="updateTab" id="sheetTabs" size="is-medium is-boxed" v-model="activeTab" expanded>
       <b-tab-item class="has-text-grey" label="Reservation">
         <reservation-tab></reservation-tab>
       </b-tab-item>
@@ -55,8 +46,6 @@
       <b-tab-item label="Restauration">
         <catering-tab></catering-tab>
       </b-tab-item>
-
-      <b-tab-item label="Frais" disabled></b-tab-item>
 
       <b-tab-item label="Facture">
         <invoice-tab></invoice-tab>
@@ -73,8 +62,8 @@
         >Toggle Payload</button>
         <pre>state : {{ state }}</pre>
       </b-collapse>
-    </div> -->
-  </div>
+    </div>-->
+  </section>
 </template>
 
 <script>
@@ -113,10 +102,10 @@ export default {
     };
   },
   computed: {
-    state: function() {
+    state: function () {
       return this.$store.state;
     },
-    dataReady: function() {
+    dataReady: function () {
       var state = this.state;
       if (
         (state.booking.status !== null) &
@@ -130,7 +119,7 @@ export default {
     },
   },
 
-  mounted: async function() {
+  mounted: async function () {
     getBookingFromUrl: {
       var uuid = this.$route.params.uuid;
       if (uuid !== undefined) {
@@ -169,7 +158,7 @@ export default {
   },
 
   methods: {
-    listEvents: async function(calendarId, query) {
+    listEvents: async function (calendarId, query) {
       let params = {
         q: query,
         singleEvents: true,
@@ -178,7 +167,7 @@ export default {
 
       let response = await cal.Events.list(calendarId, params);
       var responseArray = [];
-      response.forEach(function(event) {
+      response.forEach(function (event) {
         event.calendarId = calendarId;
         if (event.description.includes(query)) {
           responseArray.push(event);
@@ -186,12 +175,12 @@ export default {
       });
       return responseArray;
     },
-    concatEvents: function(events) {
+    concatEvents: function (events) {
       var queryResults = [];
       events.forEach((event) => (queryResults = queryResults.concat(event)));
       return queryResults;
     },
-    getEvent: async function(query) {
+    getEvent: async function (query) {
       var promises = [];
 
       for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
@@ -204,7 +193,7 @@ export default {
       return queryResults;
     },
 
-    moveEvent: function(calendarId, eventId, destination) {
+    moveEvent: function (calendarId, eventId, destination) {
       return cal.Events.move(calendarId, eventId, destination)
         .then((resp) => {
           return resp;
@@ -214,7 +203,7 @@ export default {
         });
     },
 
-    upsertEvent: async function(state) {
+    upsertEvent: async function (state) {
       var startDateTime = moment(state.stay.arrivalDatetime);
       var endDateTime = moment(state.stay.departureDatetime);
       endDateTime = endDateTime.subtract(1, "days");
@@ -311,7 +300,7 @@ export default {
         }
       }
     },
-    getApi: async function(state, action) {
+    getApi: async function (state, action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -330,11 +319,11 @@ export default {
         headers: headers,
         data: request,
       })
-        .then(function(response) {
+        .then(function (response) {
           synced = response.data.synced;
           return response.data.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
 
@@ -365,7 +354,11 @@ export default {
 <style lang="scss">
 @import "@/scss/_mystyles.scss";
 
-section {
+nav.tabs > ul > li {
+  background-color: white;
+}
+
+section.app-section {
   background-color: $background;
 }
 

@@ -77,6 +77,7 @@
             </b-field>
             <b-field label="Date reception" label-position="on-border">
               <b-datepicker
+                :first-day-of-week="1"
                 icon-pack="fas"
                 v-model="tempDeposit.dateReceived"
                 placeholder="Date de reception"
@@ -180,6 +181,11 @@
               <b-icon pack="fas" icon="utensils" size="is-small"></b-icon>
               <span>Catering</span>
             </b-checkbox-button>
+
+            <b-checkbox-button v-model="contractNoPrint" type="is-success">
+              <b-icon pack="fas" icon="file" size="is-small"></b-icon>
+              <span>Contract</span>
+            </b-checkbox-button>
           </b-field>
 
           <hr />
@@ -239,6 +245,7 @@ export default {
       },
       cateringNoPrint: false,
       stayNoPrint: false,
+      contractNoPrint: false,
     };
   },
   computed: {},
@@ -253,10 +260,16 @@ export default {
         localStorage.setItem("stayNoPrint", this.stayNoPrint);
       },
     },
+    contractNoPrint: {
+      handler() {
+        localStorage.setItem("contractNoPrint", this.contractNoPrint);
+      },
+    },
   },
   mounted() {
     localStorage.setItem("cateringNoPrint", this.cateringNoPrint);
     localStorage.setItem("stayNoPrint", this.stayNoPrint);
+    localStorage.setItem("contractNoPrint", this.contractNoPrint);
   },
   methods: {
     getId: function (object) {

@@ -6,6 +6,7 @@
     <b-field label="Check-in" label-position="on-border">
       <b-datetimepicker
         icon-pack="fas"
+        :datepicker="{'first-day-of-week':1}"
         v-model="stay.arrivalDatetime"
         ref="arrivalDatetimePicker"
         placeholder="Check-in"
@@ -26,6 +27,7 @@
       <b-datetimepicker
         icon-pack="fas"
         v-model="stay.departureDatetime"
+        :datepicker="{'first-day-of-week':1}"
         ref="departureDatetimePicker"
         placeholder="Check-out"
         :timepicker="{ incrementMinutes: 15 }"
@@ -108,14 +110,14 @@ import moment from "moment";
 export default {
   data() {
     return {
-      stay: this.$store.state.stay
+      stay: this.$store.state.stay,
     };
   },
   computed: {
-    computedStay: function() {
+    computedStay: function () {
       return Object.assign({}, this.stay);
     },
-    stayNightArray: function() {
+    stayNightArray: function () {
       var tempStayNightArray = [];
       var tempArrivalDate = moment(this.stay.arrivalDatetime);
       var tempDepartureDate = moment(this.stay.departureDatetime);
@@ -129,28 +131,28 @@ export default {
           date: tempArrivalDate.unix(),
           guests: this.stay.baseGuests,
           externalGuests: 0,
-          external: false
+          external: false,
         };
         tempStayNightArray.push(tempStayNightObject);
         tempArrivalDate = tempArrivalDate.add(1, "days");
         i++;
       }
       return tempStayNightArray;
-    }
+    },
   },
   methods: {
-    humanFormatDatetime: function(date) {
+    humanFormatDatetime: function (date) {
       return moment(date).format("ddd D MMM YYYY - HH:mm");
     },
-    editNightContentTextFormat: function(date) {
+    editNightContentTextFormat: function (date) {
       return moment.unix(date).format("dddd D");
-    }
+    },
   },
   watch: {
     computedStay: {
       // Update departure date (not time) if the arrival date changes
       deep: true,
-      handler: function(newStay, oldStay) {
+      handler: function (newStay, oldStay) {
         var oldStayArrivalDatetime = moment(oldStay.arrivalDatetime);
         var oldStayDepartureDatetime = moment(oldStay.departureDatetime);
         var newStayArrivalDatetime = moment(newStay.arrivalDatetime);
@@ -167,9 +169,9 @@ export default {
             .toDate();
         }
         this.stay.stayNightArray = this.stayNightArray;
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 

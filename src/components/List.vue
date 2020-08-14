@@ -19,7 +19,7 @@
       </template>
     </b-navbar>
 
-    <section>
+    <section class="app-section">
       <!-- LIST -->
       <div class="container reservation-list">
         <div class="box">
@@ -27,12 +27,147 @@
           <h3 class="title is-3">Reservation list</h3>
 
           <!-- TABLE -->
-          <b-field>
-            <div class="control">
-              <b-switch v-model="showAll">Show All</b-switch>
-            </div>
+          <!-- LIST SETTINGS -->
+
+          <!-- DATERANGE FILTER -->
+          <b-field grouped>
+            <p class="control">
+              <b-button type="is-dark" outlined rounded @click="setDateFilter('year')">{{thisYear}}</b-button>
+            </p>
+            <p class="control">
+              <b-button
+                type="is-dark"
+                outlined
+                rounded
+                @click="setDateFilter('month')"
+              >{{thisMonth}}</b-button>
+            </p>
+            <p class="control">
+              <b-button type="is-dark" outlined rounded @click="setDateFilter('all')">All</b-button>
+            </p>
+            <b-datepicker
+              icon-pack="fas"
+              placeholder="Click to select..."
+              v-model="filterDates"
+              :first-day-of-week="1"
+              range
+            ></b-datepicker>
           </b-field>
 
+          <!-- TYPE FILTER -->
+          <b-field>
+            <b-checkbox-button
+              v-model="selectedTypes"
+              native-value="cancelled"
+              type="is-dark"
+              outlined
+            >Cancelled</b-checkbox-button>
+
+            <b-checkbox-button
+              v-model="selectedTypes"
+              native-value="inquiry"
+              type="is-warning"
+            >Inquiry</b-checkbox-button>
+
+            <b-checkbox-button
+              v-model="selectedTypes"
+              native-value="contract"
+              type="is-success"
+            >Contract</b-checkbox-button>
+
+            <b-checkbox-button
+              v-model="selectedTypes"
+              native-value="completed"
+              type="is-success"
+            >Completed</b-checkbox-button>
+          </b-field>
+
+          <!-- STATS -->
+          <div class="columns">
+            <!-- Results -->
+            <div class="column">
+              <article class="message is-dark">
+                <div class="message-body is-size-6">
+                  <p class="is-size-5">
+                    Filter
+                    <span class="has-text-weight-semibold">({{filterStats.total.number}})</span>
+                  </p>
+                  <p>
+                    Weeks :
+                    <span class="has-text-weight-bold">{{filterDateSpan}}</span>
+                  </p>
+                  <p>
+                    Total Value :
+                    <span
+                      class="has-text-weight-bold"
+                    >{{ filterStats.total.totalValue }} €</span>
+                  </p>
+                </div>
+              </article>
+            </div>
+            <div class="column">
+              <article class="message is-success">
+                <div class="message-body is-size-6">
+                  <p class="is-size-5">
+                    Completed
+                    <span class="has-text-weight-semibold">({{filterStats.completed.number}})</span>
+                  </p>
+                  <p>
+                    Value :
+                    <span class="has-text-weight-bold">{{filterStats.completed.totalValue}} €</span>
+                  </p>
+                  <p>
+                    Average :
+                    <span
+                      class="has-text-weight-bold"
+                    >{{filterStats.completed.averageValue }} €</span>
+                  </p>
+                </div>
+              </article>
+            </div>
+            <div class="column">
+              <article class="message is-success">
+                <div class="message-body is-size-6">
+                  <p class="is-size-5">
+                    Contract
+                    <span class="has-text-weight-semibold">({{filterStats.contract.number}})</span>
+                  </p>
+                  <p>
+                    Value :
+                    <span class="has-text-weight-bold">{{filterStats.contract.totalValue}} €</span>
+                  </p>
+                  <p>
+                    Average :
+                    <span
+                      class="has-text-weight-bold"
+                    >{{filterStats.contract.averageValue }} €</span>
+                  </p>
+                </div>
+              </article>
+            </div>
+            <div class="column">
+              <article class="message is-warning">
+                <div class="message-body is-size-6">
+                  <p class="is-size-5">
+                    Inquiry
+                    <span class="has-text-weight-semibold">({{filterStats.inquiry.number}})</span>
+                  </p>
+                  <p>
+                    Value :
+                    <span class="has-text-weight-bold">{{filterStats.inquiry.totalValue}} €</span>
+                  </p>
+                  <p>
+                    Average :
+                    <span
+                      class="has-text-weight-bold"
+                    >{{filterStats.inquiry.averageValue }} €</span>
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- TABLE -->
           <table class="table is-fullwidth is-bordered">
             <thead>
               <tr class="has-background-light">
@@ -48,8 +183,8 @@
                 <th>Avis</th>
               </tr>
             </thead>
-            <tbody v-for="booking in bookingList" :key="booking.uuid">
-              <tr v-if="(booking.status =='contract'|booking.status =='inquiry')|(showAll)">
+            <tbody v-for="booking in filteredBookingList" :key="booking.uuid">
+              <tr v-if="(selectedTypes.indexOf(booking.status) != -1) ">
                 <td>{{booking.invoiceNumber}}</td>
                 <td>
                   <b-button
@@ -81,22 +216,6 @@
           </table>
         </div>
       </div>
-
-      <!-- VALUE PER YEAR -->
-      <div class="container reservation-list">
-        <div class="box">
-          <!-- FORM TITLE -->
-          <h3
-            class="title is-3"
-          >Reservation value for {{thisYear}} : {{Math.round(yearCompleted + yearContracts)}} €</h3>
-          <h4 class="title is-4">Completed reservations:</h4>
-          <h5 class="title is-5">{{Math.round(yearCompleted)}} €</h5>
-          <h4 class="title is-4">Upcoming contracts:</h4>
-          <h5 class="title is-5">{{Math.round(yearContracts)}} €</h5>
-
-          <!-- TABLE -->
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -115,19 +234,122 @@ export default {
 
   data() {
     return {
-      showAll: false,
+      filterDates: [
+        moment().startOf("year").toDate(),
+        moment().endOf("year").toDate(),
+      ],
+      selectedTypes: ["inquiry", "contract"],
       apiStateNeedsUpdate: true,
       synced: false,
       justLoaded: true,
       updateTab: false,
       bookingList: [],
       thisYear: moment().year(),
+      thisMonth: moment().format("MMMM"),
       yearCompleted: 0,
       yearContracts: 0,
     };
   },
   computed: {
+    filterDateSpan: function () {
+      return moment(this.filterDates[1]).diff(
+        moment(this.filterDates[0]),
+        "weeks"
+      );
+    },
     state: function () {},
+    filteredBookingList: function () {
+      var filteredBookingList = [];
+      var filterDates = this.filterDates;
+      var selectedTypes = this.selectedTypes;
+      this.bookingList.forEach(function (booking, index) {
+        if (
+          selectedTypes.indexOf(booking.status) != -1 &&
+          moment(filterDates[1]).isSameOrAfter(
+            moment(booking.departureDatetime)
+          ) &&
+          moment(filterDates[0]).isSameOrBefore(
+            moment(booking.departureDatetime)
+          )
+        ) {
+          filteredBookingList.push(booking);
+        }
+      });
+      return filteredBookingList;
+    },
+    filterStats: function () {
+      var filteredBookingList = this.filteredBookingList;
+
+      var completedList = filteredBookingList.filter(function (booking) {
+        return booking.status == "completed";
+      });
+      var inquiryList = filteredBookingList.filter(function (booking) {
+        return booking.status == "inquiry";
+      });
+      var contractList = filteredBookingList.filter(function (booking) {
+        return booking.status == "contract";
+      });
+
+      var filterStats = {
+        completed: {
+          number: completedList.length,
+          totalValue: completedList
+            .map((a) => moment(a.bookingValue))
+            .reduce((a, b) => a + b, 0),
+          averageValue:
+            completedList.length > 0
+              ? Math.round(
+                  completedList
+                    .map((a) => moment(a.bookingValue))
+                    .reduce((a, b) => a + b, 0) / completedList.length
+                )
+              : 0,
+        },
+        inquiry: {
+          number: inquiryList.length,
+          totalValue: inquiryList
+            .map((a) => moment(a.bookingValue))
+            .reduce((a, b) => a + b, 0),
+          averageValue:
+            inquiryList.length > 0
+              ? Math.round(
+                  inquiryList
+                    .map((a) => moment(a.bookingValue))
+                    .reduce((a, b) => a + b, 0) / inquiryList.length
+                )
+              : 0,
+        },
+        contract: {
+          number: contractList.length,
+          totalValue: contractList
+            .map((a) => moment(a.bookingValue))
+            .reduce((a, b) => a + b, 0),
+          averageValue:
+            contractList.length > 0
+              ? Math.round(
+                  contractList
+                    .map((a) => moment(a.bookingValue))
+                    .reduce((a, b) => a + b, 0) / contractList.length
+                )
+              : 0,
+        },
+        total: {
+          number: filteredBookingList.length,
+          totalValue: filteredBookingList
+            .map((a) => moment(a.bookingValue))
+            .reduce((a, b) => a + b, 0),
+          averageValue:
+            filteredBookingList.length > 0
+              ? Math.round(
+                  filteredBookingList
+                    .map((a) => moment(a.bookingValue))
+                    .reduce((a, b) => a + b, 0) / filteredBookingList.length
+                )
+              : 0,
+        },
+      };
+      return filterStats;
+    },
   },
 
   async mounted() {
@@ -147,6 +369,27 @@ export default {
   },
 
   methods: {
+    setDateFilter: function (period) {
+      if (period == "year") {
+        this.filterDates = [
+          moment().startOf("year").toDate(),
+          moment().endOf("year").toDate(),
+        ];
+      } else if (period == "month") {
+        this.filterDates = [
+          moment().startOf("month").toDate(),
+          moment().endOf("month").toDate(),
+        ];
+      } else if (period == "all") {
+        var bookingList = this.bookingList;
+        let result = bookingList.map((a) => moment(a.departureDatetime));
+        this.filterDates = [
+          moment.min(result).toDate(),
+          moment.max(result).toDate(),
+        ];
+      }
+      return null;
+    },
     getYearCompleted: function (bookingList) {
       var total = 0;
       var now = moment();
@@ -184,9 +427,9 @@ export default {
       } else if (bookingStatus === "completed") {
         return "is-success";
       } else if (bookingStatus === "cancelled") {
-        return "is-danger";
+        return "is-dark";
       } else {
-        return "is-grey";
+        return "is-light";
       }
     },
 
@@ -272,7 +515,7 @@ export default {
 <style lang="scss">
 @import "@/scss/_mystyles.scss";
 
-section {
+section.app-section {
   background-color: $background;
 }
 

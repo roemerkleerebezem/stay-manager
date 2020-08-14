@@ -91,6 +91,35 @@
                 €
               </td>
             </tr>
+          </tbody>
+          <!-- CREDIT DEBIT -->
+          <tbody v-for="cost in state.booking.costs" :key="cost.id">
+            <tr v-if="['cost', 'payment'].includes(cost.type)">
+              <td
+                :class="
+                  cost.type === 'cost'
+                    ? ''
+                    : 'has-text-success has-text-weight-semibold'
+                "
+              >
+                {{ cost.label }}
+                <span
+                  v-if="(cost.units !== null) & (cost.unitPrice !== null)"
+                  class="has-text-grey"
+                  style="margin-left:1rem;"
+                >{{ cost.units }} x {{ cost.unitPrice }} €</span>
+              </td>
+              <td
+                :class="
+                  cost.type === 'cost'
+                    ? ''
+                    : 'has-text-success has-text-weight-semibold'
+                "
+              >{{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €</td>
+            </tr>
+          </tbody>
+
+          <tbody>
             <tr v-if="cateringSubtotal !== 0">
               <td>Total restauration</td>
               <td>{{ cateringSubtotal }} €</td>
@@ -107,8 +136,9 @@
               </td>
             </tr>
           </tbody>
+          <!-- PAYMENTS -->
           <tbody v-for="cost in state.booking.costs" :key="cost.id">
-            <tr>
+            <tr v-if="['payment-cash', 'payment-bank'].includes(cost.type)">
               <td
                 :class="
                   cost.type === 'cost'
@@ -188,9 +218,11 @@
         </div>
       </div>
 
-      <!-- FOOTER -->
-      <div>
-        <!-- <p class="is-pulled-right">Page 1/3</p> -->
+      <!-- IBAN -->
+      <div class="has-text-grey has-text-right">
+        <p>MME GILBERTHA AKKERMANS</p>
+        <p>Crédit Agricole</p>
+        <p>IBAN : FR76 1480 6580 0044 3191 6000 091</p>
       </div>
     </div>
 
@@ -495,6 +527,18 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div>
+        <!-- <p class="is-pulled-right">Page 2/3</p> -->
+      </div>
+    </div>
+
+    <!-- CONTRACT FLEX-->
+    <div v-if="(false)" class="A4 sheet stretchy-wrapper flex-container">
+      <div>
+        <!-- ADD CONTRACT -->
       </div>
 
       <!-- FOOTER -->
