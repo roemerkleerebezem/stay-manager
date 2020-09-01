@@ -31,6 +31,14 @@ const startState = {
       .hour(14)
       .minute(0)
       .toDate(),
+    minArrivalTime: {
+      hour: 17,
+      minute: 0,
+    },
+    maxDepartureTime: {
+      hour: 12,
+      minute: 0,
+    },
     baseGuests: 10,
     stayNightArray: [],
     children: 0,

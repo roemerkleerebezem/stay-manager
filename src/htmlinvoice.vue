@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    />
 
     <!-- TOTAL INVOICE FLEX-->
     <div class="A4 sheet stretchy-wrapper flex-container">
@@ -13,19 +16,20 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                  state.booking.status === "completed"
-                  ? "Facture " +
-                  todayDateMonth +
-                  "-" +
-                  state.booking.invoiceNumber.toString().padStart(4, "0")
-                  : "Réservation"
+                    state.booking.status === "completed"
+                      ? "Facture " +
+                        todayDateMonth +
+                        "-" +
+                        state.booking.invoiceNumber.toString().padStart(4, "0")
+                      : "Réservation"
                   }}
                 </h4>
                 <span
                   :class="
                     getStatusColor(state.booking.status) + ' is-uppercase tag'
                   "
-                >{{ state.booking.status }}</span>
+                  >{{ state.booking.status }}</span
+                >
               </div>
             </div>
           </div>
@@ -85,8 +89,8 @@
               <td>Total sejour</td>
               <td>
                 {{
-                staySubtotal * (1 - invoiceData.discount) +
-                invoiceData.taxedNights * state.prices.taxeSejourNight
+                  staySubtotal * (1 - invoiceData.discount) +
+                    invoiceData.taxedNights * state.prices.taxeSejourNight
                 }}
                 €
               </td>
@@ -107,7 +111,8 @@
                   v-if="(cost.units !== null) & (cost.unitPrice !== null)"
                   class="has-text-grey"
                   style="margin-left:1rem;"
-                >{{ cost.units }} x {{ cost.unitPrice }} €</span>
+                  >{{ cost.units }} x {{ cost.unitPrice }} €</span
+                >
               </td>
               <td
                 :class="
@@ -115,7 +120,9 @@
                     ? ''
                     : 'has-text-success has-text-weight-semibold'
                 "
-              >{{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €</td>
+              >
+                {{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €
+              </td>
             </tr>
           </tbody>
 
@@ -125,12 +132,16 @@
               <td>{{ cateringSubtotal }} €</td>
             </tr>
             <tr class="has-background-light">
-              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
+              <td
+                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+              >
+                Sous-total
+              </td>
               <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
                 {{
-                staySubtotal * (1 - invoiceData.discount) +
-                invoiceData.taxedNights * state.prices.taxeSejourNight +
-                cateringSubtotal
+                  staySubtotal * (1 - invoiceData.discount) +
+                    invoiceData.taxedNights * state.prices.taxeSejourNight +
+                    cateringSubtotal
                 }}
                 €
               </td>
@@ -151,7 +162,8 @@
                   v-if="(cost.units !== null) & (cost.unitPrice !== null)"
                   class="has-text-grey"
                   style="margin-left:1rem;"
-                >{{ cost.units }} x {{ cost.unitPrice }} €</span>
+                  >{{ cost.units }} x {{ cost.unitPrice }} €</span
+                >
               </td>
               <td
                 :class="
@@ -159,21 +171,29 @@
                     ? ''
                     : 'has-text-success has-text-weight-semibold'
                 "
-              >{{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €</td>
+              >
+                {{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €
+              </td>
             </tr>
           </tbody>
           <tbody>
             <tr class="has-background-light">
-              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Reste à payer</td>
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >{{ Math.round(100 * invoiceTotal) / 100 }} €</td>
+              >
+                Reste à payer
+              </td>
+              <td
+                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+              >
+                {{ Math.round(100 * invoiceTotal) / 100 }} €
+              </td>
             </tr>
           </tbody>
         </table>
-        <p
-          class="has-text-grey has-text-right"
-        >TVA non applicable, art. 293 B du Code général des impôts</p>
+        <p class="has-text-grey has-text-right">
+          TVA non applicable, art. 293 B du Code général des impôts
+        </p>
       </div>
 
       <!-- DEPOSIT -->
@@ -196,7 +216,9 @@
                   size="is-medium"
                   type="is-grey"
                 ></b-icon>
-                <span class="has-text-grey is-uppercase">{{ deposit.type }} -</span>
+                <span class="has-text-grey is-uppercase"
+                  >{{ deposit.type }} -</span
+                >
                 {{ deposit.amount }} €
               </p>
 
@@ -207,9 +229,9 @@
                 "
               >
                 {{
-                deposit.dateReceived === null
-                ? ""
-                : deposit.dateReceived.substring(0, 10) + ", "
+                  deposit.dateReceived === null
+                    ? ""
+                    : deposit.dateReceived.substring(0, 10) + ", "
                 }}
                 {{ deposit.status }}
               </span>
@@ -240,12 +262,12 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                  state.booking.status === "completed"
-                  ? "Facture " +
-                  todayDateMonth +
-                  "-" +
-                  state.booking.invoiceNumber.toString().padStart(4, "0")
-                  : "Réservation"
+                    state.booking.status === "completed"
+                      ? "Facture " +
+                        todayDateMonth +
+                        "-" +
+                        state.booking.invoiceNumber.toString().padStart(4, "0")
+                      : "Réservation"
                   }}
                   - DETAILS SEJOUR
                 </h4>
@@ -295,7 +317,9 @@
                 </span>
               </div>
             </div>
-            <span class="tag is-dark">{{ state.stay.baseGuests }} personnes</span>
+            <span class="tag is-dark"
+              >{{ state.stay.baseGuests }} personnes</span
+            >
           </div>
         </div>
 
@@ -342,7 +366,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="invoiceData.externalVillaNights > 0" class="has-text-weight-light">
+          <tr
+            v-if="invoiceData.externalVillaNights > 0"
+            class="has-text-weight-light"
+          >
             <td>Villa (payé)</td>
             <td>{{ invoiceData.externalVillaNights }} nuit(s)</td>
             <td>0 €</td>
@@ -366,9 +393,9 @@
             <td>
               Couchages
               {{
-              night.externalGuests > 0
-              ? "supplémentaires"
-              : humanInvoiceDate(night.date, "unix")
+                night.externalGuests > 0
+                  ? "supplémentaires"
+                  : humanInvoiceDate(night.date, "unix")
               }}
             </td>
             <td>{{ night.guests }}</td>
@@ -389,9 +416,9 @@
             <td>{{ state.prices.petNight }} €</td>
             <td>
               {{
-              state.stay.pets *
-              invoiceData.villaNights *
-              state.prices.petNight
+                state.stay.pets *
+                  invoiceData.villaNights *
+                  state.prices.petNight
               }}
               €
             </td>
@@ -403,22 +430,26 @@
             <td>{{ invoiceData.extraHours * state.prices.extraHour }} €</td>
           </tr>
           <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Sous-total</td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
+              Sous-total
+            </td>
             <td></td>
             <td></td>
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">{{ staySubtotal }} €</td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
+              {{ staySubtotal }} €
+            </td>
           </tr>
           <tr v-if="invoiceData.discount > 0">
             <td>
               Réduction {{ state.stay.stayNightArray.length }} nuits ({{
-              Math.round(100 * invoiceData.discount)
+                Math.round(100 * invoiceData.discount)
               }}%)
             </td>
             <td></td>
             <td></td>
-            <td
-              class="has-text-success has-text-weight-semibold"
-            >-{{ invoiceData.discount * staySubtotal }} €</td>
+            <td class="has-text-success has-text-weight-semibold">
+              -{{ invoiceData.discount * staySubtotal }} €
+            </td>
           </tr>
           <tr v-if="invoiceData.taxedNights > 0">
             <td>Taxe de séjour</td>
@@ -426,21 +457,23 @@
             <td>{{ state.prices.taxeSejourNight }} €</td>
             <td>
               {{
-              Math.round(
-              invoiceData.taxedNights * state.prices.taxeSejourNight * 100
-              ) / 100
+                Math.round(
+                  invoiceData.taxedNights * state.prices.taxeSejourNight * 100
+                ) / 100
               }}
               €
             </td>
           </tr>
           <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total séjour</td>
+            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
+              Total séjour
+            </td>
             <td></td>
             <td></td>
             <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
               {{
-              staySubtotal * (1 - invoiceData.discount) +
-              invoiceData.taxedNights * state.prices.taxeSejourNight
+                staySubtotal * (1 - invoiceData.discount) +
+                  invoiceData.taxedNights * state.prices.taxeSejourNight
               }}
               €
             </td>
@@ -468,12 +501,12 @@
               <div class="container">
                 <h4 class="title is-size-4 is-uppercase">
                   {{
-                  state.booking.status === "completed"
-                  ? "Facture " +
-                  todayDateMonth +
-                  "-" +
-                  state.booking.invoiceNumber.toString().padStart(4, "0")
-                  : "Réservation"
+                    state.booking.status === "completed"
+                      ? "Facture " +
+                        todayDateMonth +
+                        "-" +
+                        state.booking.invoiceNumber.toString().padStart(4, "0")
+                      : "Réservation"
                   }}
                   - DETAILS RESTAURATION
                 </h4>
@@ -504,13 +537,19 @@
           </thead>
           <tbody v-for="meal in state.meals" :key="meal.id">
             <tr v-if="meal.adults != 0">
-              <td>{{ cateringString[meal.type] }} {{ humanInvoiceDate(meal.date) }}</td>
+              <td>
+                {{ cateringString[meal.type] }}
+                {{ humanInvoiceDate(meal.date) }}
+              </td>
               <td>{{ meal.adults }} adultes</td>
               <td>{{ meal.adultPrice }} €</td>
               <td>{{ meal.adults * meal.adultPrice }} €</td>
             </tr>
             <tr v-if="meal.children != 0">
-              <td>{{ cateringString[meal.type] }} {{ humanInvoiceDate(meal.date) }}</td>
+              <td>
+                {{ cateringString[meal.type] }}
+                {{ humanInvoiceDate(meal.date) }}
+              </td>
               <td>{{ meal.children }} enfants</td>
               <td>{{ meal.childPrice }} €</td>
               <td>{{ meal.children * meal.childPrice }} €</td>
@@ -518,12 +557,16 @@
           </tbody>
           <tbody>
             <tr>
-              <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">Total restauration</td>
-              <td></td>
-              <td></td>
               <td
-                class="has-text-darkgrey is-uppercase has-text-weight-bold"
-              >{{ cateringSubtotal }} €</td>
+                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+              >
+                Total restauration
+              </td>
+              <td></td>
+              <td></td>
+              <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
+                {{ cateringSubtotal }} €
+              </td>
             </tr>
           </tbody>
         </table>
@@ -536,7 +579,7 @@
     </div>
 
     <!-- CONTRACT FLEX-->
-    <div v-if="(false)" class="A4 sheet stretchy-wrapper flex-container">
+    <div v-if="false" class="A4 sheet stretchy-wrapper flex-container">
       <div>
         <!-- ADD CONTRACT -->
       </div>
@@ -562,7 +605,7 @@ import { mintcream } from "color-name";
 Vue.use(Buefy);
 
 export default {
-  data: function () {
+  data: function() {
     return {
       todayDate: new Date().toISOString().substring(0, 10),
       todayDateMonth: new Date().toISOString().substring(0, 7),
@@ -579,18 +622,18 @@ export default {
     };
   },
   computed: {
-    extraHours: function () {
+    extraHours: function() {
       var arrivalDatetime = moment(this.state.stay.arrivalDatetime);
       var departureDatetime = moment(this.state.stay.departureDatetime);
       var minArrivalDatetime = arrivalDatetime.clone().set({
-        hour: 17,
-        minute: 0,
+        hour: this.state.stay.minArrivalTime.hour,
+        minute: this.state.stay.minArrivalTime.minute,
         second: 0,
         millisecond: 0,
       });
       var maxDepartureDatetime = departureDatetime.clone().set({
-        hour: 14,
-        minute: 0,
+        hour: this.state.stay.maxDepartureTime.hour,
+        minute: this.state.stay.maxDepartureTime.minute,
         second: 0,
         millisecond: 0,
       });
@@ -609,7 +652,7 @@ export default {
       }
       return extraHours;
     },
-    staySubtotal: function () {
+    staySubtotal: function() {
       if (this.stayNoPrint === true) {
         return 0;
       }
@@ -619,7 +662,7 @@ export default {
 
       var villaTotal = invoiceData.villaNights * state.prices.villaNight;
       var stayNightsTotal = 0;
-      state.stay.stayNightArray.forEach(function (night, index) {
+      state.stay.stayNightArray.forEach(function(night, index) {
         stayNightsTotal += night.guests * state.prices.stayNight;
       });
 
@@ -629,20 +672,20 @@ export default {
 
       return villaTotal + stayNightsTotal + petsTotal + extraHoursTotal;
     },
-    cateringSubtotal: function () {
+    cateringSubtotal: function() {
       if (this.cateringNoPrint === true) {
         return 0;
       }
       var state = this.state;
       var cateringSubtotal = 0;
-      state.meals.forEach(function (meal, index) {
+      state.meals.forEach(function(meal, index) {
         cateringSubtotal += meal.adults * meal.adultPrice;
         cateringSubtotal += meal.children * meal.childPrice;
       });
 
       return cateringSubtotal;
     },
-    invoiceTotal: function () {
+    invoiceTotal: function() {
       var state = this.state;
       var invoiceData = this.invoiceData;
 
@@ -651,7 +694,7 @@ export default {
         invoiceData.taxedNights * state.prices.taxeSejourNight +
         this.cateringSubtotal;
 
-      state.booking.costs.forEach(function (cost, index) {
+      state.booking.costs.forEach(function(cost, index) {
         cost.type === "cost"
           ? (invoiceTotal += cost.totalPrice)
           : (invoiceTotal -= cost.totalPrice);
@@ -659,13 +702,13 @@ export default {
       return invoiceTotal;
     },
 
-    invoiceData: function () {
+    invoiceData: function() {
       var state = this.state;
       var stayNightArray = state.stay.stayNightArray;
       var externalVillaNights = 0;
       var villaNights = 0;
       var taxedNights = 0;
-      stayNightArray.forEach(function (night) {
+      stayNightArray.forEach(function(night) {
         if (!night.external) {
           villaNights += 1;
         } else {
@@ -688,13 +731,13 @@ export default {
     },
   },
   methods: {
-    hoursDifference: function (startDatetime, endDatetime) {
+    hoursDifference: function(startDatetime, endDatetime) {
       var duration = moment.duration(endDatetime.diff(startDatetime));
       var hours = duration.asHours();
       return hours;
     },
 
-    getDepositIcon: function (depositType) {
+    getDepositIcon: function(depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
       } else if (depositType === "cash") {
@@ -705,7 +748,7 @@ export default {
         return "money-check-alt";
       }
     },
-    getStatusColor: function (bookingStatus) {
+    getStatusColor: function(bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -718,13 +761,13 @@ export default {
         return "is-grey";
       }
     },
-    humanFormatDate: function (date) {
+    humanFormatDate: function(date) {
       return moment(date).format("ddd D MMM YYYY");
     },
-    humanFormatTime: function (date) {
+    humanFormatTime: function(date) {
       return moment(date).format("HH:mm");
     },
-    humanInvoiceDate: function (unixDate, format) {
+    humanInvoiceDate: function(unixDate, format) {
       if (format === "unix") {
         return moment.unix(unixDate).format("ddd. D MMM.");
       } else {
