@@ -59,6 +59,10 @@ def calculateValue(booking):
     nights = len(booking['stay']['stayNightArray'])
 
     for night in booking['stay']['stayNightArray']:
+        if night['guests'] == None :
+            night['guests'] = 0
+        if night['externalGuests'] == None :
+            night['externalGuests'] = 0
         total_guests = total_guests + night['guests'] + night['externalGuests']
         taxable_guests = taxable_guests + night['guests']
 
