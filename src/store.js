@@ -28,7 +28,7 @@ const startState = {
       .minute(0)
       .toDate(),
     departureDatetime: moment()
-      .hour(14)
+      .hour(12)
       .minute(0)
       .toDate(),
     minArrivalTime: {
