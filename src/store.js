@@ -49,7 +49,7 @@ const startState = {
   prices: {
     villaNight: 100,
     stayNight: 35,
-    petNight: 5,
+    petNight: 10,
     taxeSejourNight: 0.4,
     extraHour: 25,
   },

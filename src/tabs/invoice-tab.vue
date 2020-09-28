@@ -48,14 +48,16 @@
                 "
               >
                 {{
-                deposit.dateReceived === null
-                ? ""
-                : deposit.dateReceived.substring(0, 10) + ", "
+                  deposit.dateReceived === null
+                    ? ""
+                    : deposit.dateReceived.substring(0, 10) + ", "
                 }}
                 {{ deposit.status }}
               </span>
               <button
-                @click="$delete(booking.deposits, booking.deposits.indexOf(deposit))"
+                @click="
+                  $delete(booking.deposits, booking.deposits.indexOf(deposit))
+                "
                 class="delete"
               ></button>
             </div>
@@ -66,7 +68,10 @@
         <div class="container">
           <b-field grouped group-multiline>
             <b-field label="Statut" label-position="on-border">
-              <b-select v-model="tempDeposit.status" placeholder="Select a status">
+              <b-select
+                v-model="tempDeposit.status"
+                placeholder="Select a status"
+              >
                 <option value="pending">En attente</option>
                 <option value="received">Recu</option>
                 <option value="returned">Rendu</option>
@@ -116,21 +121,23 @@
                     type="is-grey"
                   ></b-icon>
                   {{ cost.label }}
-                  <span
-                    class="has-text-grey"
-                  >{{ cost.units }} x {{ cost.unitPrice }} €</span>
+                  <span class="has-text-grey"
+                    >{{ cost.units }} x {{ cost.unitPrice }} €</span
+                  >
                 </p>
                 <span
                   :class="
-                    'tag ' +
-                      (cost.type === 'cost' ? 'is-danger' : 'is-success')
+                    'tag ' + (cost.type === 'cost' ? 'is-danger' : 'is-success')
                   "
                 >
                   {{ cost.type === "cost" ? "-" : "+" }}
                   {{ cost.totalPrice }} €
                 </span>
 
-                <button @click="$delete(booking.costs, booking.costs.indexOf(cost))" class="delete"></button>
+                <button
+                  @click="$delete(booking.costs, booking.costs.indexOf(cost))"
+                  class="delete"
+                ></button>
               </div>
             </article>
           </div>
@@ -140,10 +147,10 @@
             <b-field grouped group-multiline>
               <b-field label="Type" label-position="on-border">
                 <b-select v-model="tempCost.type" placeholder="Type">
-                  <option value="payment">Crédit</option>
-                  <option value="cost">Débit</option>
-                  <option value="payment-bank">Paiement via banque</option>
-                  <option value="payment-cash">Paiement par liquide</option>
+                  <option value="payment">Crédit (+)</option>
+                  <option value="cost">Débit (-)</option>
+                  <option value="payment-bank">Paiement via banque (+)</option>
+                  <option value="payment-cash">Paiement par liquide (+)</option>
                 </b-select>
               </b-field>
               <b-field label="Label" label-position="on-border">
@@ -192,7 +199,10 @@
 
           <!-- OPEN MODAL -->
           <div class="block">
-            <button class="button is-primary" @click="isComponentModalActive = true">
+            <button
+              class="button is-primary"
+              @click="isComponentModalActive = true"
+            >
               <b-icon pack="fas" icon="eye" size="is-small"></b-icon>
               <span>Check invoice</span>
             </button>
@@ -272,7 +282,7 @@ export default {
     localStorage.setItem("contractNoPrint", this.contractNoPrint);
   },
   methods: {
-    getId: function (object) {
+    getId: function(object) {
       var arr = [];
       for (var obj in object) {
         arr.push(parseInt(obj));
@@ -287,7 +297,7 @@ export default {
       });
     },
 
-    addDeposit: function () {
+    addDeposit: function() {
       var tempDeposit = this.tempDeposit;
       var tempDeposits = this.booking.deposits;
       tempDeposit.id = this.getId(tempDeposits);
@@ -313,7 +323,7 @@ export default {
       printWindow.print();
     },
 
-    addCost: function () {
+    addCost: function() {
       var tempCost = this.tempCost;
       var tempCosts = this.booking.costs;
       tempCost.id = this.getId(tempCosts);
@@ -329,7 +339,7 @@ export default {
         totalPrice: null,
       };
     },
-    getDepositIcon: function (depositType) {
+    getDepositIcon: function(depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
       } else if (depositType === "cash") {
