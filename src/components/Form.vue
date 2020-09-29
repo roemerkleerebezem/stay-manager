@@ -273,30 +273,49 @@ export default {
             .then((resp) => {
               if (apiEvent.calendarId !== calendarId) {
                 cal.Events.delete(apiEvent.calendarId, apiEvent.id)
-                  .then((results) => {})
+                  .then((results) => {
+                    cal.Events.insert(calendarId, event)
+                      .then((resp) => {
+                        this.$buefy.toast.open({
+                          message: "Booking updated and moved",
+                          type: "is-light",
+                          duration: 5000,
+                        });
+                      })
+                      .catch((err) => {
+                        console.log("Error: insertEvent " + err.message);
+                      });
+                  })
                   .catch((err) => {
                     console.log(
                       "Error deleteEvent:" + JSON.stringify(err.message)
                     );
                   });
+              } else {
+                this.$buefy.toast.open({
+                  message: "Booking updated",
+                  type: "is-light",
+                  duration: 5000,
+                });
               }
               return resp;
             })
             .catch((err) => {
               console.log("Error: updatedEvent", err.message);
             });
-        }
-        cal.Events.insert(calendarId, event)
-          .then((resp) => {
-            this.$buefy.toast.open({
-              message: "Booking changed in calendar",
-              type: "is-success",
-              duration: 4000,
+        } else if (events.length === 0) {
+          cal.Events.insert(calendarId, event)
+            .then((resp) => {
+              this.$buefy.toast.open({
+                message: "Added new booking in calendar",
+                type: "is-success",
+                duration: 5000,
+              });
+            })
+            .catch((err) => {
+              console.log("Error: insertEvent " + err.message);
             });
-          })
-          .catch((err) => {
-            console.log("Error: insertEvent " + err.message);
-          });
+        }
       }
     },
     getApi: async function(state, action) {
