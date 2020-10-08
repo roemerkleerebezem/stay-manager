@@ -6,7 +6,7 @@
     <b-field label="Check-in" label-position="on-border">
       <b-datetimepicker
         icon-pack="fas"
-        :datepicker="{'first-day-of-week':1}"
+        :datepicker="{ 'first-day-of-week': 1 }"
         v-model="stay.arrivalDatetime"
         ref="arrivalDatetimePicker"
         placeholder="Check-in"
@@ -15,7 +15,10 @@
         :mobile-native="false"
       >
         <template slot="right">
-          <button class="button is-success" @click="$refs.arrivalDatetimePicker.toggle()">
+          <button
+            class="button is-success"
+            @click="$refs.arrivalDatetimePicker.toggle()"
+          >
             <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
@@ -27,7 +30,7 @@
       <b-datetimepicker
         icon-pack="fas"
         v-model="stay.departureDatetime"
-        :datepicker="{'first-day-of-week':1}"
+        :datepicker="{ 'first-day-of-week': 1 }"
         ref="departureDatetimePicker"
         placeholder="Check-out"
         :timepicker="{ incrementMinutes: 15 }"
@@ -35,7 +38,10 @@
         :mobile-native="false"
       >
         <template slot="right">
-          <button class="button is-success" @click="$refs.departureDatetimePicker.toggle()">
+          <button
+            class="button is-success"
+            @click="$refs.departureDatetimePicker.toggle()"
+          >
             <b-icon pack="fas" icon="check"></b-icon>
             <span>Valider</span>
           </button>
@@ -44,18 +50,37 @@
     </b-field>
 
     <!-- GUESTS -->
-    <b-field label="Invités payants" label-position="on-border" message="2 ans et plus">
-      <b-numberinput icon-pack="fas" v-model="stay.baseGuests" min="10" controlsPosition="compact"></b-numberinput>
+    <b-field
+      label="Invités payants"
+      label-position="on-border"
+      message="2 ans et plus"
+    >
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.baseGuests"
+        min="0"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- CHILDREN -->
     <b-field label="Enfants" label-position="on-border">
-      <b-numberinput icon-pack="fas" v-model="stay.children" min="0" controlsPosition="compact"></b-numberinput>
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.children"
+        min="0"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- PETS -->
     <b-field label="Animaux de compagnie" label-position="on-border">
-      <b-numberinput icon-pack="fas" v-model="stay.pets" min="0" controlsPosition="compact"></b-numberinput>
+      <b-numberinput
+        icon-pack="fas"
+        v-model="stay.pets"
+        min="0"
+        controlsPosition="compact"
+      ></b-numberinput>
     </b-field>
 
     <!-- GUEST INFO -->
@@ -65,8 +90,15 @@
 
     <!-- GUEST DETAILED CONTROLS -->
     <b-collapse :open="false" class="card" aria-id="editNightContent">
-      <div slot="trigger" class="card-header" role="button" aria-controls="editNightContent">
-        <p class="card-header-title">{{ this.stay.stayNightArray.length }} nights</p>
+      <div
+        slot="trigger"
+        class="card-header"
+        role="button"
+        aria-controls="editNightContent"
+      >
+        <p class="card-header-title">
+          {{ this.stay.stayNightArray.length }} nights
+        </p>
         <a class="card-header-icon">
           <b-icon pack="fas" icon="caret-down"></b-icon>
         </a>
@@ -74,9 +106,9 @@
       <div class="card-content">
         <div class="content">
           <div v-for="night in stay.stayNightArray" :key="night.id">
-            <p
-              class="is-size-6 has-text-grey has-text-weight-bold"
-            >{{editNightContentTextFormat(night.date)}}</p>
+            <p class="is-size-6 has-text-grey has-text-weight-bold">
+              {{ editNightContentTextFormat(night.date) }}
+            </p>
             <b-field grouped group-multiline>
               <b-field label="Direct" label-position="inline">
                 <b-numberinput
@@ -114,10 +146,10 @@ export default {
     };
   },
   computed: {
-    computedStay: function () {
+    computedStay: function() {
       return Object.assign({}, this.stay);
     },
-    stayNightArray: function () {
+    stayNightArray: function() {
       var tempStayNightArray = [];
       var tempArrivalDate = moment(this.stay.arrivalDatetime);
       var tempDepartureDate = moment(this.stay.departureDatetime);
@@ -141,10 +173,10 @@ export default {
     },
   },
   methods: {
-    humanFormatDatetime: function (date) {
+    humanFormatDatetime: function(date) {
       return moment(date).format("ddd D MMM YYYY - HH:mm");
     },
-    editNightContentTextFormat: function (date) {
+    editNightContentTextFormat: function(date) {
       return moment.unix(date).format("dddd D");
     },
   },
@@ -152,7 +184,7 @@ export default {
     computedStay: {
       // Update departure date (not time) if the arrival date changes
       deep: true,
-      handler: function (newStay, oldStay) {
+      handler: function(newStay, oldStay) {
         var oldStayArrivalDatetime = moment(oldStay.arrivalDatetime);
         var oldStayDepartureDatetime = moment(oldStay.departureDatetime);
         var newStayArrivalDatetime = moment(newStay.arrivalDatetime);

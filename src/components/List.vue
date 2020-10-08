@@ -575,10 +575,6 @@ export default {
 <style lang="scss">
 @import "@/scss/_mystyles.scss";
 
-section.app-section {
-  background-color: $background;
-}
-
 .hero {
   background-color: $dark;
 }

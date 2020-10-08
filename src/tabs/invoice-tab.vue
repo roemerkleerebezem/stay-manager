@@ -19,7 +19,7 @@
         <hr />
 
         <!-- DEPOSITS -->
-        <label class="label">Caution</label>
+        <label class="label">Deposit</label>
 
         <!-- DEPOSIT LIST -->
         <div
@@ -66,37 +66,69 @@
 
         <!-- ADD DEPOSIT -->
         <div class="container">
-          <b-field grouped group-multiline>
-            <b-field label="Statut" label-position="on-border">
-              <b-select
-                v-model="tempDeposit.status"
-                placeholder="Select a status"
-              >
-                <option value="pending">En attente</option>
-                <option value="received">Recu</option>
-                <option value="returned">Rendu</option>
-              </b-select>
-            </b-field>
-            <b-field label="Montant" label-position="on-border">
-              <b-input v-model="tempDeposit.amount"></b-input>
-            </b-field>
-            <b-field label="Date reception" label-position="on-border">
-              <b-datepicker
-                :first-day-of-week="1"
-                icon-pack="fas"
-                v-model="tempDeposit.dateReceived"
-                placeholder="Date de reception"
-              ></b-datepicker>
-            </b-field>
-            <b-field label="Type" label-position="on-border">
-              <b-select v-model="tempDeposit.type" placeholder="Select a type">
-                <option value="cheque">Cheque</option>
-                <option value="transfer">Virement</option>
-                <option value="cash">Liquide</option>
-              </b-select>
-            </b-field>
-            <b-button type="is-primary" @click="addDeposit()">Ajouter</b-button>
-          </b-field>
+          <b-button @click="isDepositModalActive = true">Add deposit</b-button>
+
+          <b-modal
+            :active.sync="isDepositModalActive"
+            has-modal-card
+            :destroy-on-hide="false"
+            width="50%"
+            trap-focus
+            scroll="keep"
+          >
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">Add deposit</p>
+                <button
+                  type="button"
+                  class="delete"
+                  @click="isDepositModalActive = false"
+                />
+              </header>
+              <section class="modal-card-body">
+                <b-field label="Type" label-position="on-border">
+                  <b-select
+                    v-model="tempDeposit.type"
+                    placeholder="Select a type"
+                  >
+                    <option value="cheque">Cheque</option>
+                    <option value="transfer">Virement</option>
+                    <option value="cash">Liquide</option>
+                  </b-select>
+                </b-field>
+                <b-field label="Statut" label-position="on-border">
+                  <b-select
+                    v-model="tempDeposit.status"
+                    placeholder="Select a status"
+                  >
+                    <option value="pending">En attente</option>
+                    <option value="received">Recu</option>
+                    <option value="returned">Rendu</option>
+                  </b-select>
+                </b-field>
+                <b-field label="Montant" label-position="on-border">
+                  <b-input
+                    v-model="tempDeposit.amount"
+                    placeholder="300"
+                  ></b-input>
+                </b-field>
+                <b-field label="Date reception" label-position="on-border">
+                  <b-datepicker
+                    inline
+                    :first-day-of-week="1"
+                    icon-pack="fas"
+                    v-model="tempDeposit.dateReceived"
+                    placeholder="Date de reception"
+                  ></b-datepicker>
+                </b-field>
+              </section>
+              <footer class="modal-card-foot">
+                <b-button type="is-primary" @click="addDeposit()"
+                  >Ajouter</b-button
+                >
+              </footer>
+            </div>
+          </b-modal>
 
           <hr />
 
@@ -143,37 +175,70 @@
           </div>
 
           <!-- ADD TRANSACTION -->
-          <div class="container">
-            <b-field grouped group-multiline>
-              <b-field label="Type" label-position="on-border">
-                <b-select v-model="tempCost.type" placeholder="Type">
-                  <option value="payment">Crédit (+)</option>
-                  <option value="cost">Débit (-)</option>
-                  <option value="payment-bank">Paiement via banque (+)</option>
-                  <option value="payment-cash">Paiement par liquide (+)</option>
-                </b-select>
-              </b-field>
-              <b-field label="Label" label-position="on-border">
-                <b-input v-model="tempCost.label"></b-input>
-              </b-field>
-              <b-field label="Unités" label-position="on-border">
-                <b-input v-model="tempCost.units"></b-input>
-              </b-field>
-              <b-field label="Prix unitaire" label-position="on-border">
-                <b-input v-model="tempCost.unitPrice"></b-input>
-              </b-field>
-              <b-field label="Total" label-position="on-border">
-                <b-numberinput
-                  :controls="false"
-                  icon-pack="fas"
-                  controls-position="compact"
-                  step="0.01"
-                  v-model="tempCost.totalPrice"
-                ></b-numberinput>
-              </b-field>
-              <b-button type="is-primary" @click="addCost()">Ajouter</b-button>
-            </b-field>
-          </div>
+          <b-button @click="isTransactionModalActive = true"
+            >Add transaction</b-button
+          >
+
+          <b-modal
+            :active.sync="isTransactionModalActive"
+            has-modal-card
+            :destroy-on-hide="false"
+            width="50%"
+            trap-focus
+            scroll="keep"
+          >
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">Add transaction</p>
+                <button
+                  type="button"
+                  class="delete"
+                  @click="isTransactionModalActive = false"
+                />
+              </header>
+              <section class="modal-card-body">
+                <b-field label="Type" label-position="on-border">
+                  <b-select v-model="tempCost.type" placeholder="Type">
+                    <option value="payment">Crédit (+)</option>
+                    <option value="cost">Débit (-)</option>
+                    <option value="payment-bank"
+                      >Paiement via banque (+)</option
+                    >
+                    <option value="payment-cash"
+                      >Paiement par liquide (+)</option
+                    >
+                  </b-select>
+                </b-field>
+                <b-field label="Label" label-position="on-border">
+                  <b-input
+                    v-model="tempCost.label"
+                    placeholder="Virement"
+                  ></b-input>
+                </b-field>
+                <b-field label="Unités" label-position="on-border">
+                  <b-input v-model="tempCost.units"></b-input>
+                </b-field>
+                <b-field label="Prix unitaire" label-position="on-border">
+                  <b-input v-model="tempCost.unitPrice"></b-input>
+                </b-field>
+                <b-field label="Total" label-position="on-border">
+                  <b-numberinput
+                    :controls="false"
+                    icon-pack="fas"
+                    controls-position="compact"
+                    step="0.01"
+                    placeholder="450"
+                    v-model="tempCost.totalPrice"
+                  ></b-numberinput>
+                </b-field>
+              </section>
+              <footer class="modal-card-foot">
+                <b-button type="is-primary" @click="addCost()"
+                  >Ajouter</b-button
+                >
+              </footer>
+            </div>
+          </b-modal>
 
           <hr />
 
@@ -201,7 +266,7 @@
           <div class="block">
             <button
               class="button is-primary"
-              @click="isComponentModalActive = true"
+              @click="isInvoiceModalActive = true"
             >
               <b-icon pack="fas" icon="eye" size="is-small"></b-icon>
               <span>Check invoice</span>
@@ -214,7 +279,7 @@
           </div>
 
           <b-modal
-            :active.sync="isComponentModalActive"
+            :active.sync="isInvoiceModalActive"
             trap-focus
             width="50%"
             style="height:100%;"
@@ -238,7 +303,9 @@ export default {
 
   data() {
     return {
-      isComponentModalActive: false,
+      isDepositModalActive: false,
+      isInvoiceModalActive: false,
+      isTransactionModalActive: false,
       booking: this.$store.state.booking,
       tempDeposit: {
         id: null,
@@ -310,6 +377,7 @@ export default {
         "deposits",
         JSON.parse(JSON.stringify(tempDeposits))
       );
+      this.isDepositModalActive = false;
       this.tempDeposit = {
         id: null,
         status: null,
@@ -330,6 +398,8 @@ export default {
       var tempCosts = this.booking.costs;
       tempCost.id = this.getId(tempCosts);
       tempCosts.push(tempCost);
+
+      this.isTransactionModalActive = false;
 
       Vue.set(this.booking, "costs", JSON.parse(JSON.stringify(tempCosts)));
       this.tempCost = {

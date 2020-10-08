@@ -44,9 +44,11 @@ $colors: (
   ),
 );
 
-$background: $yellow;
+$background: $light;
 
-$tabs-boxed-link-active-background-color: $background;
+$body-background-color: $yellow;
+
+$tabs-boxed-link-active-background-color: $yellow;
 $tabs-toggle-link-active-color: $dark;
 $tabs-link-active-color: $dark;
 

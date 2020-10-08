@@ -377,7 +377,7 @@ nav.tabs > ul > li {
 }
 
 section.app-section {
-  background-color: $background;
+  background-color: "transparent";
 }
 
 .hero {
