@@ -85,13 +85,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="staySubtotal * (1 - invoiceData.discount) !== 0">
+            <tr v-if="stayTotal !== 0">
               <td>Total sejour</td>
               <td>
-                {{
-                  staySubtotal * (1 - invoiceData.discount) +
-                    invoiceData.taxedNights * state.prices.taxeSejourNight
-                }}
+                {{ stayTotal }}
                 €
               </td>
             </tr>
@@ -138,11 +135,7 @@
                 Sous-total
               </td>
               <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-                {{
-                  staySubtotal * (1 - invoiceData.discount) +
-                    invoiceData.taxedNights * state.prices.taxeSejourNight +
-                    cateringSubtotal
-                }}
+                {{ stayTotal + cateringSubtotal }}
                 €
               </td>
             </tr>
@@ -289,8 +282,8 @@
           <div class="field is-grouped is-grouped-multiline">
             <div class="control">
               <div class="tags has-addons">
-                <span class="tag is-dark">Check-in</span>
-                <span class="tag is-light">
+                <span class="tag is-dark is-small">Check-in</span>
+                <span class="tag is-light is-small">
                   {{ humanFormatDate(state.stay.arrivalDatetime) }}
                   <b-icon
                     style="margin-left:0.5ch;margin-right:0.5ch;"
@@ -304,8 +297,8 @@
             </div>
             <div class="control">
               <div class="tags has-addons">
-                <span class="tag is-dark">Check-out</span>
-                <span class="tag is-light">
+                <span class="tag is-dark is-small">Check-out</span>
+                <span class="tag is-light is-small">
                   {{ humanFormatDate(state.stay.departureDatetime) }}
                   <b-icon
                     style="margin-left:0.5ch;margin-right:0.5ch;"
@@ -317,9 +310,16 @@
                 </span>
               </div>
             </div>
-            <span class="tag is-dark"
-              >{{ state.stay.baseGuests }} personnes</span
-            >
+            <div class="control">
+              <span class="tag is-dark is-small"
+                >{{ state.stay.baseGuests }} personnes</span
+              >
+            </div>
+            <div v-if="state.stay.pets > 0" class="control">
+              <span class="tag is-dark is-small"
+                >{{ state.stay.pets }} animaux</span
+              >
+            </div>
           </div>
         </div>
 
@@ -332,7 +332,7 @@
                 <div class="column">
                   <h6 class="title is-6">Propriete</h6>
                   <p>Villa de tourisme</p>
-                  <p>9 chambres</p>
+                  <p>8 chambres</p>
                   <p>3.5 salles de bains</p>
                   <p>1 cuisine</p>
                 </div>
@@ -404,12 +404,6 @@
           </tr>
         </tbody>
         <tbody>
-          <!-- <tr>
-            <td>Taxe de séjour</td>
-            <td>40</td>
-            <td>1 €</td>
-            <td>40 €</td>
-          </tr>-->
           <tr v-if="state.stay.pets > 0">
             <td>Animaux de compagnie</td>
             <td>{{ state.stay.pets * invoiceData.villaNights }} nuit(s)</td>
@@ -471,10 +465,7 @@
             <td></td>
             <td></td>
             <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-              {{
-                staySubtotal * (1 - invoiceData.discount) +
-                  invoiceData.taxedNights * state.prices.taxeSejourNight
-              }}
+              {{ stayTotal }}
               €
             </td>
           </tr>
@@ -579,9 +570,13 @@
     </div>
 
     <!-- CONTRACT FLEX-->
-    <div v-if="false" class="A4 sheet stretchy-wrapper flex-container">
+    <div
+      v-if="contractNoPrint === false"
+      class="A4 sheet stretchy-wrapper flex-container"
+    >
       <div>
         <!-- ADD CONTRACT -->
+        <div class="contract-span" v-html="htmlContract"></div>
       </div>
 
       <!-- FOOTER -->
@@ -599,8 +594,12 @@ import Vue from "vue";
 import Buefy from "buefy";
 import "buefy/dist/buefy.css";
 
+import marked from "marked";
+
 import moment from "moment";
 import { mintcream } from "color-name";
+
+import contract from "!raw-loader!@/assets/contract.md";
 
 Vue.use(Buefy);
 
@@ -613,6 +612,9 @@ export default {
       state: this.$store.state,
       stayNoPrint: false,
       cateringNoPrint: false,
+      contractNoPrint: false,
+
+      htmlContract: marked(contract),
 
       cateringString: {
         breakfast: "Petit-déjeuner",
@@ -653,10 +655,6 @@ export default {
       return extraHours;
     },
     staySubtotal: function() {
-      if (this.stayNoPrint === true) {
-        return 0;
-      }
-
       var state = this.state;
       var invoiceData = this.invoiceData;
 
@@ -671,6 +669,16 @@ export default {
       var extraHoursTotal = invoiceData.extraHours * state.prices.extraHour;
 
       return villaTotal + stayNightsTotal + petsTotal + extraHoursTotal;
+    },
+    stayTotal: function() {
+      if (this.stayNoPrint === true) {
+        return 0;
+      } else {
+        return (
+          this.staySubtotal * (1 - this.invoiceData.discount) +
+          this.invoiceData.taxedNights * this.state.prices.taxeSejourNight
+        );
+      }
     },
     cateringSubtotal: function() {
       if (this.cateringNoPrint === true) {
@@ -689,10 +697,7 @@ export default {
       var state = this.state;
       var invoiceData = this.invoiceData;
 
-      var invoiceTotal =
-        this.staySubtotal * (1 - invoiceData.discount) +
-        invoiceData.taxedNights * state.prices.taxeSejourNight +
-        this.cateringSubtotal;
+      var invoiceTotal = this.stayTotal + this.cateringSubtotal;
 
       state.booking.costs.forEach(function(cost, index) {
         cost.type === "cost"
@@ -793,11 +798,27 @@ export default {
     } else {
       this.cateringNoPrint = false;
     }
+    if (localStorage.getItem("contractNoPrint")) {
+      this.contractNoPrint = JSON.parse(
+        localStorage.getItem("contractNoPrint")
+      );
+    } else {
+      this.contractNoPrint = false;
+    }
   },
 };
 </script>
 
 <style scoped>
+.contract-span {
+  font-size: 0.65em;
+  white-space: pre-line;
+}
+
+.contract-span >>> h1 {
+  font-size: 2em;
+}
+
 .flex-container {
   display: flex;
   height: 100vh;

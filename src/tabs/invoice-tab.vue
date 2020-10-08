@@ -216,7 +216,7 @@
           <b-modal
             :active.sync="isComponentModalActive"
             trap-focus
-            width="90%"
+            width="50%"
             style="height:100%;"
           >
             <htmlinvoice></htmlinvoice>
@@ -230,6 +230,8 @@
 <script>
 import Vue from "vue";
 import htmlinvoice from "@/htmlinvoice.vue";
+
+import fs from "fs";
 
 export default {
   components: { htmlinvoice },
