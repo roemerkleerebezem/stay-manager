@@ -47,8 +47,9 @@
       size="is-medium is-boxed"
       v-model="activeTab"
       expanded
+      class="has-text-weight-medium"
     >
-      <b-tab-item class="has-text-grey" label="Reservation">
+      <b-tab-item label="Reservation">
         <reservation-tab></reservation-tab>
       </b-tab-item>
 
@@ -59,19 +60,59 @@
       <b-tab-item label="Facture">
         <invoice-tab></invoice-tab>
       </b-tab-item>
+
+      <b-tab-item label="Settings">
+        <settings-tab></settings-tab>
+      </b-tab-item>
     </b-tabs>
 
-    <!-- DEBUGGING -->
-    <!-- <div>
-      <b-collapse :open="false" aria-id="payloadCollapse">
-        <button
-          class="button is-primary"
-          slot="trigger"
-          aria-controls="payloadCollapse"
-        >Toggle Payload</button>
-        <pre>state : {{ state }}</pre>
-      </b-collapse>
-    </div>-->
+    <!-- BOOKING INFORMATION MODAL -->
+    <b-modal
+      :active.sync="isStoreModalActive"
+      has-modal-card
+      :destroy-on-hide="false"
+      trap-focus
+      scroll="keep"
+    >
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Booking data</p>
+          <button
+            type="button"
+            class="delete"
+            @click="isDepositModalActive = false"
+          />
+        </header>
+        <section class="modal-card-body">
+          <div v-for="(value, propertyName) in state" v-bind:key="propertyName">
+            <span class="tag is-dark is-small">{{ propertyName }}</span>
+            <pre>{{ value }}</pre>
+          </div>
+        </section>
+      </div>
+    </b-modal>
+
+    <!-- FOOTER -->
+    <footer class="footer has-background-dark level">
+      <div class="level-left">
+        <div class="level-item">
+          <b-checkbox
+            type="is-danger"
+            size="is-medium"
+            class="has-text-light is-pulled-left is-family-code"
+            v-model="devIsTrue"
+            >DO NOT UPDATE CALENDAR</b-checkbox
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <b-button @click="isStoreModalActive = true" class="is-family-code"
+            >Show booking details</b-button
+          >
+        </div>
+      </div>
+    </footer>
   </section>
 </template>
 
@@ -79,6 +120,7 @@
 import reservationTab from "@/tabs/reservation-tab.vue";
 import cateringTab from "@/tabs/catering-tab.vue";
 import invoiceTab from "@/tabs/invoice-tab.vue";
+import settingsTab from "@/tabs/settings-tab.vue";
 
 const CONFIG = require("@/scripts/settings");
 const CalendarAPI = require("node-google-calendar");
@@ -93,6 +135,7 @@ export default {
     reservationTab,
     cateringTab,
     invoiceTab,
+    settingsTab,
   },
   beforeMount() {
     window.addEventListener("beforeunload", (event) => {
@@ -108,6 +151,8 @@ export default {
       synced: false,
       justLoaded: true,
       updateTab: false,
+      devIsTrue: false,
+      isStoreModalActive: false,
     };
   },
   computed: {
@@ -118,8 +163,7 @@ export default {
       var state = this.state;
       if (
         (state.booking.status !== null) &
-        (state.stay.arrivalDatetime.getDate() !=
-          state.stay.departureDatetime.getDate())
+        (state.stay.arrivalDate != state.stay.departureDate)
       ) {
         return true;
       } else {
@@ -202,8 +246,24 @@ export default {
     },
 
     upsertEvent: async function(state) {
-      var startDateTime = moment(state.stay.arrivalDatetime);
-      var endDateTime = moment(state.stay.departureDatetime);
+      if (this.devIsTrue) {
+        this.$buefy.toast.open({
+          message: "Booking not changed in calendar",
+          type: "is-danger",
+          duration: 5000,
+        });
+        return null;
+      }
+      var startTime = moment.unix(state.stay.arrivalTime);
+      var endTime = moment.unix(state.stay.departureTime);
+      var startDateTime = moment
+        .unix(state.stay.arrivalDate)
+        .hour(startTime.hour())
+        .minute(startTime.minute());
+      var endDateTime = moment
+        .unix(state.stay.departureDate)
+        .hour(endTime.hour())
+        .minute(endTime.minute());
       endDateTime = endDateTime.subtract(1, "days");
       if (
         startDateTime.clone().format("DD-MM-YYYY") ==
@@ -213,13 +273,22 @@ export default {
         endDateTime = endDateTime.add(1, "hours");
       }
 
+      var maxChildren = 0;
+      var maxAdults = 0;
+      var maxPets = 0;
+      state.stay.stayNightArray.forEach(function(night) {
+        maxChildren += night.internal.kids + night.external.kids;
+        maxAdults += night.internal.adults + night.external.adults;
+        maxPets += night.internal.pets + night.external.pets;
+      });
+
       let event = {
         start: { dateTime: startDateTime.toDate() },
         end: { dateTime: endDateTime.toDate() },
         summary:
           state.contact.name +
           ", " +
-          state.stay.baseGuests +
+          (maxChildren + maxAdults) +
           "p. " +
           state.stay.stayNightArray.length +
           "n. via " +
@@ -228,11 +297,11 @@ export default {
           "http://localhost:8080/booking/" +
           state.booking.uuid +
           "\n\n" +
-          state.stay.baseGuests +
+          maxAdults +
           " adults, " +
-          state.stay.children +
+          maxChildren +
           " children, " +
-          state.stay.pets +
+          maxPets +
           " pets" +
           "\n" +
           "Check-out : " +

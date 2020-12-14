@@ -52,10 +52,32 @@ $tabs-boxed-link-active-background-color: $yellow;
 $tabs-toggle-link-active-color: $dark;
 $tabs-link-active-color: $dark;
 
+// FOOTER
+$footer-background-color: $dark;
+$footer-padding: 1rem 1rem 1rem;
+
+$table-background-color: transparent;
+
 // Links
 $link: $primary;
 $link-invert: $primary-invert;
 $link-focus-border: $primary;
+
+.subsection-header {
+  display: inline-block;
+  padding: 0.75rem 20rem 0.75rem 2rem;
+  margin: 0rem 0 2rem 0;
+  border-radius: 1.5rem;
+  box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1),
+    0 0px 0 1px rgba(10, 10, 10, 0.02);
+}
+.subsection-header.expanded {
+  display: block;
+}
+
+.subsection {
+  padding-left: 1rem;
+}
 
 // Import Bulma and Buefy styles
 @import "~bulma";
