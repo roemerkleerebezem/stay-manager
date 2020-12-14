@@ -53,8 +53,26 @@
                 type="is-dark"
                 outlined
                 rounded
+                @click="setDateFilter('previous-year')"
+                >{{ thisYear - 1 }}</b-button
+              >
+            </p>
+            <p class="control">
+              <b-button
+                type="is-dark"
+                outlined
+                rounded
                 @click="setDateFilter('month')"
                 >{{ thisMonth }}</b-button
+              >
+            </p>
+            <p class="control">
+              <b-button
+                type="is-dark"
+                outlined
+                rounded
+                @click="setDateFilter('previous-month')"
+                >{{ thisMonth }} {{ thisYear - 1 }}</b-button
               >
             </p>
             <p class="control">
@@ -126,9 +144,24 @@
                     }}</span>
                   </p>
                   <p>
+                    Total :
+                    <span class="has-text-weight-bold"
+                      >{{ filterStats.total.totalPaid }} €</span
+                    >
+                  </p>
+                  <p>
                     Total Value :
                     <span class="has-text-weight-bold"
                       >{{ filterStats.total.totalValue }} €</span
+                    >
+                  </p>
+                  <p>
+                    Total Tax :
+                    <span class="has-text-weight-bold"
+                      >{{ filterStats.total.tax }} € ({{
+                        filterStats.total.taxNights
+                      }}
+                      nights)</span
                     >
                   </p>
                 </div>
@@ -141,6 +174,12 @@
                     Completed
                     <span class="has-text-weight-semibold"
                       >({{ filterStats.completed.number }})</span
+                    >
+                  </p>
+                  <p>
+                    Total :
+                    <span class="has-text-weight-bold"
+                      >{{ filterStats.completed.totalPaid }} €</span
                     >
                   </p>
                   <p>
@@ -168,6 +207,12 @@
                     >
                   </p>
                   <p>
+                    Total :
+                    <span class="has-text-weight-bold"
+                      >{{ filterStats.contract.totalPaid }} €</span
+                    >
+                  </p>
+                  <p>
                     Value :
                     <span class="has-text-weight-bold"
                       >{{ filterStats.contract.totalValue }} €</span
@@ -189,6 +234,12 @@
                     Inquiry
                     <span class="has-text-weight-semibold"
                       >({{ filterStats.inquiry.number }})</span
+                    >
+                  </p>
+                  <p>
+                    Total :
+                    <span class="has-text-weight-bold"
+                      >{{ filterStats.inquiry.totalPaid }} €</span
                     >
                   </p>
                   <p>
@@ -243,12 +294,31 @@
                     >{{ booking.name }}</a
                   >
                 </td>
-                <td>{{ humanFormatDatetime(booking.arrivalDatetime) }}</td>
+                <td>
+                  <p>
+                    {{ humanFormatDate(booking.arrivalDate) }}
+                  </p>
+                  <p>
+                    {{ humanFormatTime(booking.arrivalTime) }}
+                  </p>
+                </td>
                 <td>{{ booking.nights }}</td>
-                <td>{{ booking.baseGuests }}</td>
+                <td v-if="booking.minGuests == booking.maxGuests">
+                  {{ booking.minGuests }}
+                </td>
+                <td v-if="booking.minGuests != booking.maxGuests">
+                  {{ booking.minGuests }}-{{ booking.maxGuests }}
+                </td>
                 <td>{{ booking.source }}</td>
                 <td>{{ booking.meals }}</td>
-                <td>{{ booking.paid }} / {{ booking.bookingValue }} €</td>
+                <td>
+                  <p>
+                    {{ booking.paid }} / {{ booking.total }} ({{
+                      booking.value
+                    }}) €
+                  </p>
+                  <p>{{ booking.tax }} € tax</p>
+                </td>
                 <td>
                   <b-field>
                     <b-rate
@@ -317,10 +387,10 @@ export default {
         if (
           selectedTypes.indexOf(booking.status) != -1 &&
           moment(filterDates[1]).isSameOrAfter(
-            moment(booking.departureDatetime)
+            moment.unix(booking.departureDate)
           ) &&
           moment(filterDates[0]).isSameOrBefore(
-            moment(booking.departureDatetime)
+            moment.unix(booking.departureDate)
           )
         ) {
           filteredBookingList.push(booking);
@@ -345,58 +415,76 @@ export default {
         completed: {
           number: completedList.length,
           totalValue: completedList
-            .map((a) => moment(a.bookingValue))
+            .map((a) => moment(a.value))
+            .reduce((a, b) => a + b, 0),
+          totalPaid: completedList
+            .map((a) => moment(a.total))
             .reduce((a, b) => a + b, 0),
           averageValue:
             completedList.length > 0
               ? Math.round(
                   completedList
-                    .map((a) => moment(a.bookingValue))
+                    .map((a) => moment(a.value))
                     .reduce((a, b) => a + b, 0) / completedList.length
                 )
               : 0,
         },
         inquiry: {
           number: inquiryList.length,
+          totalPaid: inquiryList
+            .map((a) => moment(a.total))
+            .reduce((a, b) => a + b, 0),
           totalValue: inquiryList
-            .map((a) => moment(a.bookingValue))
+            .map((a) => moment(a.value))
             .reduce((a, b) => a + b, 0),
           averageValue:
             inquiryList.length > 0
               ? Math.round(
                   inquiryList
-                    .map((a) => moment(a.bookingValue))
+                    .map((a) => moment(a.value))
                     .reduce((a, b) => a + b, 0) / inquiryList.length
                 )
               : 0,
         },
         contract: {
           number: contractList.length,
+          totalPaid: contractList
+            .map((a) => moment(a.paid))
+            .reduce((a, b) => a + b, 0),
           totalValue: contractList
-            .map((a) => moment(a.bookingValue))
+            .map((a) => moment(a.value))
             .reduce((a, b) => a + b, 0),
           averageValue:
             contractList.length > 0
               ? Math.round(
                   contractList
-                    .map((a) => moment(a.bookingValue))
+                    .map((a) => moment(a.value))
                     .reduce((a, b) => a + b, 0) / contractList.length
                 )
               : 0,
         },
         total: {
           number: filteredBookingList.length,
+          totalPaid: filteredBookingList
+            .map((a) => moment(a.total))
+            .reduce((a, b) => a + b, 0),
           totalValue: filteredBookingList
-            .map((a) => moment(a.bookingValue))
+            .map((a) => moment(a.value))
             .reduce((a, b) => a + b, 0),
           averageValue:
             filteredBookingList.length > 0
               ? Math.round(
                   filteredBookingList
-                    .map((a) => moment(a.bookingValue))
+                    .map((a) => moment(a.value))
                     .reduce((a, b) => a + b, 0) / filteredBookingList.length
                 )
               : 0,
+          tax: filteredBookingList
+            .map((a) => moment(a.tax))
+            .reduce((a, b) => a + b, 0),
+          taxNights: filteredBookingList
+            .map((a) => moment(a.taxNights))
+            .reduce((a, b) => a + b, 0),
         },
       };
       return filterStats;
@@ -431,6 +519,17 @@ export default {
             .endOf("year")
             .toDate(),
         ];
+      } else if (period == "previous-year") {
+        this.filterDates = [
+          moment()
+            .subtract(1, "year")
+            .startOf("year")
+            .toDate(),
+          moment()
+            .subtract(1, "year")
+            .endOf("year")
+            .toDate(),
+        ];
       } else if (period == "month") {
         this.filterDates = [
           moment()
@@ -440,9 +539,20 @@ export default {
             .endOf("month")
             .toDate(),
         ];
+      } else if (period == "previous-month") {
+        this.filterDates = [
+          moment()
+            .subtract(1, "year")
+            .startOf("month")
+            .toDate(),
+          moment()
+            .subtract(1, "year")
+            .endOf("month")
+            .toDate(),
+        ];
       } else if (period == "all") {
         var bookingList = this.bookingList;
-        let result = bookingList.map((a) => moment(a.departureDatetime));
+        let result = bookingList.map((a) => moment.unix(a.departureDate));
         this.filterDates = [
           moment.min(result).toDate(),
           moment.max(result).toDate(),
@@ -454,12 +564,12 @@ export default {
       var total = 0;
       var now = moment();
       bookingList.forEach(function(booking, index) {
-        var departureDatetime = moment(departureDatetime);
+        var departureDate = moment.unix(departureDate);
         if (
-          departureDatetime.year() == now.year() &&
+          departureDate.year() == now.year() &&
           booking.status == "completed"
         ) {
-          total += booking.bookingValue;
+          total += booking.value;
         }
       });
       return total;
@@ -468,12 +578,12 @@ export default {
       var total = 0;
       var now = moment();
       bookingList.forEach(function(booking, index) {
-        var departureDatetime = moment(departureDatetime);
+        var departureDate = moment.unix(departureDate);
         if (
-          departureDatetime.year() == now.year() &&
+          departureDate.year() == now.year() &&
           booking.status == "contract"
         ) {
-          total += booking.bookingValue;
+          total += booking.value;
         }
       });
 
@@ -493,8 +603,18 @@ export default {
       }
     },
 
-    humanFormatDatetime: function(date) {
-      return moment(date).format("ddd D MMM YYYY - HH:mm");
+    humanFormatDateTime: function(date, time) {
+      return moment
+        .unix(date)
+        .hour(moment.unix(time).hour())
+        .minute(moment.unix(time).minute())
+        .format("ddd D MMM YYYY HH:mm");
+    },
+    humanFormatDate: function(date) {
+      return moment.unix(date).format("ddd D MMM YYYY");
+    },
+    humanFormatTime: function(time) {
+      return moment.unix(time).format("HH:mm");
     },
     listEvents: async function(calendarId, query) {
       let params = {

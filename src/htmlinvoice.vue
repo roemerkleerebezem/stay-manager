@@ -6,127 +6,451 @@
     />
 
     <!-- TOTAL INVOICE FLEX-->
-    <div class="A4 sheet stretchy-wrapper flex-container">
-      <!-- HEADER -->
-      <div class="header">
-        <!-- INVOICE HEADER -->
-        <div class="level">
-          <div class="level-left">
-            <div class="level-item">
-              <div class="container">
-                <h4 class="title is-size-4 is-uppercase">
-                  {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
-                  }}
-                </h4>
+    <div v-if="tempInvoice != null">
+      <div class="A4 sheet stretchy-wrapper flex-container">
+        <!-- HEADER -->
+        <div class="header">
+          <!-- INVOICE HEADER -->
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="container">
+                  <h4 class="title is-size-4 is-uppercase">
+                    {{
+                      tempInvoice.main.status === "completed"
+                        ? "Facture " + tempInvoice.meta.invoiceIndex
+                        : "Réservation"
+                    }}
+                  </h4>
+                  <span
+                    :class="
+                      getStatusColor(tempInvoice.main.status) +
+                        ' is-uppercase tag'
+                    "
+                    >{{ tempInvoice.main.status }}</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="container is-size-7 has-text-right">
+                  <p>
+                    {{ formatDate(tempInvoice.meta.creationDate, "ddmmyyyy") }}
+                  </p>
+                  <p>{{ tempInvoice.meta.creationCity }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- HOST AND CLIENT -->
+          <div class="container padding-10mm">
+            <div class="card">
+              <div class="card-content">
+                <div class="columns is-mobile">
+                  <!-- HOST -->
+                  <div class="column">
+                    <div class="has-text-centered">
+                      <h6 class="title is-6">HÔTE</h6>
+                      <p>{{ tempInvoice.meta.host.name }}</p>
+                      <p>{{ tempInvoice.meta.host.address1 }}</p>
+                      <p>{{ tempInvoice.meta.host.address2 }}</p>
+                      <p>{{ tempInvoice.meta.host.phone }}</p>
+                      <p>{{ tempInvoice.meta.host.email }}</p>
+                    </div>
+                  </div>
+                  <!-- CLIENT -->
+                  <div class="column">
+                    <div class="has-text-centered">
+                      <h6 class="title is-6">CLIENT</h6>
+                      <p>{{ tempInvoice.main.contact.name }}</p>
+                      <br />
+                      <br />
+                      <p>{{ tempInvoice.main.contact.phone }}</p>
+                      <p>{{ tempInvoice.main.contact.email }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOTAL INVOICE TABLE -->
+        <div>
+          <table class="table is-fullwidth is-bordered">
+            <thead>
+              <tr class="has-background-light">
+                <th>Produit</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="tempInvoice.stay.total !== 0">
+                <td>Total sejour</td>
+                <td>
+                  {{ tempInvoice.stay.total }}
+                  €
+                </td>
+              </tr>
+
+              <!-- MEALS -->
+              <tr v-if="tempInvoice.meals.total !== 0">
+                <td>Total restauration</td>
+                <td>{{ tempInvoice.meals.total }} €</td>
+              </tr>
+            </tbody>
+
+            <!-- COSTS -->
+            <tbody v-for="cost in tempInvoice.main.costs" :key="cost.id">
+              <tr>
+                <td>
+                  {{ cost.label }}
+                  <span
+                    v-if="(cost.units !== null) & (cost.unitPrice !== null)"
+                    class="has-text-grey"
+                    style="margin-left:1rem;"
+                    >{{ cost.units }} x {{ cost.unitPrice }} €</span
+                  >
+                </td>
+                <td>{{ cost.totalPrice }} €</td>
+              </tr>
+            </tbody>
+
+            <!-- DISCOUNTS -->
+            <tbody
+              v-for="discount in tempInvoice.main.discounts"
+              :key="discount.id"
+            >
+              <tr class="has-text-success has-text-weight-semibold">
+                <td>
+                  {{ discount.label }}
+                  <span
+                    v-if="
+                      (discount.units !== null) & (discount.unitPrice !== null)
+                    "
+                    class="has-text-grey"
+                    style="margin-left:1rem;"
+                    >{{ discount.units }} x {{ discount.unitPrice }} €</span
+                  >
+                </td>
+                <td>-{{ discount.totalPrice }} €</td>
+              </tr>
+            </tbody>
+
+            <!-- SUBTOTAL -->
+            <tbody>
+              <tr class="has-background-light">
+                <td
+                  class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+                >
+                  Sous-total
+                </td>
+
+                <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
+                  {{ tempInvoice.main.total }}
+                  €
+                </td>
+              </tr>
+            </tbody>
+
+            <!-- PAYMENTS -->
+            <tbody
+              v-for="transaction in tempInvoice.main.transactions"
+              :key="transaction.id"
+            >
+              <tr>
+                <td
+                  class="has-text-success has-text-weight-semibold
+                  "
+                >
+                  {{ transaction.label }}
+                  <span
+                    v-if="
+                      (transaction.units !== null) &
+                        (transaction.unitPrice !== null)
+                    "
+                    class="has-text-grey"
+                    style="margin-left:1rem;"
+                    >{{ transaction.units }} x
+                    {{ transaction.unitPrice }} €</span
+                  >
+                </td>
+                <td class="has-text-success has-text-weight-semibold">
+                  -{{ transaction.totalPrice }} €
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody>
+              <tr class="has-background-light">
+                <td
+                  class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+                >
+                  Reste à payer
+                </td>
+                <td
+                  class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+                >
+                  {{ tempInvoice.main.toPay }} €
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="has-text-grey has-text-right pre-line">
+            {{ tempInvoice.meta.mainTableFooter }}
+          </p>
+        </div>
+
+        <!-- DEPOSIT -->
+        <div v-if="tempInvoice.main.deposits.length > 0">
+          <span class="is-size-5 title">Caution</span>
+
+          <div
+            class="container"
+            style="margin-bottom:1rem;"
+            v-for="deposit in tempInvoice.main.deposits"
+            :key="deposit.id"
+          >
+            <article class="message is-light">
+              <div class="message-header">
+                <p>
+                  <b-icon
+                    style="margin-right:0.5ch;display: inline-table;"
+                    pack="fas"
+                    :icon="getDepositIcon(deposit.type)"
+                    size="is-medium"
+                    type="is-grey"
+                  ></b-icon>
+                  <span class="has-text-grey is-uppercase"
+                    >{{ deposit.type }} -</span
+                  >
+                  {{ deposit.amount }} €
+                </p>
+
                 <span
                   :class="
-                    getStatusColor(state.booking.status) + ' is-uppercase tag'
+                    'tag is-medium ' +
+                      (deposit.status === 'pending'
+                        ? 'is-warning'
+                        : 'is-success')
                   "
-                  >{{ state.booking.status }}</span
+                >
+                  {{
+                    deposit.dateReceived === null
+                      ? ""
+                      : deposit.dateReceived.substring(0, 10) + ", "
+                  }}
+                  {{ deposit.status }}
+                </span>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- IBAN -->
+        <div class="has-text-grey has-text-right pre-line">
+          {{ tempInvoice.meta.mainPageFooter }}
+        </div>
+      </div>
+
+      <!-- STAY INVOICE FLEX-->
+      <div
+        v-if="
+          (tempInvoice.stay.total > 0) |
+            (tempInvoice.meta.stayNoPrint === false)
+        "
+        class="A4 sheet stretchy-wrapper flex-container"
+      >
+        <!-- HEADER -->
+        <div class="header">
+          <!-- INVOICE HEADER -->
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="container">
+                  <h4 class="title is-size-4 is-uppercase">
+                    {{
+                      tempInvoice.main.status === "completed"
+                        ? "Facture " + tempInvoice.meta.invoiceIndex
+                        : "Réservation"
+                    }}
+                    - DETAILS SEJOUR
+                  </h4>
+                </div>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="container is-size-7 has-text-right">
+                  <p>
+                    {{ formatDate(tempInvoice.meta.creationDate, "ddmmyyyy") }}
+                  </p>
+                  <p>{{ tempInvoice.meta.creationCity }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DATES -->
+          <div class="container">
+            <div class="field is-grouped is-grouped-multiline">
+              <div class="control">
+                <div class="tags has-addons">
+                  <span class="tag is-dark is-small">Check-in</span>
+                  <span class="tag is-light is-small">
+                    {{ formatDate(tempInvoice.stay.arrivalDate, "human") }}
+                    <b-icon
+                      style="margin-left:0.5ch;margin-right:0.5ch;"
+                      pack="fas"
+                      icon="clock"
+                      size="is-small"
+                    ></b-icon>
+                    {{ humanFormatTime(tempInvoice.stay.arrivalTime) }}
+                  </span>
+                </div>
+              </div>
+              <div class="control">
+                <div class="tags has-addons">
+                  <span class="tag is-dark is-small">Check-out</span>
+                  <span class="tag is-light is-small">
+                    {{ formatDate(tempInvoice.stay.departureDate, "human") }}
+                    <b-icon
+                      style="margin-left:0.5ch;margin-right:0.5ch;"
+                      pack="fas"
+                      icon="clock"
+                      size="is-small"
+                    ></b-icon>
+                    {{ humanFormatTime(tempInvoice.stay.departureTime) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- GUEST RANGE -->
+              <div class="control">
+                <span
+                  v-if="
+                    tempInvoice.stay.guestAmount.min !=
+                      tempInvoice.stay.guestAmount.max
+                  "
+                  class="tag is-dark is-small"
+                >
+                  {{ tempInvoice.stay.guestAmount.min }}-{{
+                    tempInvoice.stay.guestAmount.max
+                  }}
+                  personnes</span
+                >
+                <span
+                  v-if="
+                    tempInvoice.stay.guestAmount.min ==
+                      tempInvoice.stay.guestAmount.max
+                  "
+                  class="tag is-dark is-small"
+                >
+                  {{ tempInvoice.stay.guestAmount.max }}
+                  personnes</span
                 >
               </div>
             </div>
           </div>
-          <div class="level-right">
-            <div class="level-item">
-              <div class="container is-size-7 has-text-right">
-                <p>{{ todayDate }}</p>
-                <p>Saint-Germain-des-Bois</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- HOST AND CLIENT -->
-        <div class="container padding-10mm">
-          <div class="card">
-            <div class="card-content">
-              <div class="columns is-mobile">
-                <!-- HOST -->
-                <div class="column">
-                  <div class="has-text-centered">
-                    <h6 class="title is-6">HÔTE</h6>
-                    <p>Gilberthe AKKERMANS</p>
-                    <p>Moulin du Merle</p>
-                    <p>58210 Saint-Germain-des-Bois</p>
-                    <p>06 77 29 83 45</p>
-                    <p>moulindumerle@gmail.com</p>
-                  </div>
-                </div>
-                <!-- HOST -->
-                <div class="column">
-                  <div class="has-text-centered">
-                    <h6 class="title is-6">CLIENT</h6>
-                    <p>{{ state.contact.name }}</p>
-                    <br />
-                    <br />
-                    <p>{{ state.contact.phone }}</p>
-                    <p>{{ state.contact.email }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- TOTAL INVOICE TABLE -->
-      <div>
+          <!-- PROPERTY -->
+          <div class="container padding-10mm">
+            <div class="card">
+              <div class="card-content">
+                <div class="columns is-mobile">
+                  <!-- HOST -->
+                  <div class="column">
+                    <h6 class="title is-6">Propriete</h6>
+                    <p class="pre-line">
+                      {{ tempInvoice.meta.property.description }}
+                    </p>
+                  </div>
+                  <div class="column">
+                    <img src="./assets/mill_sketch.jpg" />
+                  </div>
+
+                  <!-- HOST -->
+                  <div class="column">
+                    <div class="is-pulled-right">
+                      <h6 class="title is-6">Adresse</h6>
+                      <p class="pre-line">
+                        {{ tempInvoice.meta.property.address }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOTAL INVOICE TABLE -->
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr class="has-background-light">
               <th>Produit</th>
+              <th>Unités</th>
+              <th>Prix unitaire</th>
               <th>Total</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="stayTotal !== 0">
-              <td>Total sejour</td>
+            <!-- VILLA -->
+            <tr
+              v-if="tempInvoice.stay.villa.external.units > 0"
+              class="has-text-weight-light"
+            >
+              <td>Villa (payé)</td>
+              <td>{{ tempInvoice.stay.villa.external.units }} nuit(s)</td>
+              <td>{{ tempInvoice.stay.villa.external.price }} €</td>
+              <td>{{ tempInvoice.stay.villa.external.total }} €</td>
+            </tr>
+            <tr v-if="tempInvoice.stay.villa.internal.units > 0">
+              <td>Villa</td>
+              <td>{{ tempInvoice.stay.villa.internal.units }} nuit(s)</td>
+              <td>{{ tempInvoice.stay.villa.internal.price }} €</td>
+              <td>{{ tempInvoice.stay.villa.internal.total }} €</td>
+            </tr>
+          </tbody>
+          <!-- GUESTS -->
+          <tbody
+            v-for="night in tempInvoice.stay.guests"
+            :key="night.internal.date"
+          >
+            <tr v-if="night.external.units > 0" class="has-text-weight-light">
               <td>
-                {{ stayTotal }}
+                Couchages
+                {{ humanInvoiceDate(night.external.date, "unix") }} (payé)
+              </td>
+              <td>{{ night.external.units }}</td>
+              <td>{{ night.external.price }} €</td>
+              <td>{{ night.external.total }} €</td>
+            </tr>
+            <tr v-if="night.internal.units > 0">
+              <td>
+                Couchages
+                {{
+                  night.external.units > 0
+                    ? "supplémentaires " +
+                      humanInvoiceDate(night.internal.date, "unix")
+                    : humanInvoiceDate(night.internal.date, "unix")
+                }}
+              </td>
+              <td>{{ night.internal.units }}</td>
+              <td>{{ night.internal.price }} €</td>
+              <td>{{ night.internal.total }} €</td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr v-if="tempInvoice.stay.pets.units > 0">
+              <td>Animaux de compagnie</td>
+              <td>{{ tempInvoice.stay.pets.units }} nuit(s)</td>
+              <td>{{ tempInvoice.stay.pets.price }} €</td>
+              <td>
+                {{ tempInvoice.stay.pets.total }}
                 €
               </td>
-            </tr>
-          </tbody>
-          <!-- CREDIT DEBIT -->
-          <tbody v-for="cost in state.booking.costs" :key="cost.id">
-            <tr v-if="['cost', 'payment'].includes(cost.type)">
-              <td
-                :class="
-                  cost.type === 'cost'
-                    ? ''
-                    : 'has-text-success has-text-weight-semibold'
-                "
-              >
-                {{ cost.label }}
-                <span
-                  v-if="(cost.units !== null) & (cost.unitPrice !== null)"
-                  class="has-text-grey"
-                  style="margin-left:1rem;"
-                  >{{ cost.units }} x {{ cost.unitPrice }} €</span
-                >
-              </td>
-              <td
-                :class="
-                  cost.type === 'cost'
-                    ? ''
-                    : 'has-text-success has-text-weight-semibold'
-                "
-              >
-                {{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €
-              </td>
-            </tr>
-          </tbody>
-
-          <tbody>
-            <tr v-if="cateringSubtotal !== 0">
-              <td>Total restauration</td>
-              <td>{{ cateringSubtotal }} €</td>
             </tr>
             <tr class="has-background-light">
               <td
@@ -134,455 +458,186 @@
               >
                 Sous-total
               </td>
-              <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-                {{ stayTotal + cateringSubtotal }}
+              <td></td>
+              <td></td>
+              <td
+                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+              >
+                {{ tempInvoice.stay.totalBeforeDiscount }} €
+              </td>
+            </tr>
+            <tr v-if="tempInvoice.stay.discount.total > 0">
+              <td>
+                Réduction {{ tempInvoice.stay.discount.nights }} nuits ({{
+                  Math.round(100 * tempInvoice.stay.discount.percentage)
+                }}%)
+              </td>
+              <td></td>
+              <td></td>
+              <td class="has-text-success has-text-weight-semibold">
+                -{{ tempInvoice.stay.discount.total }} €
+              </td>
+            </tr>
+            <tr v-if="tempInvoice.stay.extraHours.units > 0">
+              <td>Heures supplémentaires</td>
+              <td>{{ tempInvoice.stay.extraHours.units }}</td>
+              <td>{{ tempInvoice.stay.extraHours.price }} €</td>
+              <td>{{ tempInvoice.stay.extraHours.total }} €</td>
+            </tr>
+            <tr v-if="tempInvoice.stay.tax.total > 0">
+              <td>
+                Taxe de séjour
+                <span class="has-text-grey has-text-weight-light"
+                  >({{ tempInvoice.stay.tax.percentage * 100 }} %)</span
+                >
+              </td>
+              <td>{{ tempInvoice.stay.tax.units }}</td>
+              <td>
+                {{
+                  Math.round(
+                    (tempInvoice.stay.tax.total / tempInvoice.stay.tax.units) *
+                      100
+                  ) / 100
+                }}
+                €
+              </td>
+              <td>
+                {{ tempInvoice.stay.tax.total }}
                 €
               </td>
             </tr>
-          </tbody>
-          <!-- PAYMENTS -->
-          <tbody v-for="cost in state.booking.costs" :key="cost.id">
-            <tr v-if="['payment-cash', 'payment-bank'].includes(cost.type)">
-              <td
-                :class="
-                  cost.type === 'cost'
-                    ? ''
-                    : 'has-text-success has-text-weight-semibold'
-                "
-              >
-                {{ cost.label }}
-                <span
-                  v-if="(cost.units !== null) & (cost.unitPrice !== null)"
-                  class="has-text-grey"
-                  style="margin-left:1rem;"
-                  >{{ cost.units }} x {{ cost.unitPrice }} €</span
-                >
-              </td>
-              <td
-                :class="
-                  cost.type === 'cost'
-                    ? ''
-                    : 'has-text-success has-text-weight-semibold'
-                "
-              >
-                {{ cost.type === "cost" ? "+" : "-" }}{{ cost.totalPrice }} €
-              </td>
-            </tr>
-          </tbody>
-          <tbody>
             <tr class="has-background-light">
               <td
                 class="has-text-darkgrey is-uppercase has-text-weight-semibold"
               >
-                Reste à payer
-              </td>
-              <td
-                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                {{ Math.round(100 * invoiceTotal) / 100 }} €
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="has-text-grey has-text-right">
-          TVA non applicable, art. 293 B du Code général des impôts
-        </p>
-      </div>
-
-      <!-- DEPOSIT -->
-      <div v-if="state.booking.deposits.length > 0">
-        <span class="is-size-5 title">Caution</span>
-
-        <div
-          class="container"
-          style="margin-bottom:1rem;"
-          v-for="deposit in state.booking.deposits"
-          :key="deposit.id"
-        >
-          <article class="message is-light">
-            <div class="message-header">
-              <p>
-                <b-icon
-                  style="margin-right:0.5ch;display: inline-table;"
-                  pack="fas"
-                  :icon="getDepositIcon(deposit.type)"
-                  size="is-medium"
-                  type="is-grey"
-                ></b-icon>
-                <span class="has-text-grey is-uppercase"
-                  >{{ deposit.type }} -</span
-                >
-                {{ deposit.amount }} €
-              </p>
-
-              <span
-                :class="
-                  'tag is-medium ' +
-                    (deposit.status === 'pending' ? 'is-warning' : 'is-success')
-                "
-              >
-                {{
-                  deposit.dateReceived === null
-                    ? ""
-                    : deposit.dateReceived.substring(0, 10) + ", "
-                }}
-                {{ deposit.status }}
-              </span>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <!-- IBAN -->
-      <div class="has-text-grey has-text-right">
-        <p>MME GILBERTHA AKKERMANS</p>
-        <p>Crédit Agricole</p>
-        <p>IBAN : FR76 1480 6580 0044 3191 6000 091</p>
-      </div>
-    </div>
-
-    <!-- STAY INVOICE FLEX-->
-    <div
-      v-if="(state.stay.stayNightArray > 0) | (stayNoPrint === false)"
-      class="A4 sheet stretchy-wrapper flex-container"
-    >
-      <!-- HEADER -->
-      <div class="header">
-        <!-- INVOICE HEADER -->
-        <div class="level">
-          <div class="level-left">
-            <div class="level-item">
-              <div class="container">
-                <h4 class="title is-size-4 is-uppercase">
-                  {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
-                  }}
-                  - DETAILS SEJOUR
-                </h4>
-              </div>
-            </div>
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-              <div class="container is-size-7 has-text-right">
-                <p>{{ todayDate }}</p>
-                <p>Saint-Germain-des-Bois</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DATES -->
-        <div class="container">
-          <div class="field is-grouped is-grouped-multiline">
-            <div class="control">
-              <div class="tags has-addons">
-                <span class="tag is-dark is-small">Check-in</span>
-                <span class="tag is-light is-small">
-                  {{ humanFormatDate(state.stay.arrivalDatetime) }}
-                  <b-icon
-                    style="margin-left:0.5ch;margin-right:0.5ch;"
-                    pack="fas"
-                    icon="clock"
-                    size="is-small"
-                  ></b-icon>
-                  {{ humanFormatTime(state.stay.arrivalDatetime) }}
-                </span>
-              </div>
-            </div>
-            <div class="control">
-              <div class="tags has-addons">
-                <span class="tag is-dark is-small">Check-out</span>
-                <span class="tag is-light is-small">
-                  {{ humanFormatDate(state.stay.departureDatetime) }}
-                  <b-icon
-                    style="margin-left:0.5ch;margin-right:0.5ch;"
-                    pack="fas"
-                    icon="clock"
-                    size="is-small"
-                  ></b-icon>
-                  {{ humanFormatTime(state.stay.departureDatetime) }}
-                </span>
-              </div>
-            </div>
-            <div class="control">
-              <span class="tag is-dark is-small"
-                >{{ state.stay.baseGuests }} personnes</span
-              >
-            </div>
-            <div v-if="state.stay.pets > 0" class="control">
-              <span class="tag is-dark is-small"
-                >{{ state.stay.pets }} animaux</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- PROPERTY -->
-        <div class="container padding-10mm">
-          <div class="card">
-            <div class="card-content">
-              <div class="columns is-mobile">
-                <!-- HOST -->
-                <div class="column">
-                  <h6 class="title is-6">Propriete</h6>
-                  <p>Villa de tourisme</p>
-                  <p>8 chambres</p>
-                  <p>3.5 salles de bains</p>
-                  <p>1 cuisine</p>
-                </div>
-                <div class="column">
-                  <img src="./assets/mill_sketch.jpg" />
-                </div>
-
-                <!-- HOST -->
-                <div class="column">
-                  <div class="is-pulled-right">
-                    <h6 class="title is-6">Adresse</h6>
-                    <p>Moulin du Merle</p>
-                    <p>58210</p>
-                    <p>St-Germain-des-Bois</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TOTAL INVOICE TABLE -->
-      <table class="table is-fullwidth is-bordered">
-        <thead>
-          <tr class="has-background-light">
-            <th>Produit</th>
-            <th>Unités</th>
-            <th>Prix unitaire</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-if="invoiceData.externalVillaNights > 0"
-            class="has-text-weight-light"
-          >
-            <td>Villa (payé)</td>
-            <td>{{ invoiceData.externalVillaNights }} nuit(s)</td>
-            <td>0 €</td>
-            <td>0 €</td>
-          </tr>
-          <tr v-if="invoiceData.villaNights > 0">
-            <td>Villa</td>
-            <td>{{ invoiceData.villaNights }} nuit(s)</td>
-            <td>{{ state.prices.villaNight }} €</td>
-            <td>{{ invoiceData.villaNights * state.prices.villaNight }} €</td>
-          </tr>
-        </tbody>
-        <tbody v-for="night in state.stay.stayNightArray" :key="night.id">
-          <tr v-if="night.externalGuests > 0" class="has-text-weight-light">
-            <td>Couchages {{ humanInvoiceDate(night.date, "unix") }} (payé)</td>
-            <td>{{ night.externalGuests }}</td>
-            <td>0 €</td>
-            <td>0 €</td>
-          </tr>
-          <tr v-if="night.guests > 0">
-            <td>
-              Couchages
-              {{
-                night.externalGuests > 0
-                  ? "supplémentaires"
-                  : humanInvoiceDate(night.date, "unix")
-              }}
-            </td>
-            <td>{{ night.guests }}</td>
-            <td>{{ state.prices.stayNight }} €</td>
-            <td>{{ night.guests * state.prices.stayNight }} €</td>
-          </tr>
-        </tbody>
-        <tbody>
-          <tr v-if="state.stay.pets > 0">
-            <td>Animaux de compagnie</td>
-            <td>{{ state.stay.pets * invoiceData.villaNights }} nuit(s)</td>
-            <td>{{ state.prices.petNight }} €</td>
-            <td>
-              {{
-                state.stay.pets *
-                  invoiceData.villaNights *
-                  state.prices.petNight
-              }}
-              €
-            </td>
-          </tr>
-          <tr v-if="invoiceData.extraHours > 0">
-            <td>Heures supplémentaires</td>
-            <td>{{ invoiceData.extraHours }}</td>
-            <td>{{ state.prices.extraHour }} €</td>
-            <td>{{ invoiceData.extraHours * state.prices.extraHour }} €</td>
-          </tr>
-          <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              Sous-total
-            </td>
-            <td></td>
-            <td></td>
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              {{ staySubtotal }} €
-            </td>
-          </tr>
-          <tr v-if="invoiceData.discount > 0">
-            <td>
-              Réduction {{ state.stay.stayNightArray.length }} nuits ({{
-                Math.round(100 * invoiceData.discount)
-              }}%)
-            </td>
-            <td></td>
-            <td></td>
-            <td class="has-text-success has-text-weight-semibold">
-              -{{ invoiceData.discount * staySubtotal }} €
-            </td>
-          </tr>
-          <tr v-if="invoiceData.taxedNights > 0">
-            <td>Taxe de séjour</td>
-            <td>{{ invoiceData.taxedNights }}</td>
-            <td>{{ state.prices.taxeSejourNight }} €</td>
-            <td>
-              {{
-                Math.round(
-                  invoiceData.taxedNights * state.prices.taxeSejourNight * 100
-                ) / 100
-              }}
-              €
-            </td>
-          </tr>
-          <tr class="has-background-light">
-            <td class="has-text-darkgrey is-uppercase has-text-weight-semibold">
-              Total séjour
-            </td>
-            <td></td>
-            <td></td>
-            <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-              {{ stayTotal }}
-              €
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- FOOTER -->
-      <div>
-        <!-- <p class="is-pulled-right">Page 2/3</p> -->
-      </div>
-    </div>
-
-    <!-- CATERING INVOICE FLEX-->
-    <div
-      v-if="(state.meals.length > 0) & (cateringNoPrint === false)"
-      class="A4 sheet stretchy-wrapper flex-container"
-    >
-      <!-- HEADER -->
-      <div class="header">
-        <!-- INVOICE HEADER -->
-        <div class="level">
-          <div class="level-left">
-            <div class="level-item">
-              <div class="container">
-                <h4 class="title is-size-4 is-uppercase">
-                  {{
-                    state.booking.status === "completed"
-                      ? "Facture " +
-                        todayDateMonth +
-                        "-" +
-                        state.booking.invoiceNumber.toString().padStart(4, "0")
-                      : "Réservation"
-                  }}
-                  - DETAILS RESTAURATION
-                </h4>
-              </div>
-            </div>
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-              <div class="container is-size-7 has-text-right">
-                <p>{{ todayDate }}</p>
-                <p>Saint-Germain-des-Bois</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TOTAL INVOICE TABLE -->
-      <div>
-        <table class="table is-fullwidth is-bordered">
-          <thead>
-            <tr>
-              <th>Produit</th>
-              <th>Unités</th>
-              <th>Prix unitaire</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody v-for="meal in state.meals" :key="meal.id">
-            <tr v-if="meal.adults != 0">
-              <td>
-                {{ cateringString[meal.type] }}
-                {{ humanInvoiceDate(meal.date) }}
-              </td>
-              <td>{{ meal.adults }} adultes</td>
-              <td>{{ meal.adultPrice }} €</td>
-              <td>{{ meal.adults * meal.adultPrice }} €</td>
-            </tr>
-            <tr v-if="meal.children != 0">
-              <td>
-                {{ cateringString[meal.type] }}
-                {{ humanInvoiceDate(meal.date) }}
-              </td>
-              <td>{{ meal.children }} enfants</td>
-              <td>{{ meal.childPrice }} €</td>
-              <td>{{ meal.children * meal.childPrice }} €</td>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr>
-              <td
-                class="has-text-darkgrey is-uppercase has-text-weight-semibold"
-              >
-                Total restauration
+                Total séjour
               </td>
               <td></td>
               <td></td>
               <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
-                {{ cateringSubtotal }} €
+                {{ tempInvoice.stay.total }}
+                €
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- FOOTER -->
+        <div>
+          <!-- <p class="is-pulled-right">Page 2/3</p> -->
+        </div>
       </div>
 
-      <!-- FOOTER -->
-      <div>
-        <!-- <p class="is-pulled-right">Page 2/3</p> -->
-      </div>
-    </div>
+      <!-- CATERING INVOICE FLEX-->
+      <div
+        v-if="
+          (tempInvoice.meals.total > 0) &
+            (tempInvoice.meta.cateringNoPrint === false)
+        "
+        class="A4 sheet stretchy-wrapper flex-container"
+      >
+        <!-- HEADER -->
+        <div class="header">
+          <!-- INVOICE HEADER -->
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="container">
+                  <h4 class="title is-size-4 is-uppercase">
+                    {{
+                      tempInvoice.main.status === "completed"
+                        ? "Facture " + tempInvoice.meta.invoiceIndex
+                        : "Réservation"
+                    }}
+                    - DETAILS RESTAURATION
+                  </h4>
+                </div>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="container is-size-7 has-text-right">
+                  <p>
+                    {{ formatDate(tempInvoice.meta.creationDate, "ddmmyyyy") }}
+                  </p>
+                  <p>{{ tempInvoice.meta.creationCity }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- CONTRACT FLEX-->
-    <div
-      v-if="contractNoPrint === false"
-      class="A4 sheet stretchy-wrapper flex-container"
-    >
-      <div>
-        <!-- ADD CONTRACT -->
-        <div class="contract-span" v-html="htmlContract"></div>
+        <!-- TOTAL INVOICE TABLE -->
+        <div>
+          <table class="table is-fullwidth is-bordered">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Unités</th>
+                <th>Prix unitaire</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody v-for="meal in tempInvoice.meals.meals" :key="meal.date">
+              <tr v-if="meal.adults.units != 0">
+                <td>
+                  {{ cateringString[meal.type] }}
+                  {{ humanInvoiceDate(meal.date) }}
+                </td>
+                <td>{{ meal.adults.units }} adultes</td>
+                <td>{{ meal.adults.price }} €</td>
+                <td>{{ meal.adults.total }} €</td>
+              </tr>
+              <tr v-if="meal.children.units != 0">
+                <td>
+                  {{ cateringString[meal.type] }}
+                  {{ humanInvoiceDate(meal.date) }}
+                </td>
+                <td>{{ meal.children.units }} enfants</td>
+                <td>{{ meal.children.price }} €</td>
+                <td>{{ meal.children.total }} €</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td
+                  class="has-text-darkgrey is-uppercase has-text-weight-semibold"
+                >
+                  Total restauration
+                </td>
+                <td></td>
+                <td></td>
+                <td class="has-text-darkgrey is-uppercase has-text-weight-bold">
+                  {{ tempInvoice.meals.total }} €
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div>
+          <!-- <p class="is-pulled-right">Page 2/3</p> -->
+        </div>
       </div>
 
-      <!-- FOOTER -->
-      <div>
-        <!-- <p class="is-pulled-right">Page 2/3</p> -->
+      <!-- CONTRACT FLEX-->
+      <div
+        v-if="tempInvoice.meta.contractNoPrint === false"
+        class="A4 sheet stretchy-wrapper flex-container"
+      >
+        <div>
+          <!-- ADD CONTRACT -->
+          <div class="contract-span" v-html="htmlContract"></div>
+        </div>
+
+        <!-- FOOTER -->
+        <div>
+          <!-- <p class="is-pulled-right">Page 2/3</p> -->
+        </div>
       </div>
+
+      <!-- V-IF tempInvoice exists -->
     </div>
 
     <!-- END -->
@@ -606,15 +661,10 @@ Vue.use(Buefy);
 export default {
   data: function() {
     return {
-      todayDate: new Date().toISOString().substring(0, 10),
-      todayDateMonth: new Date().toISOString().substring(0, 7),
-
       state: this.$store.state,
-      stayNoPrint: false,
-      cateringNoPrint: false,
-      contractNoPrint: false,
-
       htmlContract: marked(contract),
+
+      tempInvoice: null,
 
       cateringString: {
         breakfast: "Petit-déjeuner",
@@ -623,125 +673,8 @@ export default {
       },
     };
   },
-  computed: {
-    extraHours: function() {
-      var arrivalDatetime = moment(this.state.stay.arrivalDatetime);
-      var departureDatetime = moment(this.state.stay.departureDatetime);
-      var minArrivalDatetime = arrivalDatetime.clone().set({
-        hour: this.state.stay.minArrivalTime.hour,
-        minute: this.state.stay.minArrivalTime.minute,
-        second: 0,
-        millisecond: 0,
-      });
-      var maxDepartureDatetime = departureDatetime.clone().set({
-        hour: this.state.stay.maxDepartureTime.hour,
-        minute: this.state.stay.maxDepartureTime.minute,
-        second: 0,
-        millisecond: 0,
-      });
-      var extraHours = 0;
-      var arrivalExtraHours = minArrivalDatetime.diff(arrivalDatetime, "hours");
-      var departureExtraHours = departureDatetime.diff(
-        maxDepartureDatetime,
-        "hours"
-      );
-      if (arrivalExtraHours > 0) {
-        extraHours += arrivalExtraHours;
-      }
-
-      if (departureExtraHours > 0) {
-        extraHours += departureExtraHours;
-      }
-      return extraHours;
-    },
-    staySubtotal: function() {
-      var state = this.state;
-      var invoiceData = this.invoiceData;
-
-      var villaTotal = invoiceData.villaNights * state.prices.villaNight;
-      var stayNightsTotal = 0;
-      state.stay.stayNightArray.forEach(function(night, index) {
-        stayNightsTotal += night.guests * state.prices.stayNight;
-      });
-
-      var petsTotal =
-        state.stay.pets * invoiceData.villaNights * state.prices.petNight;
-      var extraHoursTotal = invoiceData.extraHours * state.prices.extraHour;
-
-      return villaTotal + stayNightsTotal + petsTotal + extraHoursTotal;
-    },
-    stayTotal: function() {
-      if (this.stayNoPrint === true) {
-        return 0;
-      } else {
-        return (
-          this.staySubtotal * (1 - this.invoiceData.discount) +
-          this.invoiceData.taxedNights * this.state.prices.taxeSejourNight
-        );
-      }
-    },
-    cateringSubtotal: function() {
-      if (this.cateringNoPrint === true) {
-        return 0;
-      }
-      var state = this.state;
-      var cateringSubtotal = 0;
-      state.meals.forEach(function(meal, index) {
-        cateringSubtotal += meal.adults * meal.adultPrice;
-        cateringSubtotal += meal.children * meal.childPrice;
-      });
-
-      return cateringSubtotal;
-    },
-    invoiceTotal: function() {
-      var state = this.state;
-      var invoiceData = this.invoiceData;
-
-      var invoiceTotal = this.stayTotal + this.cateringSubtotal;
-
-      state.booking.costs.forEach(function(cost, index) {
-        cost.type === "cost"
-          ? (invoiceTotal += cost.totalPrice)
-          : (invoiceTotal -= cost.totalPrice);
-      });
-      return invoiceTotal;
-    },
-
-    invoiceData: function() {
-      var state = this.state;
-      var stayNightArray = state.stay.stayNightArray;
-      var externalVillaNights = 0;
-      var villaNights = 0;
-      var taxedNights = 0;
-      stayNightArray.forEach(function(night) {
-        if (!night.external) {
-          villaNights += 1;
-        } else {
-          externalVillaNights += 1;
-        }
-        taxedNights += night.guests;
-      });
-      return {
-        villaNights: villaNights,
-        externalVillaNights: externalVillaNights,
-        stayNightArray: state.stay.stayNightArray,
-        taxedNights: taxedNights,
-        extraHours: this.extraHours,
-        discount: state.discountPerNight.hasOwnProperty(
-          state.stay.stayNightArray.length
-        )
-          ? state.discountPerNight[state.stay.stayNightArray.length]
-          : 0.15,
-      };
-    },
-  },
+  computed: {},
   methods: {
-    hoursDifference: function(startDatetime, endDatetime) {
-      var duration = moment.duration(endDatetime.diff(startDatetime));
-      var hours = duration.asHours();
-      return hours;
-    },
-
     getDepositIcon: function(depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
@@ -766,17 +699,28 @@ export default {
         return "is-grey";
       }
     },
-    humanFormatDate: function(date) {
-      return moment(date).format("ddd D MMM YYYY");
+    formatDate: function(date, format) {
+      if (format == "human") {
+        return moment(date)
+          .locale("fr")
+          .format("ddd D MMM YYYY");
+      } else if (format == "ddmmyyyy") {
+        return moment.unix(date).format("DD/MM/YYYY");
+      }
     },
     humanFormatTime: function(date) {
       return moment(date).format("HH:mm");
     },
     humanInvoiceDate: function(unixDate, format) {
       if (format === "unix") {
-        return moment.unix(unixDate).format("ddd. D MMM.");
+        return moment
+          .unix(unixDate)
+          .locale("fr")
+          .format("dddd D MMM");
       } else {
-        return moment(unixDate).format("ddd. D MMM.");
+        return moment(unixDate)
+          .locale("fr")
+          .format("dddd D MMM");
       }
     },
   },
@@ -786,30 +730,21 @@ export default {
     } else {
       this.state = this.$store.state;
     }
-    if (localStorage.getItem("stayNoPrint")) {
-      this.stayNoPrint = JSON.parse(localStorage.getItem("stayNoPrint"));
+    if (localStorage.getItem("tempInvoice")) {
+      this.tempInvoice = JSON.parse(localStorage.getItem("tempInvoice"));
     } else {
-      this.stayNoPrint = false;
-    }
-    if (localStorage.getItem("cateringNoPrint")) {
-      this.cateringNoPrint = JSON.parse(
-        localStorage.getItem("cateringNoPrint")
-      );
-    } else {
-      this.cateringNoPrint = false;
-    }
-    if (localStorage.getItem("contractNoPrint")) {
-      this.contractNoPrint = JSON.parse(
-        localStorage.getItem("contractNoPrint")
-      );
-    } else {
-      this.contractNoPrint = false;
+      console.log("ERROR : no tempInvoice to load");
+      this.tempInvoice = null;
     }
   },
 };
 </script>
 
 <style scoped>
+.pre-line {
+  white-space: pre-line;
+}
+
 .contract-span {
   font-size: 0.65em;
   white-space: pre-line;

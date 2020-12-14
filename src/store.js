@@ -3,6 +3,8 @@ import Vuex from "vuex";
 
 import moment from "moment";
 
+import settingProfiles from "./scripts/setting-profiles";
+
 Vue.use(Vuex);
 
 const startState = {
@@ -19,52 +21,53 @@ const startState = {
     date: moment().toDate(),
     deposits: [],
     costs: [],
+    internalCosts: [],
     uuid: null,
     invoiceNumber: 0,
   },
+  invoices: [],
   stay: {
-    arrivalDatetime: moment()
+    arrivalDate: moment()
+      .startOf("day")
+      .unix(),
+    departureDate: moment()
+      .startOf("day")
+      .add(1, "days")
+      .unix(),
+    arrivalTime: moment()
       .hour(17)
       .minute(0)
-      .toDate(),
-    departureDatetime: moment()
+      .unix(),
+    departureTime: moment()
       .hour(12)
       .minute(0)
-      .toDate(),
-    minArrivalTime: {
-      hour: 17,
-      minute: 0,
-    },
-    maxDepartureTime: {
-      hour: 12,
-      minute: 0,
-    },
-    baseGuests: 10,
-    stayNightArray: [],
-    children: 0,
+      .unix(),
+    stayNightArray: [
+      {
+        id: 100,
+        date: moment()
+          .startOf("day")
+          .unix(),
+        internal: {
+          villa: 1,
+          adults: 10,
+          kids: 0,
+          infants: 0,
+          pets: 0,
+        },
+        external: {
+          villa: 0,
+          adults: 0,
+          kids: 0,
+          infants: 0,
+          pets: 0,
+        },
+      },
+    ],
     guestInfo: "",
-    pets: 0,
   },
   meals: [],
-  prices: {
-    villaNight: 100,
-    stayNight: 35,
-    petNight: 10,
-    taxeSejourNight: 0.4,
-    extraHour: 25,
-  },
-  discountPerNight: {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0.1,
-    4: 0.15,
-    5: 0.2,
-    6: 0.25,
-    7: 0.3,
-    8: 0.35,
-    9: 0.4,
-  },
+  settings: settingProfiles.find((x) => x.default === true),
 };
 
 export default new Vuex.Store({
@@ -78,16 +81,36 @@ export default new Vuex.Store({
         newState.booking.date == null
           ? null
           : moment(newState.booking.date).toDate();
-      newState.stay.arrivalDatetime =
-        newState.stay.arrivalDatetime == null
+      newState.stay.arrivalDate =
+        newState.stay.arrivalDate == null
           ? null
-          : moment(newState.stay.arrivalDatetime).toDate();
-      newState.stay.departureDatetime =
-        newState.stay.departureDatetime == null
+          : moment.unix(newState.stay.arrivalDate).unix();
+      newState.stay.departureDate =
+        newState.stay.departureDate == null
           ? null
-          : moment(newState.stay.departureDatetime).toDate();
+          : moment.unix(newState.stay.departureDate).unix();
+      newState.meals.forEach(function(meal) {
+        meal.date = meal.date == null ? null : moment(meal.date).toDate();
+      });
 
       Object.assign(state, newState);
+    },
+    updateInvoice(state, newInvoice) {
+      var newUuid = newInvoice.meta.uuid;
+
+      var updated = false;
+
+      state.invoices.forEach(function(invoice, index, thisArray) {
+        if (invoice.meta.uuid == newUuid) {
+          thisArray[index] = newInvoice;
+          updated = true;
+        } else {
+        }
+      });
+
+      if (updated == false) {
+        state.invoices.push(newInvoice);
+      }
     },
   },
   actions: {},

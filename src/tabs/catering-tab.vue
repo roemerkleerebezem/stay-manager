@@ -3,7 +3,7 @@
   <section class="section">
     <div class="container">
       <!-- FORM TITLE -->
-      <div class="box">
+      <div class="box ">
         <h3 class="title is-3">Restauration</h3>
       </div>
 
@@ -13,6 +13,7 @@
         v-for="meal in meals"
         :key="meal.id"
         :aria-id="'mealContent' + meal.id"
+        :open="false"
       >
         <div
           slot="trigger"
@@ -20,7 +21,15 @@
           role="button"
           :aria-controls="'mealContent' + meal.id"
         >
-          <p class="card-header-title">{{ meal.type }}</p>
+          <p class="card-header-title is-size-5">
+            <span class="is-uppercase">{{ meal.type }}</span
+            ><span class="has-text-dark-grey">
+              -{{
+                meal.adults * meal.adultPrice + meal.children * meal.childPrice
+              }}
+              euros
+            </span>
+          </p>
           <b-button
             icon-pack="fas"
             @click="$delete(meals, meals.indexOf(meal))"
@@ -99,7 +108,9 @@
               role="button"
               :aria-controls="'costContent' + cost.id"
             >
-              <p class="card-header-title">{{ cost.name }} : {{ cost.totalPrice }} euros</p>
+              <p class="card-header-title">
+                {{ cost.name }} : {{ cost.totalPrice }} euros
+              </p>
               <b-button
                 icon-pack="fas"
                 @click="$delete(meal.costs, meal.costs.indexOf(cost))"
@@ -108,7 +119,10 @@
               ></b-button>
             </div>
             <div class="card-content">
-              <div v-for="(value, propertyName) in cost" v-bind:key="propertyName">
+              <div
+                v-for="(value, propertyName) in cost"
+                v-bind:key="propertyName"
+              >
                 <span class="tag is-dark is-small">{{ propertyName }}</span>
                 <pre>{{ value }}</pre>
               </div>
@@ -117,7 +131,10 @@
 
           <b-field grouped group-multiline>
             <b-field label="Type">
-              <b-select v-model="meal.tempCost.type" placeholder="Select a type">
+              <b-select
+                v-model="meal.tempCost.type"
+                placeholder="Select a type"
+              >
                 <option value="caterer">Restaurateur</option>
                 <option value="groceries">Courses</option>
               </b-select>
@@ -141,10 +158,18 @@
               ></b-numberinput>
             </b-field>
           </b-field>
-          <b-field label="Informations supplémentaires" label-position="on-border">
-            <b-input v-model="meal.tempCost.information" type="textarea"></b-input>
+          <b-field
+            label="Informations supplémentaires"
+            label-position="on-border"
+          >
+            <b-input
+              v-model="meal.tempCost.information"
+              type="textarea"
+            ></b-input>
           </b-field>
-          <b-button type="is-primary" @click="addCost(meal.id)">Ajouter</b-button>
+          <b-button type="is-primary" @click="addCost(meal.id)"
+            >Ajouter</b-button
+          >
         </div>
       </b-collapse>
 
@@ -157,9 +182,15 @@
               <b-icon pack="fas" icon="plus" size="is-medium"></b-icon>
             </button>
 
-            <b-dropdown-item aria-role="listitem" @click="addMeal('breakfast')">Petit-dejeuner</b-dropdown-item>
-            <b-dropdown-item aria-role="listitem" @click="addMeal('lunch')">Déjeuner</b-dropdown-item>
-            <b-dropdown-item aria-role="listitem" @click="addMeal('dinner')">Dîner</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem" @click="addMeal('breakfast')"
+              >Petit-dejeuner</b-dropdown-item
+            >
+            <b-dropdown-item aria-role="listitem" @click="addMeal('lunch')"
+              >Déjeuner</b-dropdown-item
+            >
+            <b-dropdown-item aria-role="listitem" @click="addMeal('dinner')"
+              >Dîner</b-dropdown-item
+            >
           </b-dropdown>
         </h5>
       </div>
@@ -181,7 +212,7 @@ export default {
   watch: {},
 
   methods: {
-    addMeal: function (mealType) {
+    addMeal: function(mealType) {
       var tempMeal = {
         id: this.uuidv4(),
         type: mealType,
@@ -202,8 +233,8 @@ export default {
       };
       this.meals.push(tempMeal);
     },
-    uuidv4: function () {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
+    uuidv4: function() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
         c
       ) {
         var r = (Math.random() * 16) | 0,
@@ -212,7 +243,7 @@ export default {
       });
     },
 
-    addCost: function (mealId) {
+    addCost: function(mealId) {
       var meal = this.meals.find((x) => x.id === mealId);
       var tempCosts = meal.costs;
       meal.tempCost.id = this.uuidv4();
