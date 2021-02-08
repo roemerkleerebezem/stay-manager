@@ -16,7 +16,7 @@
     "downloadjs": "^1.4.7",
     "googleapis": "^39.2.0",
     "ical-generator": "^1.9.2",
-    "marked": "^1.2.0",
+    "marked": "^2.0.0",
     "moment": "^2.24.0",
     "ngx-markdown": "^10.1.1",
     "node-google-calendar": "^1.1.0",
