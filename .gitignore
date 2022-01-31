@@ -3,3 +3,6 @@ src/scripts/database/
 src/scripts/googleapi-key.json
 src/scripts/settings.js
 src/scripts/setting-profiles.json
+src/scripts/venv/
+yarn-error.log
+.idea/

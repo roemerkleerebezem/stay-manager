@@ -11,6 +11,6 @@ import VueRouter from "vue-router";
 
 export default {
   components: {},
-  methods: {}
+  methods: {},
 };
 </script>

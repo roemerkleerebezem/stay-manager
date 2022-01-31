@@ -17,10 +17,10 @@
           <b-navbar-item tag="div">
             <div class="buttons">
               <b-tooltip
-                type="is-warning"
+                :type="dataReady ? 'is-success' : 'is-warning'"
                 :label="
                   dataReady
-                    ? ''
+                    ? 'Save the booking'
                     : 'Missing information, either booking status or dates'
                 "
                 position="is-left"
@@ -43,6 +43,7 @@
     <!-- TABS -->
     <b-tabs
       :key="updateTab"
+      style="margin-top:55.972px;"
       id="sheetTabs"
       size="is-medium is-boxed"
       v-model="activeTab"
@@ -273,14 +274,38 @@ export default {
         endDateTime = endDateTime.add(1, "hours");
       }
 
-      var maxChildren = 0;
-      var maxAdults = 0;
-      var maxPets = 0;
-      state.stay.stayNightArray.forEach(function(night) {
-        maxChildren += night.internal.kids + night.external.kids;
-        maxAdults += night.internal.adults + night.external.adults;
-        maxPets += night.internal.pets + night.external.pets;
-      });
+      var maxChildren = Math.max.apply(
+        Math,
+        state.stay.stayNightArray.map(function(o) {
+          return o.internal.kids + o.external.kids;
+        })
+      );
+
+      var maxAdults = Math.max.apply(
+        Math,
+        state.stay.stayNightArray.map(function(o) {
+          return o.internal.adults + o.external.adults;
+        })
+      );
+
+      var maxPets = Math.max.apply(
+        Math,
+        state.stay.stayNightArray.map(function(o) {
+          return o.internal.pets + o.external.pets;
+        })
+      );
+
+      var maxPersons = Math.max.apply(
+        Math,
+        state.stay.stayNightArray.map(function(o) {
+          return (
+            o.internal.adults +
+            o.external.adults +
+            o.internal.kids +
+            o.external.kids
+          );
+        })
+      );
 
       let event = {
         start: { dateTime: startDateTime.toDate() },
@@ -288,7 +313,7 @@ export default {
         summary:
           state.contact.name +
           ", " +
-          (maxChildren + maxAdults) +
+          maxPersons +
           "p. " +
           state.stay.stayNightArray.length +
           "n. via " +
