@@ -25,16 +25,16 @@ Vue.config.productionTip = false;
 const routes = [
   { path: "", component: List },
   { path: "/booking", component: Form },
-  { path: "/booking/:uuid", props: true, component: Form }
+  { path: "/booking/:uuid", props: true, component: Form },
 ];
 
 const router = new VueRouter({
   routes,
-  mode: "history"
+  mode: "history",
 });
 
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");

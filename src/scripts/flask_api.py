@@ -84,7 +84,13 @@ def getInvoiceObject(data, invoice):
 
     allTransactions = data['booking']['costs']
 
+    for transaction in allTransactions:
+        transaction['totalPrice'] = round(transaction['totalPrice'], 2)
+
     internalCosts = data['booking']['internalCosts']
+
+    for cost in internalCosts:
+        cost['totalPrice'] = round(cost['totalPrice'], 2)
 
     booking = {
         key: value for (key, value) in data['booking'].items()
@@ -109,7 +115,7 @@ def getInvoiceObject(data, invoice):
     meta['host'] = settings['invoiceData']['host']
     meta['property'] = settings['invoiceData']['property']
 
-    meta['invoiceIndex'] = f"{datetime.fromtimestamp(meta['creationDate']).year}-{str(datetime.fromtimestamp(meta['creationDate']).month).zfill(2)}-{str(meta['invoiceNumber']).zfill(3)}"
+    meta['invoiceIndex'] = f"{datetime.fromtimestamp(meta['creationDate']).year}-{str(datetime.fromtimestamp(meta['creationDate']).month).zfill(2)}-{str(booking['invoiceNumber']).zfill(3)}"
 
     stayNightArray = stay['stayNightArray']
 
@@ -172,7 +178,7 @@ def getInvoiceObject(data, invoice):
     stayDiscount = {
         'nights': len(stayNightArray),
         'percentage': discountPercentage,
-        'total': discountPercentage * stayTotalBeforeDiscount
+        'total': round(discountPercentage * stayTotalBeforeDiscount, 2)
     }
 
     ## EXTRA HOURS after discount, before stay tax
@@ -245,13 +251,13 @@ def getInvoiceObject(data, invoice):
         'guests': guestNights,
         'pets': petNights,
         'extraHours':stayExtraHours,
-        'totalBeforeDiscount': stayTotalBeforeDiscount,
+        'totalBeforeDiscount': round(stayTotalBeforeDiscount, 2),
         'discount': stayDiscount,
-        'totalBeforeTax': stayTotalBeforeTax,
+        'totalBeforeTax': round(stayTotalBeforeTax, 2),
         'guestAmount': guests,
         'tax': stayTax if print['stay'] else 0,
-        'total': stayTotal if print['stay'] else 0,
-        'value': stayValue if print['stay'] else 0,
+        'total': round(stayTotal, 2) if print['stay'] else 0,
+        'value': round(stayValue, 2) if print['stay'] else 0,
     }
 
     ## MEALS
@@ -262,12 +268,12 @@ def getInvoiceObject(data, invoice):
             'adults': {
                 'units': meal['adults'],
                 'price': meal['adultPrice'],
-                'total': meal['adults'] * meal['adultPrice']
+                'total': round(meal['adults'] * meal['adultPrice'], 2)
             },
             'children': {
                 'units': meal['children'],
                 'price': meal['childPrice'],
-                'total': meal['children'] * meal['childPrice']
+                'total': round(meal['children'] * meal['childPrice'], 2)
             },
         } for meal in meals
     ]
@@ -289,8 +295,8 @@ def getInvoiceObject(data, invoice):
     ## RESULTS MEAL
     mealsInvoiceData = {
         'meals': mealsInvoice if print['catering'] else [],
-        'total': mealsTotal if print['catering'] else 0,
-        'value': mealsValue if print['catering'] else 0,
+        'total': round(mealsTotal, 2) if print['catering'] else 0,
+        'value': round(mealsValue, 2) if print['catering'] else 0,
     }
 
     ## MAIN PAGE
@@ -325,13 +331,13 @@ def getInvoiceObject(data, invoice):
     mainInvoiceData = {
         'status': booking['status'],
         'contact': contact,
-        'total': mainTotal,
+        'total': round(mainTotal, 2),
         'costs':costs,
         'transactions':transactions,
         'discounts':discounts,
-        'toPay': mainToPay,
-        'value': mainValue,
-        'valueToPay': mainValueToPay,
+        'toPay': round(mainToPay, 2),
+        'value': round(mainValue, 2),
+        'valueToPay': round(mainValueToPay, 2),
         'deposits': booking['deposits'],
     }
 

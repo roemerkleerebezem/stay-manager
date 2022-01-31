@@ -18,7 +18,7 @@
             <b-button
               tag="router-link"
               class="is-light"
-              to="/booking"
+              to="./booking"
               type="is-link"
               >New Booking</b-button
             >

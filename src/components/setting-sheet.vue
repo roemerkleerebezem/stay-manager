@@ -123,6 +123,7 @@
               v-model="currentSettings.prices.villa"
               :controls="false"
               min="0"
+              :step="0.01"
               type="is-light"
               :disabled="!editingCurrent"
             ></b-numberinput>
@@ -135,6 +136,7 @@
               v-model="currentSettings.prices.guest"
               :controls="false"
               min="0"
+              :step="0.01"
               type="is-light"
               :disabled="!editingCurrent"
             ></b-numberinput>
@@ -147,6 +149,7 @@
               v-model="currentSettings.prices.pet"
               :controls="false"
               min="0"
+              :step="0.01"
               type="is-light"
               :disabled="!editingCurrent"
             ></b-numberinput>
@@ -159,6 +162,7 @@
               v-model="currentSettings.prices.extraHour"
               :controls="false"
               min="0"
+              :step="0.01"
               type="is-light"
               :disabled="!editingCurrent"
             ></b-numberinput>
@@ -172,7 +176,7 @@
               :controls="false"
               min="0"
               type="is-light"
-              :step="0.01"
+              :step="0.001"
               :disabled="!editingCurrent"
             ></b-numberinput>
           </b-field>

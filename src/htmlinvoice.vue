@@ -104,11 +104,11 @@
             <!-- COSTS -->
             <tbody v-for="cost in tempInvoice.main.costs" :key="cost.id">
               <tr>
-                <td>
+                <td class="is-capitalized	">
                   {{ cost.label }}
                   <span
                     v-if="(cost.units !== null) & (cost.unitPrice !== null)"
-                    class="has-text-grey"
+                    class="has-text-grey "
                     style="margin-left:1rem;"
                     >{{ cost.units }} x {{ cost.unitPrice }} €</span
                   >
@@ -123,7 +123,7 @@
               :key="discount.id"
             >
               <tr class="has-text-success has-text-weight-semibold">
-                <td>
+                <td class="is-capitalized	">
                   {{ discount.label }}
                   <span
                     v-if="
@@ -161,7 +161,7 @@
             >
               <tr>
                 <td
-                  class="has-text-success has-text-weight-semibold
+                  class="has-text-success has-text-weight-semibold 
                   "
                 >
                   {{ transaction.label }}
@@ -176,7 +176,7 @@
                     {{ transaction.unitPrice }} €</span
                   >
                 </td>
-                <td class="has-text-success has-text-weight-semibold">
+                <td class="has-text-success has-text-weight-semibold ">
                   -{{ transaction.totalPrice }} €
                 </td>
               </tr>
@@ -488,7 +488,11 @@
               <td>
                 Taxe de séjour
                 <span class="has-text-grey has-text-weight-light"
-                  >({{ tempInvoice.stay.tax.percentage * 100 }} %)</span
+                  >({{
+                    (Math.round(tempInvoice.stay.tax.percentage * 1000) * 100) /
+                      1000
+                  }}
+                  %)</span
                 >
               </td>
               <td>{{ tempInvoice.stay.tax.units }}</td>

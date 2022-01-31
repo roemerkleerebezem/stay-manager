@@ -4,7 +4,18 @@
     <div class="container">
       <!-- FORM TITLE -->
       <div class="box">
-        <h3 class="title is-3">Facture</h3>
+        <b-field grouped>
+          <h3 class="title is-3 control">Facture n°</h3>
+
+          <!-- INVOICE NUMBER -->
+          <b-numberinput
+            icon-pack="fas"
+            v-model="booking.invoiceNumber"
+            min="0"
+            :controls="false"
+            style="width:3rem;"
+          ></b-numberinput>
+        </b-field>
       </div>
 
       <div class="box">
@@ -13,11 +24,11 @@
         <!-- DEPOSITS, TRANSACTIONS, COSTS -->
         <div class="subsection-header has-background-light">
           <h5 class="is-size-5 subtitle has-text-dark has-text-weight-medium">
-            Deposits & transactions
+            Cautions & transactions
           </h5>
         </div>
         <div class="subsection">
-          <label class="label">Deposit</label>
+          <label class="label">Caution</label>
 
           <!-- DEPOSIT LIST -->
           <div
@@ -50,16 +61,31 @@
                   {{
                     deposit.dateReceived === null
                       ? ""
-                      : deposit.dateReceived.substring(0, 10) + ", "
+                      : deposit.dateReceived.toString().substring(0, 10) + ", "
                   }}
                   {{ deposit.status }}
                 </span>
-                <button
-                  @click="
-                    $delete(booking.deposits, booking.deposits.indexOf(deposit))
-                  "
-                  class="delete"
-                ></button>
+                <div class="buttons">
+                  <b-button
+                    icon-pack="fas"
+                    icon-left="pencil-alt"
+                    type="is-dark"
+                    @click="editDeposit(deposit)"
+                  >
+                  </b-button>
+                  <b-button
+                    icon-pack="fas"
+                    type=" is-danger"
+                    icon-left="trash"
+                    @click="
+                      $delete(
+                        booking.deposits,
+                        booking.deposits.indexOf(deposit)
+                      )
+                    "
+                  >
+                  </b-button>
+                </div>
               </div>
             </article>
           </div>
@@ -67,7 +93,7 @@
           <!-- ADD DEPOSIT -->
           <div class="container">
             <b-button @click="isDepositModalActive = true"
-              >Add deposit</b-button
+              >Ajouter caution</b-button
             >
 
             <b-modal
@@ -80,7 +106,7 @@
             >
               <div class="modal-card">
                 <header class="modal-card-head">
-                  <p class="modal-card-title">Add deposit</p>
+                  <p class="modal-card-title">Ajouter caution</p>
                   <button
                     type="button"
                     class="delete"
@@ -125,7 +151,10 @@
                   </b-field>
                 </section>
                 <footer class="modal-card-foot">
-                  <b-button type="is-primary" @click="addDeposit()"
+                  <b-button
+                    :disabled="canAddDeposit == false"
+                    type="is-primary"
+                    @click="addDeposit()"
                     >Ajouter</b-button
                   >
                 </footer>
@@ -169,11 +198,24 @@
                     {{ cost.type === "cost" ? "-" : "+" }}
                     {{ cost.totalPrice }} €
                   </span>
-
-                  <button
-                    @click="$delete(booking.costs, booking.costs.indexOf(cost))"
-                    class="delete"
-                  ></button>
+                  <div class="buttons">
+                    <b-button
+                      icon-pack="fas"
+                      icon-left="pencil-alt"
+                      type="is-dark"
+                      @click="editCost(cost)"
+                    >
+                    </b-button>
+                    <b-button
+                      icon-pack="fas"
+                      type=" is-danger"
+                      icon-left="trash"
+                      @click="
+                        $delete(booking.costs, booking.costs.indexOf(cost))
+                      "
+                    >
+                    </b-button>
+                  </div>
                 </div>
               </article>
             </div>
@@ -237,7 +279,10 @@
                   </b-field>
                 </section>
                 <footer class="modal-card-foot">
-                  <b-button type="is-primary" @click="addCost()"
+                  <b-button
+                    :disabled="this.canAddTransaction == false"
+                    type="is-primary"
+                    @click="addCost()"
                     >Ajouter</b-button
                   >
                 </footer>
@@ -247,7 +292,7 @@
             <hr />
 
             <!-- INTERNAL COSTS -->
-            <label class="label">Internal costs</label>
+            <label class="label">Coût interne</label>
 
             <!-- INTERNAL COSTS LIST -->
             <div
@@ -274,23 +319,34 @@
                   >
                     {{ cost.totalPrice }} €
                   </span>
-
-                  <button
-                    @click="
-                      $delete(
-                        booking.internalCosts,
-                        booking.internalCosts.indexOf(cost)
-                      )
-                    "
-                    class="delete"
-                  ></button>
+                  <div class="buttons">
+                    <b-button
+                      icon-pack="fas"
+                      icon-left="pencil-alt"
+                      type="is-dark"
+                      @click="editInternalCost(cost)"
+                    >
+                    </b-button>
+                    <b-button
+                      icon-pack="fas"
+                      type=" is-danger"
+                      icon-left="trash"
+                      @click="
+                        $delete(
+                          booking.internalCosts,
+                          booking.internalCosts.indexOf(cost)
+                        )
+                      "
+                    >
+                    </b-button>
+                  </div>
                 </div>
               </article>
             </div>
 
             <!-- ADD INTERNAL COSTS -->
             <b-button @click="isInternalCostModalActive = true"
-              >Add internal cost</b-button
+              >Ajouter coût interne</b-button
             >
 
             <b-modal
@@ -303,7 +359,7 @@
             >
               <div class="modal-card">
                 <header class="modal-card-head">
-                  <p class="modal-card-title">Add transaction</p>
+                  <p class="modal-card-title">Ajouter coût interne</p>
                   <button
                     type="button"
                     class="delete"
@@ -329,7 +385,10 @@
                   </b-field>
                 </section>
                 <footer class="modal-card-foot">
-                  <b-button type="is-primary" @click="addInternalCost()"
+                  <b-button
+                    :disabled="!this.canAddInternalCost"
+                    type="is-primary"
+                    @click="addInternalCost()"
                     >Ajouter</b-button
                   >
                 </footer>
@@ -587,18 +646,6 @@
                 />
               </header>
               <section class="modal-card-body">
-                <!-- INVOICE NUMBER -->
-                <div class="block">
-                  <b-field label="Invoice number">
-                    <b-numberinput
-                      icon-pack="fas"
-                      v-model="booking.invoiceNumber"
-                      min="0"
-                      controlsPosition="compact"
-                    ></b-numberinput>
-                  </b-field>
-                </div>
-
                 <div class="block">
                   <b-field label="Creation date" label-position="on-border">
                     <b-datepicker
@@ -652,8 +699,8 @@
                     class="button is-primary"
                     @click="getInvoice(state, 'save')"
                   >
-                    <b-icon pack="fas" icon="print" size="is-small"></b-icon>
-                    <span>Save invoice</span>
+                    <b-icon pack="fas" icon="save" size="is-small"></b-icon>
+                    <span>New invoice</span>
                   </button>
                 </div>
               </footer>
@@ -691,6 +738,7 @@ export default {
 
   data() {
     return {
+      editMode: false,
       isDepositModalActive: false,
       isInvoiceModalActive: false,
       isNewInvoiceModalActive: false,
@@ -736,10 +784,52 @@ export default {
       tempCreationDate: moment().toDate(),
     };
   },
-  computed: {},
+  computed: {
+    canAddDeposit() {
+      if (
+        this.isEmpty(this.tempDeposit.status) |
+        this.isEmpty(this.tempDeposit.type) |
+        this.isEmpty(this.tempDeposit.amount)
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    canAddTransaction() {
+      if (
+        this.isEmpty(this.tempCost.type) |
+        this.isEmpty(this.tempCost.label) |
+        isNaN(this.tempCost.totalPrice) |
+        this.isEmpty(this.tempCost.totalPrice)
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    canAddInternalCost() {
+      if (
+        this.isEmpty(this.tempInternalCost.label) |
+        isNaN(this.tempInternalCost.totalPrice) |
+        this.isEmpty(this.tempInternalCost.totalPrice)
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+  },
   watch: {},
   mounted: function() {},
   methods: {
+    isEmpty: function(formInput) {
+      if ((formInput === null) | (formInput === "")) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     formatDate: function(date, format) {
       if (format == "human") {
         return moment(date).format("ddd D MMM YYYY");
@@ -750,14 +840,16 @@ export default {
     humanFormatTime: function(date) {
       return moment(date).format("HH:mm");
     },
-
-    getId: function(object) {
-      var arr = [];
-      for (var obj in object) {
-        arr.push(parseInt(obj));
-      }
-      return Math.max(-1, ...arr) + 1;
+    uuidv4: function() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+        c
+      ) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
     },
+
     openModal() {
       this.$buefy.modal.open({
         parent: this,
@@ -769,7 +861,14 @@ export default {
     addDeposit: function() {
       var tempDeposit = this.tempDeposit;
       var tempDeposits = this.booking.deposits;
-      tempDeposit.id = this.getId(tempDeposits);
+      if (tempDeposits.find((x) => x.id === tempDeposit.id)) {
+        Vue.delete(
+          this.booking.deposits,
+          this.booking.deposits.findIndex((d) => d.id == tempDeposit.id)
+        );
+      } else {
+        tempDeposit.id = this.uuidv4();
+      }
       tempDeposits.push(tempDeposit);
 
       Vue.set(
@@ -785,6 +884,16 @@ export default {
         amount: null,
         dateReceived: null,
       };
+    },
+    editDeposit: function(deposit) {
+      var dep = JSON.parse(JSON.stringify(deposit));
+      if (dep.dateReceived) {
+        dep.dateReceived = moment(deposit.dateReceived).toDate();
+      }
+
+      this.tempDeposit = dep;
+
+      this.isDepositModalActive = true;
     },
     getInvoice: async function(state, action, uuid) {
       const headers = {
@@ -860,7 +969,15 @@ export default {
     addCost: function() {
       var tempCost = this.tempCost;
       var tempCosts = this.booking.costs;
-      tempCost.id = this.getId(tempCosts);
+      if (tempCosts.find((x) => x.id === tempCost.id)) {
+        Vue.delete(
+          this.booking.costs,
+          this.booking.costs.findIndex((d) => d.id == tempCost.id)
+        );
+      } else {
+        tempCost.id = this.uuidv4();
+      }
+
       tempCosts.push(tempCost);
 
       this.isTransactionModalActive = false;
@@ -875,10 +992,29 @@ export default {
         totalPrice: null,
       };
     },
+
+    editCost: function(cost) {
+      var editedCost = JSON.parse(JSON.stringify(cost));
+      this.tempCost = editedCost;
+      this.editMode = true;
+      this.isTransactionModalActive = true;
+    },
+
     addInternalCost: function() {
       var tempInternalCost = this.tempInternalCost;
       var tempInternalCosts = this.booking.internalCosts;
-      tempInternalCost.id = this.getId(tempInternalCosts);
+
+      if (tempInternalCosts.find((x) => x.id === tempInternalCost.id)) {
+        Vue.delete(
+          this.booking.internalCosts,
+          this.booking.internalCosts.findIndex(
+            (d) => d.id == tempInternalCost.id
+          )
+        );
+      } else {
+        tempInternalCost.id = this.uuidv4();
+      }
+
       tempInternalCosts.push(tempInternalCost);
 
       this.isInternalCostModalActive = false;
@@ -894,6 +1030,13 @@ export default {
         totalPrice: null,
       };
     },
+    editInternalCost: function(internalCost) {
+      var editedCost = JSON.parse(JSON.stringify(internalCost));
+      this.tempInternalCost = editedCost;
+
+      this.isInternalCostModalActive = true;
+    },
+
     getDepositIcon: function(depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";

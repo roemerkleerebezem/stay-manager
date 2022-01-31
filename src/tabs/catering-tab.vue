@@ -60,6 +60,7 @@
               <b-numberinput
                 icon-pack="fas"
                 step="0.5"
+                min-step="0.01"
                 v-model="meal.adultPrice"
                 min="0"
                 controlsPosition="compact"
@@ -81,6 +82,7 @@
               <b-numberinput
                 icon-pack="fas"
                 step="0.5"
+                min-step="0.01"
                 v-model="meal.childPrice"
                 min="0"
                 controlsPosition="compact"
@@ -95,6 +97,7 @@
           <hr />
 
           <!-- COSTS -->
+          <!-- COST LIST -->
           <b-collapse
             class="card meal-card"
             :open="false"
@@ -129,47 +132,75 @@
             </div>
           </b-collapse>
 
-          <b-field grouped group-multiline>
-            <b-field label="Type">
-              <b-select
-                v-model="meal.tempCost.type"
-                placeholder="Select a type"
-              >
-                <option value="caterer">Restaurateur</option>
-                <option value="groceries">Courses</option>
-              </b-select>
-            </b-field>
-            <b-field label="Nom">
-              <b-input v-model="meal.tempCost.name"></b-input>
-            </b-field>
-            <b-field label="Unités">
-              <b-input v-model="meal.tempCost.units"></b-input>
-            </b-field>
-            <b-field label="Prix unitaire">
-              <b-input v-model="meal.tempCost.unitPrice"></b-input>
-            </b-field>
-            <b-field label="Prix total">
-              <b-numberinput
-                :controls="false"
-                icon-pack="fas"
-                controls-position="compact"
-                step="0.01"
-                v-model="meal.tempCost.totalPrice"
-              ></b-numberinput>
-            </b-field>
-          </b-field>
-          <b-field
-            label="Informations supplémentaires"
-            label-position="on-border"
+          <!-- COST MODAL -->
+          <b-button @click="isCateringCostModalActive = true"
+            >Add Cost</b-button
           >
-            <b-input
-              v-model="meal.tempCost.information"
-              type="textarea"
-            ></b-input>
-          </b-field>
-          <b-button type="is-primary" @click="addCost(meal.id)"
-            >Ajouter</b-button
+
+          <b-modal
+            :active.sync="isCateringCostModalActive"
+            has-modal-card
+            :destroy-on-hide="false"
+            width="50%"
+            trap-focus
+            scroll="keep"
           >
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">Add transaction</p>
+                <button
+                  type="button"
+                  class="delete"
+                  @click="isCateringCostModalActive = false"
+                />
+              </header>
+              <section class="modal-card-body">
+                <b-field grouped group-multiline>
+                  <b-field label="Type">
+                    <b-select
+                      v-model="meal.tempCost.type"
+                      placeholder="Select a type"
+                    >
+                      <option value="caterer">Restaurateur</option>
+                      <option value="groceries">Courses</option>
+                    </b-select>
+                  </b-field>
+                  <b-field label="Nom">
+                    <b-input v-model="meal.tempCost.name"></b-input>
+                  </b-field>
+                  <b-field label="Unités">
+                    <b-input v-model="meal.tempCost.units"></b-input>
+                  </b-field>
+                  <b-field label="Prix unitaire">
+                    <b-input v-model="meal.tempCost.unitPrice"></b-input>
+                  </b-field>
+                  <b-field label="Prix total">
+                    <b-numberinput
+                      :controls="false"
+                      icon-pack="fas"
+                      controls-position="compact"
+                      step="0.01"
+                      v-model="meal.tempCost.totalPrice"
+                    ></b-numberinput>
+                  </b-field>
+                </b-field>
+                <b-field
+                  label="Informations supplémentaires"
+                  label-position="on-border"
+                >
+                  <b-input
+                    v-model="meal.tempCost.information"
+                    type="textarea"
+                  ></b-input>
+                </b-field>
+              </section>
+              <footer class="modal-card-foot">
+                <b-button type="is-primary" @click="addCost(meal.id)"
+                  >Ajouter</b-button
+                >
+              </footer>
+            </div>
+          </b-modal>
         </div>
       </b-collapse>
 
@@ -206,6 +237,7 @@ export default {
   data() {
     return {
       meals: this.$store.state.meals,
+      isCateringCostModalActive: false,
     };
   },
   computed: {},
@@ -258,6 +290,7 @@ export default {
         totalPrice: null,
         information: null,
       };
+      this.isCateringCostModalActive = false;
     },
   },
 };
