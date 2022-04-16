@@ -656,7 +656,6 @@ import "buefy/dist/buefy.css";
 import marked from "marked";
 
 import moment from "moment";
-import { mintcream } from "color-name";
 
 import contract from "!raw-loader!@/assets/contract.md";
 
