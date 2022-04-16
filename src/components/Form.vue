@@ -43,7 +43,6 @@
     <!-- TABS -->
     <b-tabs
       :key="updateTab"
-      style="margin-top:55.972px;"
       id="sheetTabs"
       size="is-medium is-boxed"
       v-model="activeTab"
