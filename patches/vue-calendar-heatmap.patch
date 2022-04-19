@@ -1,0 +1,25 @@
+diff --git a/src/components/CalendarHeatmap.vue b/src/components/CalendarHeatmap.vue
+index 18cde003669c2790843ee91c01b6613e79eb3fa6..007794ccff5dc61496b4cf02b900377e22fcf42c 100644
+--- a/src/components/CalendarHeatmap.vue
++++ b/src/components/CalendarHeatmap.vue
+@@ -47,7 +47,6 @@
+         )
+           rect.vch__day__square(
+             v-for="(day, dayIndex) in week",
+-            v-if="day.date < now"
+             :key="dayIndex",
+             :transform="getDayPosition(dayIndex)"
+             :width="SQUARE_SIZE - SQUARE_BORDER_SIZE",
+diff --git a/src/components/consts.js b/src/components/consts.js
+index 6aaa5dffc84a40b4cb2eb5f65eda06a0d4e4b0fd..27b1c353192f58f11f7e01bda4b8f0973e30a032 100644
+--- a/src/components/consts.js
++++ b/src/components/consts.js
+@@ -8,7 +8,7 @@ export const DEFAULT_LOCALE = {
+   more: 'More'
+ }
+ 
+-export const DEFAULT_TOOLTIP_UNIT = 'contributions'
++export const DEFAULT_TOOLTIP_UNIT = 'bookings'
+ 
+ export const DAYS_IN_ONE_YEAR = 365
+ 
