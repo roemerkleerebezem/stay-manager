@@ -604,15 +604,6 @@ export default {
       return filteredBookingList;
     },
 
-    heatmapData: function () {
-      if (bookingList.length == 0) {
-        return [];
-      } else {
-        var year = 2022;
-        console.log(bookingList[150]);
-      }
-    },
-
     barChartData: function () {
       var selectedYears = this.chartYears;
       var bookingList = this.bookingList;
@@ -638,12 +629,10 @@ export default {
               });
               yearArray.push(total);
             });
-          console.log(yearArray);
           return yearArray;
         }
 
         var multiYearDatasets = function (yearArray) {
-          var firstYear = moment.unix(bookingList[0].departureDate).year();
           var lastYear = moment
             .unix(bookingList[bookingList.length - 1].departureDate)
             .year();
