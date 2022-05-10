@@ -29,7 +29,7 @@
 
     <section class="app-section">
       <!-- LIST -->
-      <div class="container reservation-list">
+      <div class="container">
         <div class="box">
           <!-- FORM TITLE -->
           <h3 class="title is-3">Reservation list</h3>
@@ -125,8 +125,9 @@
             >
           </b-field>
 
-          <!-- STATS -->
-          <div class="columns">
+          <!-- SELECTION STATS -->
+
+          <div class="columns" v-if="bookingList.length > 0">
             <!-- Results -->
             <div class="column">
               <article class="message is-dark">
@@ -259,6 +260,90 @@
             </div>
           </div>
 
+          <!-- CHARTS -->
+          <div class="block">
+            <b-collapse class="card" :open="false" aria-id="stats">
+              <div
+                slot="trigger"
+                class="card-header"
+                role="button"
+                aria-controls="stats"
+              >
+                <p class="card-header-title">
+                  <b-icon pack="fas" icon="chart-bar"> </b-icon>
+                  Stats
+                </p>
+              </div>
+              <div class="card-content">
+                <div class="card" v-if="bookingList.length > 0">
+                  <div class="card-content">
+                    <div class="content">
+                      <template>
+                        <section>
+                          <div class="block">
+                            <b-checkbox
+                              v-for="year in selectableYears"
+                              :key="year"
+                              :native-value="year"
+                              v-model="chartYears"
+                            >
+                              {{ year }}
+                            </b-checkbox>
+                          </div>
+                        </section>
+                      </template>
+
+                      <template>
+                        <Bar
+                          :chart-options="chartOptions"
+                          :chart-id="chartId"
+                          :dataset-id-key="datasetIdKey"
+                          :plugins="plugins"
+                          :css-classes="cssClasses"
+                          :styles="styles"
+                          :width="width"
+                          :height="height"
+                          :chart-data="barChartData"
+                        />
+                      </template>
+
+                      <template>
+                        <section>
+                          <b-field>
+                            <b-select v-model="heatmapEndDate" size="is-medium">
+                              <option
+                                v-for="year in selectableYears"
+                                :key="year"
+                                :value="year"
+                              >
+                                {{ year }}
+                              </option>
+                            </b-select>
+                          </b-field>
+                        </section>
+                      </template>
+
+                      <!-- HEATMAP -->
+                      <calendar-heatmap
+                        :end-date="formattedHeatmapEndDate"
+                        :values="series"
+                        :tooltip="true"
+                        :range-color="[
+                          '#ebedf0',
+                          '#ffe580',
+                          '#51e183',
+                          '#363636',
+                          '#363636',
+                        ]"
+                        tooltip-unit="bookings"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </b-collapse>
+          </div>
+
           <!-- TABLE -->
           <table class="table is-fullwidth is-bordered">
             <thead>
@@ -346,18 +431,91 @@ import axios from "axios";
 
 import moment from "moment";
 
+import { Bar } from "vue-chartjs/legacy";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+);
+
+import { CalendarHeatmap } from "vue-calendar-heatmap";
+
 export default {
-  components: {},
+  components: { Bar, CalendarHeatmap },
+  props: {
+    chartId: {
+      type: String,
+      default: "bar-chart",
+    },
+    datasetIdKey: {
+      type: String,
+      default: "label",
+    },
+    width: {
+      type: Number,
+      default: 400,
+    },
+    height: {
+      type: Number,
+      default: 100,
+    },
+    cssClasses: {
+      default: "",
+      type: String,
+    },
+    styles: {
+      type: Object,
+      default: () => {},
+    },
+    plugins: {
+      type: Object,
+      default: () => {},
+    },
+  },
 
   data() {
     return {
+      selectableYears: [],
+      chartYears: [],
+      heatmapEndDate: moment().year(),
+      chartOptions: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: "Revenue",
+          },
+        },
+        responsive: true,
+        interaction: {
+          intersect: false,
+        },
+        scales: {
+          x: {
+            stacked: true,
+          },
+          y: {
+            stacked: true,
+          },
+        },
+      },
+
       filterDates: [
-        moment()
-          .startOf("year")
-          .toDate(),
-        moment()
-          .endOf("year")
-          .toDate(),
+        moment().startOf("year").toDate(),
+        moment().endOf("year").toDate(),
       ],
       selectedTypes: ["inquiry", "contract"],
       apiStateNeedsUpdate: true,
@@ -372,18 +530,65 @@ export default {
     };
   },
   computed: {
-    filterDateSpan: function() {
+    formattedHeatmapEndDate: function () {
+      return moment()
+        .year(this.heatmapEndDate)
+        .endOf("year")
+        .format("YYYY-MM-DD");
+    },
+
+    filterDateSpan: function () {
       return moment(this.filterDates[1]).diff(
         moment(this.filterDates[0]),
         "weeks"
       );
     },
-    state: function() {},
-    filteredBookingList: function() {
+    series: function () {
+      var bookingList = this.bookingList;
+
+      var definitiveArray = [];
+
+      bookingList.forEach(function (booking) {
+        if (booking.status != "cancelled") {
+          var n = booking.nights;
+
+          while (n > 0) {
+            n -= 1;
+
+            booking.status == "inquiry"
+              ? definitiveArray.push({
+                  date: moment
+                    .unix(booking.arrivalDate)
+                    .clone()
+                    .add(n, "days")
+                    .format("YYYY-MM-DD"),
+                  count: 0.5,
+                })
+              : definitiveArray.push({
+                  date: moment
+                    .unix(booking.arrivalDate)
+                    .clone()
+                    .add(n, "days")
+                    .format("YYYY-MM-DD"),
+                  count: 1,
+                });
+          }
+        }
+      });
+      definitiveArray.push({
+        date: moment().format("YYYY-MM-DD"),
+        count: 1.5,
+      });
+
+      return definitiveArray;
+    },
+
+    state: function () {},
+    filteredBookingList: function () {
       var filteredBookingList = [];
       var filterDates = this.filterDates;
       var selectedTypes = this.selectedTypes;
-      this.bookingList.forEach(function(booking, index) {
+      this.bookingList.forEach(function (booking, index) {
         if (
           selectedTypes.indexOf(booking.status) != -1 &&
           moment(filterDates[1]).isSameOrAfter(
@@ -398,102 +603,196 @@ export default {
       });
       return filteredBookingList;
     },
-    filterStats: function() {
+
+    barChartData: function () {
+      var selectedYears = this.chartYears;
+      var bookingList = this.bookingList;
+      if (bookingList.length == 0) {
+        return {};
+      } else {
+        // Chart data
+        function getYear(bookingArray, year, status) {
+          var yearArray = [];
+          Array(12)
+            .fill()
+            .map((x, i) => i)
+            .forEach(function (month) {
+              var total = 0;
+              bookingArray.forEach(function (booking, index) {
+                if (
+                  moment.unix(booking.departureDate).year() == year &&
+                  moment.unix(booking.departureDate).month() == month &&
+                  booking.status == status
+                ) {
+                  total += booking.value;
+                }
+              });
+              yearArray.push(total);
+            });
+          return yearArray;
+        }
+
+        var multiYearDatasets = function (yearArray) {
+          var lastYear = moment
+            .unix(bookingList[bookingList.length - 1].departureDate)
+            .year();
+          var datasets = [];
+          var i = 0;
+
+          yearArray.forEach(function (year) {
+            i += 1;
+
+            datasets.push(
+              {
+                label: "completed",
+                data: getYear(bookingList, year, "completed"),
+                backgroundColor:
+                  "hsl(141, " + (year == lastYear ? 71 : 5) + "%, 48%)",
+                stack: year,
+              },
+              {
+                label: "contract",
+                data: getYear(bookingList, year, "contract"),
+                backgroundColor:
+                  "hsl(141, " + (year == lastYear ? 71 : 5) + "%, 48%)",
+                stack: year,
+              },
+              {
+                label: "inquiry",
+                data: getYear(bookingList, year, "inquiry"),
+                backgroundColor:
+                  "hsl(48, " + (year == lastYear ? 100 : 5) + "%, 67%)",
+                stack: year,
+              }
+            );
+          });
+          return datasets;
+        };
+
+        var barChartData = {
+          labels: moment.monthsShort(),
+          datasets: multiYearDatasets(selectedYears),
+        };
+        return barChartData;
+      }
+    },
+
+    filterStats: function () {
       var filteredBookingList = this.filteredBookingList;
+      var bookingList = this.bookingList;
 
-      var completedList = filteredBookingList.filter(function(booking) {
-        return booking.status == "completed";
-      });
-      var inquiryList = filteredBookingList.filter(function(booking) {
-        return booking.status == "inquiry";
-      });
-      var contractList = filteredBookingList.filter(function(booking) {
-        return booking.status == "contract";
-      });
+      if (bookingList.length > 0) {
+        var completedList = filteredBookingList.filter(function (booking) {
+          return booking.status == "completed";
+        });
+        var inquiryList = filteredBookingList.filter(function (booking) {
+          return booking.status == "inquiry";
+        });
+        var contractList = filteredBookingList.filter(function (booking) {
+          return booking.status == "contract";
+        });
 
-      var filterStats = {
-        completed: {
-          number: completedList.length,
-          totalValue: completedList
-            .map((a) => moment(a.value))
-            .reduce((a, b) => a + b, 0),
-          totalPaid: completedList
-            .map((a) => moment(a.total))
-            .reduce((a, b) => a + b, 0),
-          averageValue:
-            completedList.length > 0
-              ? Math.round(
-                  completedList
-                    .map((a) => moment(a.value))
-                    .reduce((a, b) => a + b, 0) / completedList.length
-                )
-              : 0,
-        },
-        inquiry: {
-          number: inquiryList.length,
-          totalPaid: inquiryList
-            .map((a) => moment(a.total))
-            .reduce((a, b) => a + b, 0),
-          totalValue: inquiryList
-            .map((a) => moment(a.value))
-            .reduce((a, b) => a + b, 0),
-          averageValue:
-            inquiryList.length > 0
-              ? Math.round(
-                  inquiryList
-                    .map((a) => moment(a.value))
-                    .reduce((a, b) => a + b, 0) / inquiryList.length
-                )
-              : 0,
-        },
-        contract: {
-          number: contractList.length,
-          totalPaid: contractList
-            .map((a) => moment(a.paid))
-            .reduce((a, b) => a + b, 0),
-          totalValue: contractList
-            .map((a) => moment(a.value))
-            .reduce((a, b) => a + b, 0),
-          averageValue:
-            contractList.length > 0
-              ? Math.round(
-                  contractList
-                    .map((a) => moment(a.value))
-                    .reduce((a, b) => a + b, 0) / contractList.length
-                )
-              : 0,
-        },
-        total: {
-          number: filteredBookingList.length,
-          totalPaid: filteredBookingList
-            .map((a) => moment(a.total))
-            .reduce((a, b) => a + b, 0),
-          totalValue: filteredBookingList
-            .map((a) => moment(a.value))
-            .reduce((a, b) => a + b, 0),
-          averageValue:
-            filteredBookingList.length > 0
-              ? Math.round(
-                  filteredBookingList
-                    .map((a) => moment(a.value))
-                    .reduce((a, b) => a + b, 0) / filteredBookingList.length
-                )
-              : 0,
-          tax: filteredBookingList
-            .map((a) => moment(a.tax))
-            .reduce((a, b) => a + b, 0),
-          taxNights: filteredBookingList
-            .map((a) => moment(a.taxNights))
-            .reduce((a, b) => a + b, 0),
-        },
-      };
-      return filterStats;
+        var result = {
+          completed: {
+            number: completedList.length,
+            totalValue: completedList
+              .map((a) => moment(a.value))
+              .reduce((a, b) => a + b, 0),
+            totalPaid: completedList
+              .map((a) => moment(a.total))
+              .reduce((a, b) => a + b, 0),
+            averageValue:
+              completedList.length > 0
+                ? Math.round(
+                    completedList
+                      .map((a) => moment(a.value))
+                      .reduce((a, b) => a + b, 0) / completedList.length
+                  )
+                : 0,
+          },
+          inquiry: {
+            number: inquiryList.length,
+            totalPaid: inquiryList
+              .map((a) => moment(a.total))
+              .reduce((a, b) => a + b, 0),
+            totalValue: inquiryList
+              .map((a) => moment(a.value))
+              .reduce((a, b) => a + b, 0),
+            averageValue:
+              inquiryList.length > 0
+                ? Math.round(
+                    inquiryList
+                      .map((a) => moment(a.value))
+                      .reduce((a, b) => a + b, 0) / inquiryList.length
+                  )
+                : 0,
+          },
+          contract: {
+            number: contractList.length,
+            totalPaid: contractList
+              .map((a) => moment(a.paid))
+              .reduce((a, b) => a + b, 0),
+            totalValue: contractList
+              .map((a) => moment(a.value))
+              .reduce((a, b) => a + b, 0),
+            averageValue:
+              contractList.length > 0
+                ? Math.round(
+                    contractList
+                      .map((a) => moment(a.value))
+                      .reduce((a, b) => a + b, 0) / contractList.length
+                  )
+                : 0,
+          },
+          total: {
+            number: filteredBookingList.length,
+            totalPaid: filteredBookingList
+              .map((a) => moment(a.total))
+              .reduce((a, b) => a + b, 0),
+            totalValue: filteredBookingList
+              .map((a) => moment(a.value))
+              .reduce((a, b) => a + b, 0),
+            averageValue:
+              filteredBookingList.length > 0
+                ? Math.round(
+                    filteredBookingList
+                      .map((a) => moment(a.value))
+                      .reduce((a, b) => a + b, 0) / filteredBookingList.length
+                  )
+                : 0,
+            tax: filteredBookingList
+              .map((a) => moment(a.tax))
+              .reduce((a, b) => a + b, 0),
+            taxNights: filteredBookingList
+              .map((a) => moment(a.taxNights))
+              .reduce((a, b) => a + b, 0),
+          },
+        };
+        return result;
+      }
     },
   },
 
   async mounted() {
     await this.getApiBookings("list");
     this.setDateFilter("all");
+
+    // Set barchart selectable years
+    if (this.bookingList.length == 0) {
+      this.selectableYears = [];
+    } else {
+      var firstYear = moment.unix(this.bookingList[0].arrivalDate).year();
+      var lastYear = moment
+        .unix(this.bookingList[this.bookingList.length - 1].departureDate)
+        .year();
+      var selectableYears = [];
+      while (lastYear >= firstYear) {
+        selectableYears.push(firstYear);
+        firstYear += 1;
+      }
+      this.chartYears = selectableYears;
+      this.selectableYears = selectableYears;
+    }
   },
 
   watch: {
@@ -509,46 +808,26 @@ export default {
   },
 
   methods: {
-    setDateFilter: function(period) {
+    setDateFilter: function (period) {
       if (period == "year") {
         this.filterDates = [
-          moment()
-            .startOf("year")
-            .toDate(),
-          moment()
-            .endOf("year")
-            .toDate(),
+          moment().startOf("year").toDate(),
+          moment().endOf("year").toDate(),
         ];
       } else if (period == "previous-year") {
         this.filterDates = [
-          moment()
-            .subtract(1, "year")
-            .startOf("year")
-            .toDate(),
-          moment()
-            .subtract(1, "year")
-            .endOf("year")
-            .toDate(),
+          moment().subtract(1, "year").startOf("year").toDate(),
+          moment().subtract(1, "year").endOf("year").toDate(),
         ];
       } else if (period == "month") {
         this.filterDates = [
-          moment()
-            .startOf("month")
-            .toDate(),
-          moment()
-            .endOf("month")
-            .toDate(),
+          moment().startOf("month").toDate(),
+          moment().endOf("month").toDate(),
         ];
       } else if (period == "previous-month") {
         this.filterDates = [
-          moment()
-            .subtract(1, "year")
-            .startOf("month")
-            .toDate(),
-          moment()
-            .subtract(1, "year")
-            .endOf("month")
-            .toDate(),
+          moment().subtract(1, "year").startOf("month").toDate(),
+          moment().subtract(1, "year").endOf("month").toDate(),
         ];
       } else if (period == "all") {
         var bookingList = this.bookingList;
@@ -560,10 +839,10 @@ export default {
       }
       return null;
     },
-    getYearCompleted: function(bookingList) {
+    getYearCompleted: function (bookingList) {
       var total = 0;
       var now = moment();
-      bookingList.forEach(function(booking, index) {
+      bookingList.forEach(function (booking, index) {
         var departureDate = moment.unix(departureDate);
         if (
           departureDate.year() == now.year() &&
@@ -574,10 +853,10 @@ export default {
       });
       return total;
     },
-    getYearContracts: function(bookingList) {
+    getYearContracts: function (bookingList) {
       var total = 0;
       var now = moment();
-      bookingList.forEach(function(booking, index) {
+      bookingList.forEach(function (booking, index) {
         var departureDate = moment.unix(departureDate);
         if (
           departureDate.year() == now.year() &&
@@ -589,7 +868,7 @@ export default {
 
       return total;
     },
-    getStatusColor: function(bookingStatus) {
+    getStatusColor: function (bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -603,20 +882,20 @@ export default {
       }
     },
 
-    humanFormatDateTime: function(date, time) {
+    humanFormatDateTime: function (date, time) {
       return moment
         .unix(date)
         .hour(moment.unix(time).hour())
         .minute(moment.unix(time).minute())
         .format("ddd D MMM YYYY HH:mm");
     },
-    humanFormatDate: function(date) {
+    humanFormatDate: function (date) {
       return moment.unix(date).format("ddd D MMM YYYY");
     },
-    humanFormatTime: function(time) {
+    humanFormatTime: function (time) {
       return moment.unix(time).format("HH:mm");
     },
-    listEvents: async function(calendarId, query) {
+    listEvents: async function (calendarId, query) {
       let params = {
         q: query,
         singleEvents: true,
@@ -625,7 +904,7 @@ export default {
 
       let response = await cal.Events.list(calendarId, params);
       var responseArray = [];
-      response.forEach(function(event) {
+      response.forEach(function (event) {
         event.calendarId = calendarId;
         if (event.description.includes(query)) {
           responseArray.push(event);
@@ -633,12 +912,12 @@ export default {
       });
       return responseArray;
     },
-    concatEvents: function(events) {
+    concatEvents: function (events) {
       var queryResults = [];
       events.forEach((event) => (queryResults = queryResults.concat(event)));
       return queryResults;
     },
-    getEvent: async function(query) {
+    getEvent: async function (query) {
       var promises = [];
 
       for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
@@ -651,7 +930,7 @@ export default {
       return queryResults;
     },
 
-    getApiBookings: async function(action) {
+    getApiBookings: async function (action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -664,10 +943,10 @@ export default {
         url: "http://localhost:5000/api",
         headers: headers,
       })
-        .then(function(response) {
+        .then(function (response) {
           return response.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
 
@@ -701,9 +980,5 @@ export default {
 
 .debug {
   border: solid;
-}
-
-.reservation-list {
-  padding-top: 5vh;
 }
 </style>
