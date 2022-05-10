@@ -7,6 +7,7 @@ module.exports = {
         secure: false,
       },
     },
+    host: "localhost",
   },
   pages: {
     index: {
