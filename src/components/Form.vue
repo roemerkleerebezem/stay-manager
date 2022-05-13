@@ -156,10 +156,10 @@ export default {
     };
   },
   computed: {
-    state: function() {
+    state: function () {
       return this.$store.state;
     },
-    dataReady: function() {
+    dataReady: function () {
       var state = this.state;
       if (
         (state.booking.status !== null) &
@@ -172,7 +172,7 @@ export default {
     },
   },
 
-  mounted: async function() {
+  mounted: async function () {
     getBookingFromUrl: {
       var uuid = this.$route.params.uuid;
       if (uuid !== undefined) {
@@ -201,9 +201,7 @@ export default {
   watch: {
     state: {
       handler() {
-        if (this.state != this.apiState) {
-          this.apiStateNeedsUpdate = true;
-        }
+        this.apiStateNeedsUpdate = true;
         localStorage.setItem("state", JSON.stringify(this.state));
       },
       deep: true,
@@ -211,7 +209,7 @@ export default {
   },
 
   methods: {
-    listEvents: async function(calendarId, query) {
+    listEvents: async function (calendarId, query) {
       let params = {
         q: query,
         singleEvents: true,
@@ -220,7 +218,7 @@ export default {
 
       let response = await cal.Events.list(calendarId, params);
       var responseArray = [];
-      response.forEach(function(event) {
+      response.forEach(function (event) {
         event.calendarId = calendarId;
         if (event.description.includes(query)) {
           responseArray.push(event);
@@ -228,12 +226,12 @@ export default {
       });
       return responseArray;
     },
-    concatEvents: function(events) {
+    concatEvents: function (events) {
       var queryResults = [];
       events.forEach((event) => (queryResults = queryResults.concat(event)));
       return queryResults;
     },
-    getEvent: async function(query) {
+    getEvent: async function (query) {
       var promises = [];
 
       for (const [label, calendarId] of Object.entries(CONFIG.calendarIdList)) {
@@ -245,7 +243,7 @@ export default {
       return queryResults;
     },
 
-    upsertEvent: async function(state) {
+    upsertEvent: async function (state) {
       if (this.devIsTrue) {
         this.$buefy.toast.open({
           message: "Booking not changed in calendar",
@@ -275,28 +273,28 @@ export default {
 
       var maxChildren = Math.max.apply(
         Math,
-        state.stay.stayNightArray.map(function(o) {
+        state.stay.stayNightArray.map(function (o) {
           return o.internal.kids + o.external.kids;
         })
       );
 
       var maxAdults = Math.max.apply(
         Math,
-        state.stay.stayNightArray.map(function(o) {
+        state.stay.stayNightArray.map(function (o) {
           return o.internal.adults + o.external.adults;
         })
       );
 
       var maxPets = Math.max.apply(
         Math,
-        state.stay.stayNightArray.map(function(o) {
+        state.stay.stayNightArray.map(function (o) {
           return o.internal.pets + o.external.pets;
         })
       );
 
       var maxPersons = Math.max.apply(
         Math,
-        state.stay.stayNightArray.map(function(o) {
+        state.stay.stayNightArray.map(function (o) {
           return (
             o.internal.adults +
             o.external.adults +
@@ -411,7 +409,7 @@ export default {
         }
       }
     },
-    getApi: async function(state, action) {
+    getApi: async function (state, action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -430,11 +428,11 @@ export default {
         headers: headers,
         data: request,
       })
-        .then(function(response) {
+        .then(function (response) {
           synced = response.data.synced;
           return response.data.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
 
