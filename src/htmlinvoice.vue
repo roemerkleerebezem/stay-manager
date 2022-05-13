@@ -25,7 +25,7 @@
                   <span
                     :class="
                       getStatusColor(tempInvoice.main.status) +
-                        ' is-uppercase tag'
+                      ' is-uppercase tag'
                     "
                     >{{ tempInvoice.main.status }}</span
                   >
@@ -104,12 +104,12 @@
             <!-- COSTS -->
             <tbody v-for="cost in tempInvoice.main.costs" :key="cost.id">
               <tr>
-                <td class="is-capitalized	">
+                <td class="is-capitalized">
                   {{ cost.label }}
                   <span
                     v-if="(cost.units !== null) & (cost.unitPrice !== null)"
-                    class="has-text-grey "
-                    style="margin-left:1rem;"
+                    class="has-text-grey"
+                    style="margin-left: 1rem"
                     >{{ cost.units }} x {{ cost.unitPrice }} €</span
                   >
                 </td>
@@ -123,14 +123,14 @@
               :key="discount.id"
             >
               <tr class="has-text-success has-text-weight-semibold">
-                <td class="is-capitalized	">
+                <td class="is-capitalized">
                   {{ discount.label }}
                   <span
                     v-if="
                       (discount.units !== null) & (discount.unitPrice !== null)
                     "
                     class="has-text-grey"
-                    style="margin-left:1rem;"
+                    style="margin-left: 1rem"
                     >{{ discount.units }} x {{ discount.unitPrice }} €</span
                   >
                 </td>
@@ -160,23 +160,20 @@
               :key="transaction.id"
             >
               <tr>
-                <td
-                  class="has-text-success has-text-weight-semibold 
-                  "
-                >
+                <td class="has-text-success has-text-weight-semibold">
                   {{ transaction.label }}
                   <span
                     v-if="
                       (transaction.units !== null) &
-                        (transaction.unitPrice !== null)
+                      (transaction.unitPrice !== null)
                     "
                     class="has-text-grey"
-                    style="margin-left:1rem;"
+                    style="margin-left: 1rem"
                     >{{ transaction.units }} x
                     {{ transaction.unitPrice }} €</span
                   >
                 </td>
-                <td class="has-text-success has-text-weight-semibold ">
+                <td class="has-text-success has-text-weight-semibold">
                   -{{ transaction.totalPrice }} €
                 </td>
               </tr>
@@ -208,7 +205,7 @@
 
           <div
             class="container"
-            style="margin-bottom:1rem;"
+            style="margin-bottom: 1rem"
             v-for="deposit in tempInvoice.main.deposits"
             :key="deposit.id"
           >
@@ -216,7 +213,7 @@
               <div class="message-header">
                 <p>
                   <b-icon
-                    style="margin-right:0.5ch;display: inline-table;"
+                    style="margin-right: 0.5ch; display: inline-table"
                     pack="fas"
                     :icon="getDepositIcon(deposit.type)"
                     size="is-medium"
@@ -231,9 +228,7 @@
                 <span
                   :class="
                     'tag is-medium ' +
-                      (deposit.status === 'pending'
-                        ? 'is-warning'
-                        : 'is-success')
+                    (deposit.status === 'pending' ? 'is-warning' : 'is-success')
                   "
                 >
                   {{
@@ -301,7 +296,7 @@
                   <span class="tag is-light is-small">
                     {{ formatDate(tempInvoice.stay.arrivalDate, "human") }}
                     <b-icon
-                      style="margin-left:0.5ch;margin-right:0.5ch;"
+                      style="margin-left: 0.5ch; margin-right: 0.5ch"
                       pack="fas"
                       icon="clock"
                       size="is-small"
@@ -316,7 +311,7 @@
                   <span class="tag is-light is-small">
                     {{ formatDate(tempInvoice.stay.departureDate, "human") }}
                     <b-icon
-                      style="margin-left:0.5ch;margin-right:0.5ch;"
+                      style="margin-left: 0.5ch; margin-right: 0.5ch"
                       pack="fas"
                       icon="clock"
                       size="is-small"
@@ -331,7 +326,7 @@
                 <span
                   v-if="
                     tempInvoice.stay.guestAmount.min !=
-                      tempInvoice.stay.guestAmount.max
+                    tempInvoice.stay.guestAmount.max
                   "
                   class="tag is-dark is-small"
                 >
@@ -343,7 +338,7 @@
                 <span
                   v-if="
                     tempInvoice.stay.guestAmount.min ==
-                      tempInvoice.stay.guestAmount.max
+                    tempInvoice.stay.guestAmount.max
                   "
                   class="tag is-dark is-small"
                 >
@@ -490,7 +485,7 @@
                 <span class="has-text-grey has-text-weight-light"
                   >({{
                     (Math.round(tempInvoice.stay.tax.percentage * 1000) * 100) /
-                      1000
+                    1000
                   }}
                   %)</span
                 >
@@ -536,7 +531,7 @@
       <div
         v-if="
           (tempInvoice.meals.total > 0) &
-            (tempInvoice.meta.cateringNoPrint === false)
+          (tempInvoice.meta.cateringNoPrint === false)
         "
         class="A4 sheet stretchy-wrapper flex-container"
       >
@@ -653,7 +648,7 @@ import Vue from "vue";
 import Buefy from "buefy";
 import "buefy/dist/buefy.css";
 
-import marked from "marked";
+import { marked } from "marked";
 
 import moment from "moment";
 
@@ -662,7 +657,7 @@ import contract from "!raw-loader!@/assets/contract.md";
 Vue.use(Buefy);
 
 export default {
-  data: function() {
+  data: function () {
     return {
       state: this.$store.state,
       htmlContract: marked(contract),
@@ -678,7 +673,7 @@ export default {
   },
   computed: {},
   methods: {
-    getDepositIcon: function(depositType) {
+    getDepositIcon: function (depositType) {
       if (depositType === "cheque") {
         return "money-check-alt";
       } else if (depositType === "cash") {
@@ -689,7 +684,7 @@ export default {
         return "money-check-alt";
       }
     },
-    getStatusColor: function(bookingStatus) {
+    getStatusColor: function (bookingStatus) {
       if (bookingStatus === "inquiry") {
         return "is-warning";
       } else if (bookingStatus === "contract") {
@@ -702,28 +697,21 @@ export default {
         return "is-grey";
       }
     },
-    formatDate: function(date, format) {
+    formatDate: function (date, format) {
       if (format == "human") {
-        return moment(date)
-          .locale("fr")
-          .format("ddd D MMM YYYY");
+        return moment(date).locale("fr").format("ddd D MMM YYYY");
       } else if (format == "ddmmyyyy") {
         return moment.unix(date).format("DD/MM/YYYY");
       }
     },
-    humanFormatTime: function(date) {
+    humanFormatTime: function (date) {
       return moment(date).format("HH:mm");
     },
-    humanInvoiceDate: function(unixDate, format) {
+    humanInvoiceDate: function (unixDate, format) {
       if (format === "unix") {
-        return moment
-          .unix(unixDate)
-          .locale("fr")
-          .format("dddd D MMM");
+        return moment.unix(unixDate).locale("fr").format("dddd D MMM");
       } else {
-        return moment(unixDate)
-          .locale("fr")
-          .format("dddd D MMM");
+        return moment(unixDate).locale("fr").format("dddd D MMM");
       }
     },
   },
@@ -735,6 +723,7 @@ export default {
     }
     if (localStorage.getItem("tempInvoice")) {
       this.tempInvoice = JSON.parse(localStorage.getItem("tempInvoice"));
+      console.log(this.tempInvoice);
     } else {
       console.log("ERROR : no tempInvoice to load");
       this.tempInvoice = null;
