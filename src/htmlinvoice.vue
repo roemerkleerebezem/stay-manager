@@ -705,7 +705,7 @@ export default {
       }
     },
     humanFormatTime: function (date) {
-      return moment(date).format("HH:mm");
+      return moment(date).utcOffset(0).format("HH:mm");
     },
     humanInvoiceDate: function (unixDate, format) {
       if (format === "unix") {
