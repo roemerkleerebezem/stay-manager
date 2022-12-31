@@ -398,7 +398,7 @@
                 <td>{{ booking.meals }}</td>
                 <td>
                   <p>
-                    {{ booking.paid }} / {{ booking.total }} ({{
+                    {{ Math.round(booking.paid, 2) }} / {{ booking.total }} ({{
                       booking.value
                     }}) €
                   </p>
