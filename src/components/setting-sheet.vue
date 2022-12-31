@@ -16,7 +16,7 @@
                 >{{ setting.name }}
                 <div
                   v-if="setting.default"
-                  style="margin-left:1rem;"
+                  style="margin-left: 1rem"
                   class="tag is-warning"
                 >
                   DEFAULT
@@ -167,19 +167,28 @@
               :disabled="!editingCurrent"
             ></b-numberinput>
           </b-field>
+        </b-field>
 
-          <!-- TAX -->
-          <b-field label="Taxe de Sejour (%)">
-            <b-numberinput
-              icon-pack="fas"
-              v-model="currentSettings.prices.taxeSejour"
-              :controls="false"
-              min="0"
-              type="is-light"
-              :step="0.001"
-              :disabled="!editingCurrent"
-            ></b-numberinput>
-          </b-field>
+        <!-- TAX -->
+        <b-field label="Taxe de Sejour">
+          <b-numberinput
+            icon-pack="fas"
+            v-model="currentSettings.prices.taxeSejour.amount"
+            :controls="false"
+            min="0"
+            type="is-light"
+            :step="0.001"
+            :disabled="!editingCurrent"
+          ></b-numberinput>
+          <p class="control">
+            <b-select
+              v-model="currentSettings.prices.taxeSejour.type"
+              placeholder="Type"
+            >
+              <option value="%">%</option>
+              <option value="€">€</option>
+            </b-select>
+          </p>
         </b-field>
         <hr />
 
@@ -196,7 +205,7 @@
             :key="nights"
           >
             <b-numberinput
-              style="max-width:100px"
+              style="max-width: 100px"
               icon-pack="fas"
               v-model="currentSettings.discountPerNight[nights]"
               min="0"
@@ -220,7 +229,7 @@
           <b-field label="Check-in">
             <b-field grouped>
               <b-numberinput
-                style="max-width:100px"
+                style="max-width: 100px"
                 icon-pack="fas"
                 v-model="currentSettings.minArrivalTime.hour"
                 min="0"
@@ -231,7 +240,7 @@
               ></b-numberinput>
               <span class="is-size-4">:</span>
               <b-numberinput
-                style="max-width:100px"
+                style="max-width: 100px"
                 icon-pack="fas"
                 v-model="currentSettings.minArrivalTime.minute"
                 min="0"
@@ -246,7 +255,7 @@
           <b-field label="Check-out">
             <b-field grouped>
               <b-numberinput
-                style="max-width:100px"
+                style="max-width: 100px"
                 icon-pack="fas"
                 v-model="currentSettings.maxDepartureTime.hour"
                 min="0"
@@ -256,7 +265,7 @@
               ></b-numberinput>
               <span class="is-size-4">:</span>
               <b-numberinput
-                style="max-width:100px"
+                style="max-width: 100px"
                 icon-pack="fas"
                 v-model="currentSettings.maxDepartureTime.minute"
                 min="0"
@@ -420,15 +429,15 @@ export default {
     };
   },
   computed: {
-    currentSettings: function() {
+    currentSettings: function () {
       return this.$store.state.settings;
     },
-    nameExists: function() {
+    nameExists: function () {
       return this.fileSettings.some(
         (setting) => setting.name === this.currentSettings.name
       );
     },
-    notUpdatable: function() {
+    notUpdatable: function () {
       var savedSetting = this.fileSettings.find(
         (x) => x.name === this.currentSettings.name
       );
@@ -442,7 +451,7 @@ export default {
   },
 
   methods: {
-    deepEqual: function(a, b) {
+    deepEqual: function (a, b) {
       try {
         assert.deepEqual(a, b);
       } catch (error) {
@@ -454,7 +463,7 @@ export default {
       return true;
     },
 
-    setSetting: function(name) {
+    setSetting: function (name) {
       const settings = JSON.parse(JSON.stringify(this.fileSettings));
       Vue.set(
         this.$store.state,
@@ -462,7 +471,7 @@ export default {
         settings.find((x) => x.name === name)
       );
     },
-    saveSettings: async function(settings, action) {
+    saveSettings: async function (settings, action) {
       const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -478,10 +487,10 @@ export default {
         headers: headers,
         data: request,
       })
-        .then(function(response) {
+        .then(function (response) {
           return response.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
 

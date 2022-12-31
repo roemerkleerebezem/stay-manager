@@ -9,13 +9,42 @@ db = TinyDB("./database/mdm-stay-manager-db.json")
 
 import uuid
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+def updateOldDatabase():
+    db_data = db.all()
+    # Updates percentual staytax if needed
+    # 2022/12
+    for booking in db_data:
+        if (type(booking['settings']['prices']['taxeSejour']) == float) or (type(booking['settings']['prices']['taxeSejour']) == int):
+            booking['settings']['prices']['taxeSejour'] = {'type':"%", 'amount':booking['settings']['prices']['taxeSejour']}
+        if not "invoices" in booking:
+            booking['invoices'] = []
+        for invoice in booking['invoices']:
+            if 'percentage' in invoice['stay']['tax']:
+                invoice['stay']['tax']['amount'] = invoice['stay']['tax']['percentage']
+                invoice['stay']['tax']['type'] = "%"                
+                del invoice['stay']['tax']['percentage']
+        db.upsert(booking, Query().booking.uuid == booking['booking']['uuid'])
+
+    with open('setting-profiles.json') as json_file:
+        profiles = json.load(json_file)
+        for profile in profiles:
+            if type(profile['prices']['taxeSejour']) == float:
+                profile['prices']['taxeSejour']  = { "type": "%", "amount": profile['prices']['taxeSejour'] }
+
+    with open('setting-profiles.json', 'w') as json_file:
+        json.dump(profiles, json_file, ensure_ascii=False)
+
+    return 0
+
+updateOldDatabase();
+
 def updateSettingProfiles(settings, action):
     # Writes, deletes or updates setting profiles to the setting-profiles.json file
-    import json
 
     with open('setting-profiles.json') as json_file:
         profiles = json.load(json_file)
@@ -213,7 +242,7 @@ def getInvoiceObject(data, invoice):
                          - stayDiscount['total'] \
                          + stayExtraHours['total']
 
-    ## TAXE DE SEJOUR as night percentage
+    ## TAXE DE SEJOUR
     guests = {
         'total': sum([night['internal']['units'] for night in guestNights]),
         'min': min([(night['internal']['units'] + night['external']['units']) for night in guestNights]),
@@ -221,16 +250,27 @@ def getInvoiceObject(data, invoice):
     }
 
     if guests['total'] > 0:
-        stayTax = {
-            'percentage': settings['prices']['taxeSejour'],
-            'units': sum([night['internal']['adults'] for night in stayNightArray]),
-            'price': round(settings['prices']['taxeSejour'] * stayTotalBeforeTax / guests['total'], 2),
-            'total': round(settings['prices']['taxeSejour'] * sum([night['internal']['adults'] for night in stayNightArray]) * (
-                    stayTotalBeforeTax / guests['total']), 2)
-        }
+        if settings['prices']['taxeSejour']['type'] == "%":
+            stayTax = {
+                'type': settings['prices']['taxeSejour']['type'],
+                'amount': settings['prices']['taxeSejour']['amount'],
+                'units': sum([night['internal']['adults'] for night in stayNightArray]),
+                'price': round(settings['prices']['taxeSejour']['amount'] * stayTotalBeforeTax / guests['total'], 2),
+                'total': round(settings['prices']['taxeSejour']['amount'] * sum([night['internal']['adults'] for night in stayNightArray]) * (
+                        stayTotalBeforeTax / guests['total']), 2)
+            }
+        else :
+            stayTax = {
+                'type': settings['prices']['taxeSejour']['type'],
+                'amount': settings['prices']['taxeSejour']['amount'],
+                'units': sum([night['internal']['adults'] for night in stayNightArray]),
+                'price': settings['prices']['taxeSejour']['amount'],
+                'total': round(settings['prices']['taxeSejour']['amount'] * sum([night['internal']['adults'] for night in stayNightArray]), 2)
+            }
     else:
         stayTax = {
-            'percentage': settings['prices']['taxeSejour'],
+                'type': settings['prices']['taxeSejour']['type'],
+                'amount': settings['prices']['taxeSejour']['amount'],
             'units': 0,
             'price': 0,
             'total': 0,

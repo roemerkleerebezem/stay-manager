@@ -484,10 +484,12 @@
                 Taxe de séjour
                 <span class="has-text-grey has-text-weight-light"
                   >({{
-                    (Math.round(tempInvoice.stay.tax.percentage * 1000) * 100) /
-                    1000
+                    tempInvoice.stay.tax.type == "%"
+                      ? (Math.round(tempInvoice.stay.tax.amount * 1000) * 100) /
+                        1000
+                      : tempInvoice.stay.tax.amount
                   }}
-                  %)</span
+                  {{ tempInvoice.stay.tax.type }})</span
                 >
               </td>
               <td>{{ tempInvoice.stay.tax.units }}</td>
