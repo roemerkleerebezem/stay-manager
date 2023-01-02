@@ -290,6 +290,11 @@
                               {{ year }}
                             </b-checkbox>
                           </div>
+                          <div class="block">
+                            <b-checkbox v-model="cumulative">
+                              Cumulative
+                            </b-checkbox>
+                          </div>
                         </section>
                       </template>
 
@@ -491,6 +496,7 @@ export default {
       selectableYears: [],
       chartYears: [],
       heatmapEndDate: moment().year(),
+      cumulative: true,
       chartOptions: {
         responsive: true,
         plugins: {
@@ -607,6 +613,7 @@ export default {
     barChartData: function () {
       var selectedYears = this.chartYears;
       var bookingList = this.bookingList;
+      var cumulative = this.cumulative;
       if (bookingList.length == 0) {
         return {};
       } else {
@@ -624,7 +631,8 @@ export default {
                   moment.unix(booking.departureDate).month() == month &&
                   booking.status == status
                 ) {
-                  total += booking.value;
+                  total =
+                    cumulative == true ? total + booking.value : booking.value;
                 }
               });
               yearArray.push(total);
@@ -633,9 +641,7 @@ export default {
         }
 
         var multiYearDatasets = function (yearArray) {
-          var lastYear = moment
-            .unix(bookingList[bookingList.length - 1].departureDate)
-            .year();
+          var lastYear = moment().year();
           var datasets = [];
           var i = 0;
 
@@ -647,21 +653,21 @@ export default {
                 label: "completed",
                 data: getYear(bookingList, year, "completed"),
                 backgroundColor:
-                  "hsl(141, " + (year == lastYear ? 71 : 5) + "%, 48%)",
+                  "hsl(141, " + (year == lastYear ? 71 : 20) + "%, 40%)",
                 stack: year,
               },
               {
                 label: "contract",
                 data: getYear(bookingList, year, "contract"),
                 backgroundColor:
-                  "hsl(141, " + (year == lastYear ? 71 : 5) + "%, 48%)",
+                  "hsl(141, " + (year == lastYear ? 71 : 20) + "%, 50%)",
                 stack: year,
               },
               {
                 label: "inquiry",
                 data: getYear(bookingList, year, "inquiry"),
                 backgroundColor:
-                  "hsl(48, " + (year == lastYear ? 100 : 5) + "%, 67%)",
+                  "hsl(48, " + (year == lastYear ? 100 : 20) + "%, 67%)",
                 stack: year,
               }
             );

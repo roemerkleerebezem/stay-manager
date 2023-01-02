@@ -87,10 +87,44 @@
             </thead>
             <tbody>
               <tr v-if="tempInvoice.stay.total !== 0">
-                <td>Total sejour</td>
+                <td>Total séjour</td>
                 <td>
                   {{ tempInvoice.stay.total }}
                   €
+                  <span class="has-text-grey has-text-weight"
+                    >(<span
+                      v-if="
+                        Math.round(
+                          tempInvoice.stay.totalBeforeDiscount /
+                            tempInvoice.stay.guestAmount.total,
+                          2
+                        ) >
+                        Math.round(
+                          tempInvoice.stay.total /
+                            tempInvoice.stay.guestAmount.total,
+                          2
+                        )
+                      "
+                      style="text-decoration: line-through"
+                      >{{
+                        Math.round(
+                          tempInvoice.stay.totalBeforeDiscount /
+                            tempInvoice.stay.guestAmount.total,
+                          2
+                        )
+                      }}</span
+                    >
+                    <span class="has-text-success has-text-weight-bold">
+                      {{
+                        Math.round(
+                          tempInvoice.stay.total /
+                            tempInvoice.stay.guestAmount.total,
+                          2
+                        )
+                      }}€</span
+                    >
+                    /pers./nuit)</span
+                  >
                 </td>
               </tr>
 

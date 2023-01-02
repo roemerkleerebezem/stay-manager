@@ -30,13 +30,13 @@ def updateOldDatabase():
                 del invoice['stay']['tax']['percentage']
         db.upsert(booking, Query().booking.uuid == booking['booking']['uuid'])
 
-    with open('setting-profiles.json') as json_file:
+    with open('setting-profiles.json', encoding="utf-8") as json_file:
         profiles = json.load(json_file)
         for profile in profiles:
             if type(profile['prices']['taxeSejour']) == float:
                 profile['prices']['taxeSejour']  = { "type": "%", "amount": profile['prices']['taxeSejour'] }
 
-    with open('setting-profiles.json', 'w') as json_file:
+    with open('setting-profiles.json', 'w', encoding="utf-8") as json_file:
         json.dump(profiles, json_file, ensure_ascii=False)
 
     return 0
@@ -46,7 +46,7 @@ updateOldDatabase();
 def updateSettingProfiles(settings, action):
     # Writes, deletes or updates setting profiles to the setting-profiles.json file
 
-    with open('setting-profiles.json') as json_file:
+    with open('setting-profiles.json', encoding="utf-8") as json_file:
         profiles = json.load(json_file)
 
     updated = False
@@ -75,8 +75,8 @@ def updateSettingProfiles(settings, action):
         settings['default'] = False
         profiles.append(settings)
 
-    with open('setting-profiles.json', 'w') as json_file:
-      json.dump(profiles, json_file)
+    with open('setting-profiles.json', 'w', encoding="utf-8") as json_file:
+      json.dump(profiles, json_file, ensure_ascii=False)
 
     print([profile['invoiceData']['mainTableFooter'] for profile in profiles])
 
@@ -248,6 +248,7 @@ def getInvoiceObject(data, invoice):
         'min': min([(night['internal']['units'] + night['external']['units']) for night in guestNights]),
         'max': max([(night['internal']['units'] + night['external']['units']) for night in guestNights])
     }
+
 
     if guests['total'] > 0:
         if settings['prices']['taxeSejour']['type'] == "%":
