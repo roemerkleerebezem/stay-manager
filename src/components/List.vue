@@ -620,19 +620,19 @@ export default {
         // Chart data
         function getYear(bookingArray, year, status) {
           var yearArray = [];
+          var total = 0;
           Array(12)
             .fill()
             .map((x, i) => i)
             .forEach(function (month) {
-              var total = 0;
+              total = cumulative ? total : 0;
               bookingArray.forEach(function (booking, index) {
                 if (
                   moment.unix(booking.departureDate).year() == year &&
                   moment.unix(booking.departureDate).month() == month &&
                   booking.status == status
                 ) {
-                  total =
-                    cumulative == true ? total + booking.value : booking.value;
+                  total += booking.value;
                 }
               });
               yearArray.push(total);
@@ -641,7 +641,9 @@ export default {
         }
 
         var multiYearDatasets = function (yearArray) {
-          var lastYear = moment().year();
+          var lastYear = moment
+            .unix(bookingList[bookingList.length - 1].departureDate)
+            .year();
           var datasets = [];
           var i = 0;
 
@@ -650,21 +652,21 @@ export default {
 
             datasets.push(
               {
-                label: "completed",
+                label: "completed " + year,
                 data: getYear(bookingList, year, "completed"),
                 backgroundColor:
                   "hsl(141, " + (year == lastYear ? 71 : 20) + "%, 40%)",
                 stack: year,
               },
               {
-                label: "contract",
+                label: "contract " + year,
                 data: getYear(bookingList, year, "contract"),
                 backgroundColor:
                   "hsl(141, " + (year == lastYear ? 71 : 20) + "%, 50%)",
                 stack: year,
               },
               {
-                label: "inquiry",
+                label: "inquiry " + year,
                 data: getYear(bookingList, year, "inquiry"),
                 backgroundColor:
                   "hsl(48, " + (year == lastYear ? 100 : 20) + "%, 67%)",
