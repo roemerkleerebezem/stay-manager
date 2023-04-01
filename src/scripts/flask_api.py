@@ -2,46 +2,51 @@ import flask
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-
+import json
 from tinydb import TinyDB, Query
 
-db = TinyDB("./database/mdm-stay-manager-db.json")
+db_file = "./database/mdm-stay-manager-db.json"
 
 import uuid
 from datetime import datetime
-import json
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+
 def updateOldDatabase():
-    db_data = db.all()
-    # Updates percentual staytax if needed
-    # 2022/12
-    for booking in db_data:
-        if (type(booking['settings']['prices']['taxeSejour']) == float) or (type(booking['settings']['prices']['taxeSejour']) == int):
-            booking['settings']['prices']['taxeSejour'] = {'type':"%", 'amount':booking['settings']['prices']['taxeSejour']}
-        if not "invoices" in booking:
-            booking['invoices'] = []
-        for invoice in booking['invoices']:
-            if 'percentage' in invoice['stay']['tax']:
-                invoice['stay']['tax']['amount'] = invoice['stay']['tax']['percentage']
-                invoice['stay']['tax']['type'] = "%"                
-                del invoice['stay']['tax']['percentage']
-        db.upsert(booking, Query().booking.uuid == booking['booking']['uuid'])
+    with TinyDB(db_file) as db:
+        db_data = db.all()
+        # Updates percentual staytax if needed
+        # 2022/12
+        for booking in db_data:
+            if (type(booking['settings']['prices']['taxeSejour']) == float) or (
+                    type(booking['settings']['prices']['taxeSejour']) == int):
+                booking['settings']['prices']['taxeSejour'] = {'type': "%",
+                                                               'amount': booking['settings']['prices']['taxeSejour']}
+            if not "invoices" in booking:
+                booking['invoices'] = []
+            for invoice in booking['invoices']:
+                if 'percentage' in invoice['stay']['tax']:
+                    invoice['stay']['tax']['amount'] = invoice['stay']['tax']['percentage']
+                    invoice['stay']['tax']['type'] = "%"
+                    del invoice['stay']['tax']['percentage']
+            db.upsert(booking, Query().booking.uuid == booking['booking']['uuid'])
 
     with open('setting-profiles.json', encoding="utf-8") as json_file:
         profiles = json.load(json_file)
         for profile in profiles:
             if type(profile['prices']['taxeSejour']) == float:
-                profile['prices']['taxeSejour']  = { "type": "%", "amount": profile['prices']['taxeSejour'] }
+                profile['prices']['taxeSejour'] = {"type": "%", "amount": profile['prices']['taxeSejour']}
 
     with open('setting-profiles.json', 'w', encoding="utf-8") as json_file:
         json.dump(profiles, json_file, ensure_ascii=False)
 
     return 0
 
+
 updateOldDatabase();
+
 
 def updateSettingProfiles(settings, action):
     # Writes, deletes or updates setting profiles to the setting-profiles.json file
@@ -61,13 +66,12 @@ def updateSettingProfiles(settings, action):
             for profile in [profile for profile in profiles if (profile['name'] == settings['name'])]:
                 profile['default'] = to_replace[0]['default']
 
-
     for profile in profiles:
         if profile['name'] == settings['name']:
             if action == 'modify-setting':
                 profile['default'] = True
                 updated = True
-        else :
+        else:
             if (action == 'modify-setting'):
                 profile['default'] = False
 
@@ -76,15 +80,15 @@ def updateSettingProfiles(settings, action):
         profiles.append(settings)
 
     with open('setting-profiles.json', 'w', encoding="utf-8") as json_file:
-      json.dump(profiles, json_file, ensure_ascii=False)
+        json.dump(profiles, json_file, ensure_ascii=False)
 
     print([profile['invoiceData']['mainTableFooter'] for profile in profiles])
 
     return 0
 
+
 # Returns the data needed to populate the invoice
 def getInvoiceObject(data, invoice):
-    import dateutil.parser
     import math
 
     # current date and time
@@ -96,7 +100,7 @@ def getInvoiceObject(data, invoice):
     meta = invoice['meta']
 
     print = {
-        'catering':not invoice['meta']['cateringNoPrint'],
+        'catering': not invoice['meta']['cateringNoPrint'],
         'stay': not invoice['meta']['stayNoPrint'],
     }
 
@@ -144,7 +148,8 @@ def getInvoiceObject(data, invoice):
     meta['host'] = settings['invoiceData']['host']
     meta['property'] = settings['invoiceData']['property']
 
-    meta['invoiceIndex'] = f"{datetime.fromtimestamp(meta['creationDate']).year}-{str(datetime.fromtimestamp(meta['creationDate']).month).zfill(2)}-{str(booking['invoiceNumber']).zfill(3)}"
+    meta[
+        'invoiceIndex'] = f"{datetime.fromtimestamp(meta['creationDate']).year}-{str(datetime.fromtimestamp(meta['creationDate']).month).zfill(2)}-{str(booking['invoiceNumber']).zfill(3)}"
 
     stayNightArray = stay['stayNightArray']
 
@@ -202,7 +207,10 @@ def getInvoiceObject(data, invoice):
                               + petNights['total']
 
     ## DISCOUNT
-    discountPercentage = settings['discountPerNight'][str(len(stayNightArray))] if str(str(len(stayNightArray))) in settings['discountPerNight'] else max(settings['discountPerNight'].values())
+    discountPercentage = settings['discountPerNight'][str(len(stayNightArray))] if str(str(len(stayNightArray))) in \
+                                                                                   settings[
+                                                                                       'discountPerNight'] else max(
+        settings['discountPerNight'].values())
 
     stayDiscount = {
         'nights': len(stayNightArray),
@@ -249,7 +257,6 @@ def getInvoiceObject(data, invoice):
         'max': max([(night['internal']['units'] + night['external']['units']) for night in guestNights])
     }
 
-
     if guests['total'] > 0:
         if settings['prices']['taxeSejour']['type'] == "%":
             stayTax = {
@@ -257,21 +264,23 @@ def getInvoiceObject(data, invoice):
                 'amount': settings['prices']['taxeSejour']['amount'],
                 'units': sum([night['internal']['adults'] for night in stayNightArray]),
                 'price': round(settings['prices']['taxeSejour']['amount'] * stayTotalBeforeTax / guests['total'], 2),
-                'total': round(settings['prices']['taxeSejour']['amount'] * sum([night['internal']['adults'] for night in stayNightArray]) * (
-                        stayTotalBeforeTax / guests['total']), 2)
+                'total': round(settings['prices']['taxeSejour']['amount'] * sum(
+                    [night['internal']['adults'] for night in stayNightArray]) * (
+                                       stayTotalBeforeTax / guests['total']), 2)
             }
-        else :
+        else:
             stayTax = {
                 'type': settings['prices']['taxeSejour']['type'],
                 'amount': settings['prices']['taxeSejour']['amount'],
                 'units': sum([night['internal']['adults'] for night in stayNightArray]),
                 'price': settings['prices']['taxeSejour']['amount'],
-                'total': round(settings['prices']['taxeSejour']['amount'] * sum([night['internal']['adults'] for night in stayNightArray]), 2)
+                'total': round(settings['prices']['taxeSejour']['amount'] * sum(
+                    [night['internal']['adults'] for night in stayNightArray]), 2)
             }
     else:
         stayTax = {
-                'type': settings['prices']['taxeSejour']['type'],
-                'amount': settings['prices']['taxeSejour']['amount'],
+            'type': settings['prices']['taxeSejour']['type'],
+            'amount': settings['prices']['taxeSejour']['amount'],
             'units': 0,
             'price': 0,
             'total': 0,
@@ -291,7 +300,7 @@ def getInvoiceObject(data, invoice):
         'villa': villaNights,
         'guests': guestNights,
         'pets': petNights,
-        'extraHours':stayExtraHours,
+        'extraHours': stayExtraHours,
         'totalBeforeDiscount': round(stayTotalBeforeDiscount, 2),
         'discount': stayDiscount,
         'totalBeforeTax': round(stayTotalBeforeTax, 2),
@@ -363,7 +372,8 @@ def getInvoiceObject(data, invoice):
     mainTotal = stayInvoiceData['total'] + mealsInvoiceData['total'] + sum(
         [cost['totalPrice'] for cost in costs]) - sum([discount['totalPrice'] for discount in discounts])
     mainValue = stayInvoiceData['value'] + mealsInvoiceData['value'] + sum(
-        [cost['totalPrice'] for cost in costs]) - sum([discount['totalPrice'] for discount in discounts]) - sum([cost['totalPrice'] for cost in internalCosts])
+        [cost['totalPrice'] for cost in costs]) - sum([discount['totalPrice'] for discount in discounts]) - sum(
+        [cost['totalPrice'] for cost in internalCosts])
 
     mainToPay = mainTotal - sum([transaction['totalPrice'] for transaction in transactions])
     mainValueToPay = mainValue - sum([transaction['totalPrice'] for transaction in transactions])
@@ -373,9 +383,9 @@ def getInvoiceObject(data, invoice):
         'status': booking['status'],
         'contact': contact,
         'total': round(mainTotal, 2),
-        'costs':costs,
-        'transactions':transactions,
-        'discounts':discounts,
+        'costs': costs,
+        'transactions': transactions,
+        'discounts': discounts,
         'toPay': round(mainToPay, 2),
         'value': round(mainValue, 2),
         'valueToPay': round(mainValueToPay, 2),
@@ -390,6 +400,7 @@ def getInvoiceObject(data, invoice):
     }
 
     return invoiceData
+
 
 # Handle and update invoice data
 def handleInvoiceData(request_json):
@@ -411,7 +422,8 @@ def handleInvoiceData(request_json):
 
         elif (action == "save") & (data["booking"]["uuid"] != None):
             try:
-                db.upsert(data, Query().booking.uuid == data['booking']['uuid'])
+                with TinyDB(db_file) as db:
+                    db.upsert(data, Query().booking.uuid == data['booking']['uuid'])
                 synced = True
             except:
                 synced = False
@@ -419,7 +431,8 @@ def handleInvoiceData(request_json):
             data["booking"]['uuid'] = str(uuid.uuid4())
         else:
             bookingUuid = data["booking"]['uuid']
-            storedBooking = db.search(Query().booking.uuid == bookingUuid)
+            with TinyDB(db_file) as db:
+                storedBooking = db.search(Query().booking.uuid == bookingUuid)
             if len(storedBooking) == 1:
                 if action == "retrieve":
                     data = storedBooking[0]
@@ -440,10 +453,9 @@ def handleInvoiceData(request_json):
 
 
 @app.route('/api', methods=['GET'])
-
-
 def get_bookings():
-    db_data = db.all()
+    with TinyDB(db_file) as db:
+        db_data = db.all()
 
     bookingList = []
 
@@ -461,28 +473,26 @@ def get_bookings():
         }
         invoice = getInvoiceObject(booking, tempInvoice)
 
-
-
         temp_booking = {
-            'status':invoice['main']['status'],
-            'source':booking['booking']['source'],
-            'uuid':booking['booking']['uuid'],
-            'invoiceNumber':invoice['meta']['invoiceNumber'],
-            'arrivalDate':datetime.timestamp(invoice['stay']['arrivalDate']),
-            'arrivalTime':datetime.timestamp(invoice['stay']['arrivalTime']),
-            'departureDate':datetime.timestamp(invoice['stay']['departureDate']),
-            'departureTime':datetime.timestamp(invoice['stay']['departureTime']),
-            'nights':len(invoice['stay']['guests']),
+            'status': invoice['main']['status'],
+            'source': booking['booking']['source'],
+            'uuid': booking['booking']['uuid'],
+            'invoiceNumber': invoice['meta']['invoiceNumber'],
+            'arrivalDate': datetime.timestamp(invoice['stay']['arrivalDate']),
+            'arrivalTime': datetime.timestamp(invoice['stay']['arrivalTime']),
+            'departureDate': datetime.timestamp(invoice['stay']['departureDate']),
+            'departureTime': datetime.timestamp(invoice['stay']['departureTime']),
+            'nights': len(invoice['stay']['guests']),
             'minGuests': invoice['stay']['guestAmount']['min'],
             'maxGuests': invoice['stay']['guestAmount']['max'],
             'tax': invoice['stay']['tax']['total'],
             'taxNights': invoice['stay']['tax']['units'],
-            'meals':len(invoice['meals']['meals']),
-            'name':invoice['main']['contact']['name'],
+            'meals': len(invoice['meals']['meals']),
+            'name': invoice['main']['contact']['name'],
             'rating': booking['contact']['rating'],
-            'value':invoice['main']['value'],
-            'total':invoice['main']['total'],
-            'paid':invoice['main']['total'] - invoice['main']['toPay']
+            'value': invoice['main']['value'],
+            'total': invoice['main']['total'],
+            'paid': invoice['main']['total'] - invoice['main']['toPay']
         }
         bookingList.append(temp_booking)
 
@@ -501,7 +511,6 @@ def send_data():
     response = flask.jsonify(response_json)
 
     return response
-
 
 
 if __name__ == '__main__':
