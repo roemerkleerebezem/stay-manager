@@ -940,7 +940,6 @@ export default {
 
     getApiBookings: async function (action) {
       const headers = {
-        "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
       };
 
@@ -948,7 +947,7 @@ export default {
 
       var bookingList = await axios({
         method: "get",
-        url: "http://localhost:5000/api",
+        url: "/api",
         headers: headers,
       })
         .then(function (response) {
